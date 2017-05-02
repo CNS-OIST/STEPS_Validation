@@ -11,14 +11,12 @@
 
 import datetime
 import steps.model as smodel
-import math
-import numpy
+import numpy as np
 import steps.solver as solvmod
 import steps.utilities.meshio as smeshio
 import steps.geom as stetmesh
 import steps.rng as srng
 import time
-import pylab
 
 from tol_funcs import *
 
@@ -46,12 +44,12 @@ SAMPLE = 32552	 # all tets
 MESHFILE = 'sphere_rad10_33Ktets_adaptive'
 
 # create the array of tet indices to be found at random
-tetidxs = numpy.zeros(SAMPLE, dtype = 'int')
+tetidxs = np.zeros(SAMPLE, dtype = 'int')
 for i in range(SAMPLE): tetidxs[i] = i
 
 # further create the array of tet barycentre distance to centre
-tetrads = numpy.zeros(SAMPLE)
-tetvols = numpy.zeros(SAMPLE)
+tetrads = np.zeros(SAMPLE)
+tetvols = np.zeros(SAMPLE)
 
 ########################################################################
 
@@ -80,8 +78,8 @@ def gen_geom():
     cbaryc = mesh.getTetBarycenter(ctetidx)
     for i in range(SAMPLE):
         baryc = mesh.getTetBarycenter(int(tetidxs[i]))
-        r2 = math.pow((baryc[0]-cbaryc[0]),2) + math.pow((baryc[1]-cbaryc[1]),2) + math.pow((baryc[2]-cbaryc[2]),2)
-        r = math.sqrt(r2)
+        r2 = np.power((baryc[0]-cbaryc[0]),2) + np.power((baryc[1]-cbaryc[1]),2) + np.power((baryc[2]-cbaryc[2]),2)
+        r = np.sqrt(r2)
         # Conver to microns
         tetrads[i] = r*1.0e6
         tetvols[i] = mesh.getTetVol(int(tetidxs[i]))
@@ -100,11 +98,11 @@ ntets = g.countTets()
 
 sim = solvmod.Tetexact(m, g, rng)
 
-tpnts = numpy.arange(0.0, INT, DT)
+tpnts = np.arange(0.0, INT, DT)
 ntpnts = tpnts.shape[0]
 
 #Create the big old data structure: iterations x time points x concentrations
-res = numpy.zeros((NITER, ntpnts, SAMPLE))
+res = np.zeros((NITER, ntpnts, SAMPLE))
 
 sim.reset()
 sim.setTetCount(ctetidx, 'X', NINJECT)

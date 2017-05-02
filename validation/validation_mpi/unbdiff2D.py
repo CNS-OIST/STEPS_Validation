@@ -35,8 +35,7 @@ import steps.geom as stetmesh
 import steps.rng as srng
 
 
-import math
-import numpy
+import numpy as np
 import time
 import datetime
 
@@ -100,8 +99,8 @@ def gen_geom():
     patch = stetmesh.TmPatch('patch', mesh, patch_tris, icomp = comp)
     patch.addSurfsys('ssys')
     
-    trirads = numpy.zeros(patch_tris_n)
-    triareas = numpy.zeros(patch_tris_n)
+    trirads = np.zeros(patch_tris_n)
+    triareas = np.zeros(patch_tris_n)
                 
     # TRy to find the central tri
     ctet_trineighbs = mesh.getTetTriNeighb(ctetidx)
@@ -114,8 +113,8 @@ def gen_geom():
     cbaryc = mesh.getTriBarycenter(ctri_idx)
     for i in range(patch_tris_n):
         baryc = mesh.getTriBarycenter(patch_tris[i])
-        r2 = math.pow((baryc[0]-cbaryc[0]),2) + math.pow((baryc[1]-cbaryc[1]),2) + math.pow((baryc[2]-cbaryc[2]),2)
-        r = math.sqrt(r2)
+        r2 = np.power((baryc[0]-cbaryc[0]),2) + np.power((baryc[1]-cbaryc[1]),2) + np.power((baryc[2]-cbaryc[2]),2)
+        r = np.sqrt(r2)
         # Conver to microns
         trirads[i] = r*1.0e6
         triareas[i] = mesh.getTriArea(patch_tris[i])
@@ -137,13 +136,13 @@ if steps.mpi.rank ==0:
 
 sim = solvmod.TetOpSplit(m, g, rng, False, tet_hosts, tri_hosts)
 
-tpnts = numpy.arange(0.0, INT, DT)
+tpnts = np.arange(0.0, INT, DT)
 ntpnts = tpnts.shape[0]
 
 #Create the big old data structure: iterations x time points x concentrations
 if steps.mpi.rank ==0:
-    res_count = numpy.zeros((NITER, ntpnts, patch_tris_n))
-    res_conc = numpy.zeros((NITER, ntpnts, patch_tris_n))
+    res_count = np.zeros((NITER, ntpnts, patch_tris_n))
+    res_conc = np.zeros((NITER, ntpnts, patch_tris_n))
 
 for j in range(NITER):
     sim.reset()
@@ -164,8 +163,8 @@ nreac = sim.getReacExtent()
 
 
 if steps.mpi.rank == 0:
-    itermeans_count = numpy.mean(res_count, axis = 0)
-    itermeans_conc = numpy.mean(res_conc, axis = 0)
+    itermeans_count = np.mean(res_count, axis = 0)
+    itermeans_conc = np.mean(res_conc, axis = 0)
 
 
     tpnt_compare = [12, 16, 20]
@@ -184,9 +183,9 @@ if steps.mpi.rank == 0:
         r_min = 0.0
         
         r_seg = (r_max-r_min)/bin_n
-        bin_mins = numpy.zeros(bin_n+1)
-        r_tris_binned = numpy.zeros(bin_n)
-        bin_areas = numpy.zeros(bin_n)    
+        bin_mins = np.zeros(bin_n+1)
+        r_tris_binned = np.zeros(bin_n)
+        bin_areas = np.zeros(bin_n)    
         
         r = r_min
         for b in range(bin_n + 1):
@@ -203,7 +202,7 @@ if steps.mpi.rank == 0:
                     bin_areas[b]+=sim.getTriArea(int(patch_tris[i]))
                     break
         
-        bin_concs = numpy.zeros(bin_n)
+        bin_concs = np.zeros(bin_n)
         for c in range(bin_n): 
             for d in range(bin_counts[c].__len__()):
                 bin_concs[c] += bin_counts[c][d]
@@ -212,7 +211,7 @@ if steps.mpi.rank == 0:
         for i in range(bin_n):
             if (r_tris_binned[i] > 2.0 and r_tris_binned[i] < 5.0):
                 rad = r_tris_binned[i]*1.0e-6
-                det_conc = 1.0e-12*(NINJECT/(4*math.pi*DCST*tpnts[t]))*(math.exp((-1.0*(rad*rad))/(4*DCST*tpnts[t])))
+                det_conc = 1.0e-12*(NINJECT/(4*np.pi*DCST*tpnts[t]))*(np.exp((-1.0*(rad*rad))/(4*DCST*tpnts[t])))
                 steps_conc = bin_concs[i]
                 if tolerable(det_conc, steps_conc, tolerance):
                     passed = True

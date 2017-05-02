@@ -6,13 +6,11 @@ import steps.mpi.solver as solvmod
 import steps.utilities.geom_decompose as gd
 import copy
 import steps.model as smodel
-import math
-import numpy
+import numpy as np
 import steps.utilities.meshio as smeshio
 import steps.geom as stetmesh
 import steps.rng as srng
 import time
-import pylab
 
 from tol_funcs import *
 
@@ -61,7 +59,7 @@ def gen_geom():
     patch_tris = []
     for t in alltris:
         baryc = mesh.getTriBarycenter(t)
-        rad = math.sqrt(math.pow(baryc[0], 2)+math.pow(baryc[1], 2))
+        rad = np.sqrt(np.power(baryc[0], 2)+np.power(baryc[1], 2))
         # By checking the cubit mesh the outer tris fall in the following bound
         if rad > 0.00000995 and rad < 0.00001001: patch_tris.append(t)    
                 
@@ -79,13 +77,13 @@ def gen_geom():
     measure_tris_n = len(measure_tris)
 
     # Now find the distances along the edge for all tris
-    tridists = numpy.zeros(measure_tris_n)
-    triareas = numpy.zeros(measure_tris_n)
+    tridists = np.zeros(measure_tris_n)
+    triareas = np.zeros(measure_tris_n)
     
     for i in range(measure_tris_n):
         baryc = mesh.getTriBarycenter(measure_tris[i])
-        rad = math.sqrt(math.pow(baryc[0], 2)+math.pow(baryc[1], 2))
-        theta = math.atan2(baryc[1], baryc[0])
+        rad = np.sqrt(np.power(baryc[0], 2)+np.power(baryc[1], 2))
+        theta = np.arctan2(baryc[1], baryc[0])
         
         tridists[i] = theta*rad*1e6
         triareas[i] = mesh.getTriArea(measure_tris[i])
@@ -108,13 +106,13 @@ if steps.mpi.rank ==0:
 
 sim = solvmod.TetOpSplit(m, g, rng, False, tet_hosts, tri_hosts)
 
-tpnts = numpy.arange(0.0, INT, DT)
+tpnts = np.arange(0.0, INT, DT)
 ntpnts = tpnts.shape[0]
 
 #Create the big old data structure: iterations x time points x concentrations
 if steps.mpi.rank ==0:
-    res_count = numpy.zeros((NITER, ntpnts, measure_tris_n))
-    res_conc = numpy.zeros((NITER, ntpnts, measure_tris_n))
+    res_count = np.zeros((NITER, ntpnts, measure_tris_n))
+    res_conc = np.zeros((NITER, ntpnts, measure_tris_n))
 
 for j in range(NITER):
     #if steps.mpi.rank == 0: print "iteration: ", j , "/", NITER
@@ -139,8 +137,8 @@ nreac = sim.getReacExtent()
 if steps.mpi.rank == 0:
     passed = False
     force_end = False
-    itermeans_count = numpy.mean(res_count, axis = 0)
-    itermeans_conc = numpy.mean(res_conc, axis = 0)
+    itermeans_count = np.mean(res_count, axis = 0)
+    itermeans_conc = np.mean(res_conc, axis = 0)
 
     tpnt_compare = [100, 150]
 
@@ -159,9 +157,9 @@ if steps.mpi.rank == 0:
             if (i < r_min): r_min = i
         
         r_seg = (r_max-r_min)/bin_n
-        bin_mins = numpy.zeros(bin_n+1)
-        r_tris_binned = numpy.zeros(bin_n)
-        bin_areas = numpy.zeros(bin_n)    
+        bin_mins = np.zeros(bin_n+1)
+        r_tris_binned = np.zeros(bin_n)
+        bin_areas = np.zeros(bin_n)    
         
         r = r_min
         for b in range(bin_n + 1):
@@ -178,7 +176,7 @@ if steps.mpi.rank == 0:
                     bin_areas[b]+=sim.getTriArea(int(measure_tris[i]))
                     break
         
-        bin_concs = numpy.zeros(bin_n)
+        bin_concs = np.zeros(bin_n)
         for c in range(bin_n): 
             for d in range(bin_counts[c].__len__()):
                 bin_concs[c] += bin_counts[c][d]
@@ -188,7 +186,7 @@ if steps.mpi.rank == 0:
             if (r_tris_binned[i] > -10.0 and r_tris_binned[i] < -2.0) \
             or (r_tris_binned[i] > 2.0 and r_tris_binned[i] < 10.0):
                 dist = r_tris_binned[i]*1e-6
-                det_conc = 1e-6*(NINJECT/(4*math.sqrt((math.pi*DCST*tpnts[t]))))*(math.exp((-1.0*(dist*dist))/(4*DCST*tpnts[t])))	
+                det_conc = 1e-6*(NINJECT/(4*np.sqrt((np.pi*DCST*tpnts[t]))))*(np.exp((-1.0*(dist*dist))/(4*DCST*tpnts[t])))	
                 steps_conc = bin_concs[i]
                 if tolerable(det_conc, steps_conc, tolerance):
                     passed = True

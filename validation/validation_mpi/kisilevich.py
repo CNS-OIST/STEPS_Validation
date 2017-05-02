@@ -32,10 +32,8 @@ import steps.model as smod
 import steps.geom as sgeom
 import steps.rng as srng
 
-import math
 import time 
-import numpy
-from pylab import *
+import numpy as np
 import steps.utilities.meshio as meshio
 
 from tol_funcs import *
@@ -62,9 +60,9 @@ tolerance = 7.5/100
 
 
 # create the array of tet indices to be found at random
-tetidxs = numpy.zeros(SAMPLE, dtype = 'int')
+tetidxs = np.zeros(SAMPLE, dtype = 'int')
 # further create the array of tet barycentre distance to centre
-tetrads = numpy.zeros(SAMPLE)
+tetrads = np.zeros(SAMPLE)
 
 ########################################################################
 rng = srng.create('r123', 512) 
@@ -155,11 +153,11 @@ if steps.mpi.rank ==0:
 
 sim = solvmod.TetOpSplit(mdl, mesh, rng, False, tet_hosts)
 
-tpnts = numpy.arange(0.0, INT, DT)
+tpnts = np.arange(0.0, INT, DT)
 ntpnts = tpnts.shape[0]
 if steps.mpi.rank == 0:
-    resA = numpy.zeros((NITER, ntpnts, SAMPLE))
-    resB = numpy.zeros((NITER, ntpnts, SAMPLE))
+    resA = np.zeros((NITER, ntpnts, SAMPLE))
+    resB = np.zeros((NITER, ntpnts, SAMPLE))
 
 
 
@@ -198,14 +196,14 @@ def getdetc(t, x):
     
     concA  = 0.0
     for n in range(N):
-        concA+= ((1.0/(2*n +1))*math.exp((-(DCSTA/(20.0e-6))*math.pow((2*n +1), 2)*math.pow(math.pi, 2)*t)/(4*L))*math.sin(((2*n +1)*math.pi*x)/(2*L)))
-    concA*=((4*NA0/math.pi)/(VOLA*6.022e26))*1.0e6	
+        concA+= ((1.0/(2*n +1))*np.exp((-(DCSTA/(20.0e-6))*np.power((2*n +1), 2)*np.power(np.pi, 2)*t)/(4*L))*np.sin(((2*n +1)*np.pi*x)/(2*L)))
+    concA*=((4*NA0/np.pi)/(VOLA*6.022e26))*1.0e6	
     
     return concA
 
 if steps.mpi.rank == 0:
-    itermeansA = numpy.mean(resA, axis=0)
-    itermeansB = numpy.mean(resB, axis=0)
+    itermeansA = np.mean(resA, axis=0)
+    itermeansB = np.mean(resB, axis=0)
     passed = False
     force_end = False
 
@@ -222,10 +220,10 @@ if steps.mpi.rank == 0:
             if (r < radmin) : radmin = r
         
         rsec = (radmax-radmin)/NBINS
-        binmins = numpy.zeros(NBINS+1)
-        tetradsbinned = numpy.zeros(NBINS)
+        binmins = np.zeros(NBINS+1)
+        tetradsbinned = np.zeros(NBINS)
         r = radmin
-        bin_vols = numpy.zeros(NBINS)
+        bin_vols = np.zeros(NBINS)
         
         for b in range(NBINS+1):
             binmins[b] = r
@@ -258,8 +256,8 @@ if steps.mpi.rank == 0:
                     filled+=1.0
                     break
         
-        bin_concsA = numpy.zeros(NBINS)
-        bin_concsB = numpy.zeros(NBINS)
+        bin_concsA = np.zeros(NBINS)
+        bin_concsB = np.zeros(NBINS)
         
         for c in range(NBINS): 
             for d in range(bin_countsA[c].__len__()):

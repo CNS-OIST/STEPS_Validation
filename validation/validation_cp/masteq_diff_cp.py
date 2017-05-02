@@ -10,10 +10,8 @@
   
 ########################################################################
 
-import math
-import numpy
+import numpy as np
 import time 
-from pylab import *
 
 import steps.model as smod
 import steps.geom as sgeom
@@ -73,12 +71,12 @@ rng.initialize(int(time.time()%4294967295))
 sim = ssolv.Tetexact(mdl, geom, rng)
 sim.reset()
 
-tpnts = numpy.arange(0.0, INT, DT)
+tpnts = np.arange(0.0, INT, DT)
 ntpnts = tpnts.shape[0]
 
-res = numpy.zeros([ntpnts])
-res_std1 = numpy.zeros([ntpnts])
-res_std2 = numpy.zeros([ntpnts])
+res = np.zeros([ntpnts])
+res_std1 = np.zeros([ntpnts])
+res_std2 = np.zeros([ntpnts])
 
 sim.reset()
 sim.setCompCount('comp1', 'A', 0)

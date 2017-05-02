@@ -34,8 +34,7 @@ import steps.rng as srng
 
 import datetime
 import time
-import math
-import numpy
+import numpy as np
 
 from tol_funcs import *
 
@@ -73,12 +72,12 @@ def setup_module():
     MESHFILE = 'sphere_rad10_77Ktets'
 
     # create the array of tet indices to be found at random
-    tetidxs = numpy.zeros(SAMPLE, dtype = 'int')
+    tetidxs = np.zeros(SAMPLE, dtype = 'int')
     for i in range(SAMPLE): tetidxs[i] = i
 
     # further create the array of tet barycentre distance to centre
-    tetrads = numpy.zeros(SAMPLE)
-    tetvols = numpy.zeros(SAMPLE)
+    tetrads = np.zeros(SAMPLE)
+    tetvols = np.zeros(SAMPLE)
 
 ########################################################################
 
@@ -126,12 +125,12 @@ def gen_geom():
         maxY3 = 0.0
         maxZ3 = 0.0
         
-        if (max[0] > -min[0]) : maxX3 = abs(math.pow(max[0], 1.0/3))
-        else : maxX3 = abs(math.pow(abs(min[0]), 1.0/3))
-        if (max[1] > -min[1]) : maxY3 = abs(math.pow(max[1], 1.0/3))
-        else : maxY3 = abs(math.pow(abs(min[1]), 1.0/3))
-        if (max[2] > -min[2]) : maxZ3 = abs(math.pow(max[2], 1.0/3))
-        else : maxZ3 = abs(math.pow(abs(min[2]), 1.0/3))
+        if (max[0] > -min[0]) : maxX3 = abs(np.power(max[0], 1.0/3))
+        else : maxX3 = abs(np.power(abs(min[0]), 1.0/3))
+        if (max[1] > -min[1]) : maxY3 = abs(np.power(max[1], 1.0/3))
+        else : maxY3 = abs(np.power(abs(min[1]), 1.0/3))
+        if (max[2] > -min[2]) : maxZ3 = abs(np.power(max[2], 1.0/3))
+        else : maxZ3 = abs(np.power(abs(min[2]), 1.0/3))
         
         rnx = rng.getUnfII()
         rny = rng.getUnfII()
@@ -141,14 +140,14 @@ def gen_geom():
         signy = rng.getUnfII()
         signz = rng.getUnfII()
         
-        if (signx >= 0.5) : xpnt = math.pow((maxX3*rnx), 3)
-        else : xpnt = -(math.pow((maxX3*rnx), 3))
+        if (signx >= 0.5) : xpnt = np.power((maxX3*rnx), 3)
+        else : xpnt = -(np.power((maxX3*rnx), 3))
         
-        if (signy >= 0.5) : ypnt = math.pow((maxY3*rny), 3)
-        else : ypnt = -(math.pow((maxY3*rny), 3))
+        if (signy >= 0.5) : ypnt = np.power((maxY3*rny), 3)
+        else : ypnt = -(np.power((maxY3*rny), 3))
         
-        if (signz >= 0.5) : zpnt = math.pow((maxZ3*rnz), 3)
-        else : zpnt = -(math.pow((maxZ3*rnz), 3))
+        if (signz >= 0.5) : zpnt = np.power((maxZ3*rnz), 3)
+        else : zpnt = -(np.power((maxZ3*rnz), 3))
         
         idx = mesh.findTetByPoint([xpnt, ypnt, zpnt])
         
@@ -163,8 +162,8 @@ def gen_geom():
     cbaryc = mesh.getTetBarycenter(ctetidx)
     for i in range(SAMPLE):
         baryc = mesh.getTetBarycenter(int(tetidxs[i]))
-        r2 = math.pow((baryc[0]-cbaryc[0]),2) + math.pow((baryc[1]-cbaryc[1]),2) + math.pow((baryc[2]-cbaryc[2]),2)
-        r = math.sqrt(r2)
+        r2 = np.power((baryc[0]-cbaryc[0]),2) + np.power((baryc[1]-cbaryc[1]),2) + np.power((baryc[2]-cbaryc[2]),2)
+        r = np.sqrt(r2)
         # Conver to microns
         tetrads[i] = r*1.0e6
         tetvols[i] = mesh.getTetVol(int(tetidxs[i]))
@@ -187,11 +186,11 @@ def test_unbdiff_ode():
     sim = solvmod.TetODE(m, g)
     sim.setTolerances(1e-7, 1e-7)
 
-    tpnts = numpy.arange(0.0, INT, DT)
+    tpnts = np.arange(0.0, INT, DT)
     ntpnts = tpnts.shape[0]
 
     #Create the big old data structure: iterations x time points x concentrations
-    res = numpy.zeros((NITER, ntpnts, SAMPLE))
+    res = np.zeros((NITER, ntpnts, SAMPLE))
 
     for j in range(NITER):
         sim.setTetCount(ctetidx, 'X', NINJECT)
@@ -200,7 +199,7 @@ def test_unbdiff_ode():
             for k in range(SAMPLE):
                 res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
                 
-    itermeans = numpy.mean(res, axis = 0)
+    itermeans = np.mean(res, axis = 0)
 
     tpnt_compare = [10, 15, 20]
     passed = True
@@ -213,9 +212,9 @@ def test_unbdiff_ode():
         r_min = 0.0
         
         r_seg = (r_max-r_min)/bin_n
-        bin_mins = numpy.zeros(bin_n+1)
-        r_tets_binned = numpy.zeros(bin_n)
-        bin_vols = numpy.zeros(bin_n)    
+        bin_mins = np.zeros(bin_n+1)
+        r_tets_binned = np.zeros(bin_n)
+        bin_vols = np.zeros(bin_n)    
         
         r = r_min
         for b in range(bin_n + 1):
@@ -232,7 +231,7 @@ def test_unbdiff_ode():
                     bin_vols[b]+=sim.getTetVol(int(tetidxs[i]))
                     break
         
-        bin_concs = numpy.zeros(bin_n)
+        bin_concs = np.zeros(bin_n)
         for c in range(bin_n): 
             for d in range(bin_counts[c].__len__()):
                 bin_concs[c] += bin_counts[c][d]
@@ -241,7 +240,7 @@ def test_unbdiff_ode():
         for i in range(bin_n):
             if (r_tets_binned[i] > 2.0 and r_tets_binned[i] < 6.0):
                 rad = r_tets_binned[i]*1.0e-6
-                det_conc = 1e-18*((NINJECT/(math.pow((4*math.pi*DCST*tpnts[t]),1.5)))*(math.exp((-1.0*(rad*rad))/(4*DCST*tpnts[t]))))
+                det_conc = 1e-18*((NINJECT/(np.power((4*np.pi*DCST*tpnts[t]),1.5)))*(np.exp((-1.0*(rad*rad))/(4*DCST*tpnts[t]))))
                 steps_conc = bin_concs[i]
                 assert tolerable(det_conc, steps_conc, tolerance)
 

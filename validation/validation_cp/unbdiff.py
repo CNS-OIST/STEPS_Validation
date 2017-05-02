@@ -11,14 +11,12 @@
 
 import datetime
 import steps.model as smodel
-import math
-import numpy
+import numpy as np
 import steps.solver as solvmod
 import steps.utilities.meshio as smeshio
 import steps.geom as stetmesh
 import steps.rng as srng
 import time
-import pylab
 
 from tol_funcs import *
 
@@ -52,12 +50,12 @@ def test_ubdiff():
     MESHFILE = 'sphere_rad10_33Ktets_adaptive'
 
     # create the array of tet indices to be found at random
-    tetidxs = numpy.zeros(SAMPLE, dtype = 'int')
+    tetidxs = np.zeros(SAMPLE, dtype = 'int')
     for i in range(SAMPLE): tetidxs[i] = i
 
     # further create the array of tet barycentre distance to centre
-    tetrads = numpy.zeros(SAMPLE)
-    tetvols = numpy.zeros(SAMPLE)
+    tetrads = np.zeros(SAMPLE)
+    tetvols = np.zeros(SAMPLE)
 
     ########################################################################
 
@@ -86,8 +84,8 @@ def test_ubdiff():
         cbaryc = mesh.getTetBarycenter(ctetidx)
         for i in range(SAMPLE):
             baryc = mesh.getTetBarycenter(int(tetidxs[i]))
-            r2 = math.pow((baryc[0]-cbaryc[0]),2) + math.pow((baryc[1]-cbaryc[1]),2) + math.pow((baryc[2]-cbaryc[2]),2)
-            r = math.sqrt(r2)
+            r2 = np.power((baryc[0]-cbaryc[0]),2) + np.power((baryc[1]-cbaryc[1]),2) + np.power((baryc[2]-cbaryc[2]),2)
+            r = np.sqrt(r2)
             # Conver to microns
             tetrads[i] = r*1.0e6
             tetvols[i] = mesh.getTetVol(int(tetidxs[i]))
@@ -106,11 +104,11 @@ def test_ubdiff():
 
     sim = solvmod.Tetexact(m, g, rng)
 
-    tpnts = numpy.arange(0.0, INT, DT)
+    tpnts = np.arange(0.0, INT, DT)
     ntpnts = tpnts.shape[0]
 
     #Create the big old data structure: iterations x time points x concentrations
-    res = numpy.zeros((NITER, ntpnts, SAMPLE))
+    res = np.zeros((NITER, ntpnts, SAMPLE))
 
     for j in range(NITER):
         sim.restore('./validation_cp/cp/unbdiff')
@@ -120,7 +118,7 @@ def test_ubdiff():
                 res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
     #print '%d / %d' % (j + 1, NITER)
 
-    itermeans = numpy.mean(res, axis = 0)
+    itermeans = np.mean(res, axis = 0)
 
 
     tpnt_compare = [10, 15, 20]
@@ -134,9 +132,9 @@ def test_ubdiff():
         r_min = 0.0
         
         r_seg = (r_max-r_min)/bin_n
-        bin_mins = numpy.zeros(bin_n+1)
-        r_tets_binned = numpy.zeros(bin_n)
-        bin_vols = numpy.zeros(bin_n)    
+        bin_mins = np.zeros(bin_n+1)
+        r_tets_binned = np.zeros(bin_n)
+        bin_vols = np.zeros(bin_n)    
         
         r = r_min
         for b in range(bin_n + 1):
@@ -153,7 +151,7 @@ def test_ubdiff():
                     bin_vols[b]+=sim.getTetVol(int(tetidxs[i]))
                     break
         
-        bin_concs = numpy.zeros(bin_n)
+        bin_concs = np.zeros(bin_n)
         for c in range(bin_n): 
             for d in range(bin_counts[c].__len__()):
                 bin_concs[c] += bin_counts[c][d]
@@ -162,7 +160,7 @@ def test_ubdiff():
         for i in range(bin_n):
             if (r_tets_binned[i] > 2.0 and r_tets_binned[i] < 6.0):
                 rad = r_tets_binned[i]*1.0e-6
-                det_conc = 1e-18*((NINJECT/(math.pow((4*math.pi*DCST*tpnts[t]),1.5)))*(math.exp((-1.0*(rad*rad))/(4*DCST*tpnts[t]))))
+                det_conc = 1e-18*((NINJECT/(np.power((4*np.pi*DCST*tpnts[t]),1.5)))*(np.exp((-1.0*(rad*rad))/(4*DCST*tpnts[t]))))
                 steps_conc = bin_concs[i]
                 assert(tolerable(det_conc, steps_conc, tolerance))
 

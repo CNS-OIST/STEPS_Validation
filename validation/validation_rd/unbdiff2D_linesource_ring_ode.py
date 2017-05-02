@@ -29,8 +29,7 @@ import steps.rng as srng
 
 import datetime
 import time
-import math
-import numpy
+import numpy as np
 
 from tol_funcs import *
 
@@ -83,7 +82,7 @@ def gen_geom():
     patch_tris = []
     for t in alltris:
         baryc = mesh.getTriBarycenter(t)
-        rad = math.sqrt(math.pow(baryc[0], 2)+math.pow(baryc[1], 2))
+        rad = np.sqrt(np.power(baryc[0], 2)+np.power(baryc[1], 2))
         # By checking the cubit mesh the outer tris fall in the following bound
         if rad > 0.000009955 and rad < 0.00001001: patch_tris.append(t)    
     
@@ -102,14 +101,14 @@ def gen_geom():
     patch_tris_n = len(patch_tris)
 
     # Now find the distances along the edge for all tris
-    tridists = numpy.zeros(patch_tris_n)
-    triareas = numpy.zeros(patch_tris_n)
+    tridists = np.zeros(patch_tris_n)
+    triareas = np.zeros(patch_tris_n)
     
     for i in range(patch_tris_n):
         baryc = mesh.getTriBarycenter(patch_tris[i])
-        rad = math.sqrt(math.pow(baryc[0], 2)+math.pow(baryc[1], 2))
+        rad = np.sqrt(np.power(baryc[0], 2)+np.power(baryc[1], 2))
         
-        theta = math.atan2(baryc[1], baryc[0])
+        theta = np.arctan2(baryc[1], baryc[0])
         
         tridists[i] = (theta*rad*1e6)
         triareas[i] = mesh.getTriArea(patch_tris[i])
@@ -131,10 +130,10 @@ def test_unbdiff2D_linesource_ring_ode():
     sim = solvmod.TetODE(m, g, rng)
     sim.setTolerances(1e-7, 1e-7)
 
-    tpnts = numpy.arange(0.0, INT, DT)
+    tpnts = np.arange(0.0, INT, DT)
     ntpnts = tpnts.shape[0]
 
-    res_count = numpy.zeros((ntpnts, patch_tris_n))
+    res_count = np.zeros((ntpnts, patch_tris_n))
 
     for t in inject_tris:
         sim.setTriCount(t, 'X', float(NINJECT)/len(inject_tris))
@@ -160,9 +159,9 @@ def test_unbdiff2D_linesource_ring_ode():
             if (i < r_min): r_min = i
         
         r_seg = (r_max-r_min)/bin_n
-        bin_mins = numpy.zeros(bin_n+1)
-        r_tris_binned = numpy.zeros(bin_n)
-        bin_areas = numpy.zeros(bin_n)    
+        bin_mins = np.zeros(bin_n+1)
+        r_tris_binned = np.zeros(bin_n)
+        bin_areas = np.zeros(bin_n)    
         
         r = r_min
         for b in range(bin_n + 1):
@@ -179,7 +178,7 @@ def test_unbdiff2D_linesource_ring_ode():
                     bin_areas[b]+=sim.getTriArea(int(patch_tris[i]))
                     break
         
-        bin_concs = numpy.zeros(bin_n)
+        bin_concs = np.zeros(bin_n)
         for c in range(bin_n): 
             for d in range(bin_counts[c].__len__()):
                 bin_concs[c] += bin_counts[c][d]
@@ -188,7 +187,7 @@ def test_unbdiff2D_linesource_ring_ode():
         for i in range(bin_n):
             if (r_tris_binned[i] > -10.0 and r_tris_binned[i] < 10.0):
                 dist = r_tris_binned[i]*1e-6
-                det_conc = 1e-6*(NINJECT/(4*math.sqrt((math.pi*DCST*tpnts[t]))))*(math.exp((-1.0*(dist*dist))/(4*DCST*tpnts[t])))	
+                det_conc = 1e-6*(NINJECT/(4*np.sqrt((np.pi*DCST*tpnts[t]))))*(np.exp((-1.0*(dist*dist))/(4*DCST*tpnts[t])))	
                 steps_conc = bin_concs[i]
                 assert tolerable(det_conc, steps_conc, tolerance)
                 

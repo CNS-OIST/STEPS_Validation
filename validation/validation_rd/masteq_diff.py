@@ -23,8 +23,7 @@
   
 ########################################################################
 
-import math
-import numpy
+import numpy as np
 import time 
 
 import steps.model as smod
@@ -90,12 +89,12 @@ def test_masteq_diff():
     sim = ssolv.Tetexact(mdl, geom, rng)
     sim.reset()
 
-    tpnts = numpy.arange(0.0, INT, DT)
+    tpnts = np.arange(0.0, INT, DT)
     ntpnts = tpnts.shape[0]
 
-    res = numpy.zeros([ntpnts])
-    res_std1 = numpy.zeros([ntpnts])
-    res_std2 = numpy.zeros([ntpnts])
+    res = np.zeros([ntpnts])
+    res_std1 = np.zeros([ntpnts])
+    res_std2 = np.zeros([ntpnts])
 
     sim.reset()
     sim.setCompCount('comp1', 'A', 0)
@@ -111,7 +110,7 @@ def test_masteq_diff():
 
     # Do cumulative count, but not comparing them all. 
     # Don't get over 50 (I hope)
-    steps_n_res = numpy.zeros(50)
+    steps_n_res = np.zeros(50)
     for r in res: steps_n_res[int(r)]+=1
     for s in range(50): steps_n_res[s] = steps_n_res[s]/ntpnts
 
@@ -120,7 +119,7 @@ def test_masteq_diff():
     v = comp1.getVol()*1.0e3 # litres
 
     for m in range(5, 11):
-        analy = (1.0/fact(m))*math.pow((k2*v*v)/(B0*k1), m)*math.exp(-((k2*v*v)/(k1*B0)))
+        analy = (1.0/fact(m))*np.power((k2*v*v)/(B0*k1), m)*np.exp(-((k2*v*v)/(k1*B0)))
         assert tolerable(steps_n_res[m], analy, tolerance)
 
 ########################################################################

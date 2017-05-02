@@ -1,0 +1,4 @@
+*.pyc
+.logs
+*.py~
+validation/validation_cp/cp

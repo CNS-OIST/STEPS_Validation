@@ -18,7 +18,6 @@ import steps.utilities.geom_decompose as gd
 
 import numpy as np
 import numpy.linalg as la
-import math
 import operator
 import time
 
@@ -196,7 +195,7 @@ def build_model(mesh, param):
     Leak = smodel.ChanState('Leak', mdl, L)
 
     # membrane conductance
-    area_cylinder = math.pi * param['diameter'] * param['length']
+    area_cylinder = np.pi * param['diameter'] * param['length']
     L_G_tot = area_cylinder / param['R_M']
     g_leak_sc = L_G_tot / len(memb.tris)
     OC_L = smodel.OhmicCurr('OC_L', ssys, chanstate = Leak, erev = param['E_M'], g = g_leak_sc)
@@ -224,7 +223,7 @@ def init_sim(model, mesh, seed, param):
     print0(".... TetOpSplit c-tor took " + str(t2-t1))
 
     # Correction factor for deviation between mesh and model cylinder:
-    area_cylinder = math.pi * param['diameter'] * param['length']
+    area_cylinder = np.pi * param['diameter'] * param['length']
     area_mesh_factor = sim.getPatchArea('memb') / area_cylinder
 
     # Set initial conditions
@@ -250,7 +249,7 @@ def init_sim(model, mesh, seed, param):
 
 # Run simulation and sample potential every dt until t_end
 def run_sim(sim, dt, t_end, vertices, verbose=False):
-    N = int(math.ceil(t_end/dt))+1
+    N = int(np.ceil(t_end/dt))+1
     result = np.zeros((N, len(vertices)))
     nvert = len(vertices)
 
@@ -321,10 +320,10 @@ def run_comparison(seed, mesh_file, mesh_format, mesh_scale, v0_datafile, v1_dat
 
     # rms difference
     err_0um = vref_0um[0:npt] - vmean_0um[0:npt]
-    rms_err_0um = la.norm(err_0um)/math.sqrt(npt)
+    rms_err_0um = la.norm(err_0um)/np.sqrt(npt)
 
     err_1000um = vref_1000um[0:npt] - vmean_1000um[0:npt]
-    rms_err_1000um = la.norm(err_1000um)/math.sqrt(npt)
+    rms_err_1000um = la.norm(err_1000um)/np.sqrt(npt)
 
     return data, rms_err_0um, rms_err_1000um
 

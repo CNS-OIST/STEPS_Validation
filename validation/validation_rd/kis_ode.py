@@ -27,9 +27,8 @@ import steps.geom as sgeom
 import steps.rng as srng
 import steps.solver as ssolv
 
-import math
 import time 
-import numpy
+import numpy as np
 import steps.utilities.meshio as meshio
 from tol_funcs import *
 
@@ -52,9 +51,9 @@ def test_kis_ode():
     SAMPLE = 5000
 
     # create the array of tet indices to be found at random
-    tetidxs = numpy.zeros(SAMPLE, dtype = 'int')
+    tetidxs = np.zeros(SAMPLE, dtype = 'int')
     # further create the array of tet barycentre distance to centre
-    tetrads = numpy.zeros(SAMPLE)
+    tetrads = np.zeros(SAMPLE)
 
     #Small expected error
     tolerance = 1.5/100
@@ -141,11 +140,11 @@ def test_kis_ode():
     sim = ssolv.TetODE(mdl, mesh, rng)
     sim.setTolerances(1.0e-3, 1.0e-3)
 
-    tpnts = numpy.arange(0.0, INT, DT)
+    tpnts = np.arange(0.0, INT, DT)
     ntpnts = tpnts.shape[0]
 
-    resA = numpy.zeros((NITER, ntpnts, SAMPLE))
-    resB = numpy.zeros((NITER, ntpnts, SAMPLE))
+    resA = np.zeros((NITER, ntpnts, SAMPLE))
+    resB = np.zeros((NITER, ntpnts, SAMPLE))
 
 
     for i in range (0, NITER):
@@ -163,8 +162,8 @@ def test_kis_ode():
                 resA[i,t,k] = sim.getTetCount(int(tetidxs[k]), 'A')
                 resB[i,t,k] = sim.getTetCount(int(tetidxs[k]), 'B')
             
-    itermeansA = numpy.mean(resA, axis=0)
-    itermeansB = numpy.mean(resB, axis=0)
+    itermeansA = np.mean(resA, axis=0)
+    itermeansB = np.mean(resB, axis=0)
 
     def getdetc(t, x):
         N = 1000        # The number to represent infinity in the exponential calculation
@@ -172,8 +171,8 @@ def test_kis_ode():
         
         concA  = 0.0
         for n in range(N):
-            concA+= ((1.0/(2*n +1))*math.exp((-(DCSTA/(20.0e-6))*math.pow((2*n +1), 2)*math.pow(math.pi, 2)*t)/(4*L))*math.sin(((2*n +1)*math.pi*x)/(2*L)))
-        concA*=((4*NA0/math.pi)/(VOLA*6.022e26))*1.0e6    
+            concA+= ((1.0/(2*n +1))*np.exp((-(DCSTA/(20.0e-6))*np.power((2*n +1), 2)*np.power(np.pi, 2)*t)/(4*L))*np.sin(((2*n +1)*np.pi*x)/(2*L)))
+        concA*=((4*NA0/np.pi)/(VOLA*6.022e26))*1.0e6    
         
         return concA
 
@@ -189,10 +188,10 @@ def test_kis_ode():
             if (r < radmin) : radmin = r
         
         rsec = (radmax-radmin)/NBINS
-        binmins = numpy.zeros(NBINS+1)
-        tetradsbinned = numpy.zeros(NBINS)
+        binmins = np.zeros(NBINS+1)
+        tetradsbinned = np.zeros(NBINS)
         r = radmin
-        bin_vols = numpy.zeros(NBINS)
+        bin_vols = np.zeros(NBINS)
         
         for b in range(NBINS+1):
             binmins[b] = r
@@ -225,8 +224,8 @@ def test_kis_ode():
                     filled+=1.0
                     break
         
-        bin_concsA = numpy.zeros(NBINS)
-        bin_concsB = numpy.zeros(NBINS)
+        bin_concsA = np.zeros(NBINS)
+        bin_concsB = np.zeros(NBINS)
         
         for c in range(NBINS): 
             for d in range(bin_countsA[c].__len__()):

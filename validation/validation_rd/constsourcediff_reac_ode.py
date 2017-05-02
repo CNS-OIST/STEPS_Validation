@@ -30,8 +30,7 @@
 
 import datetime
 import steps.model as smodel
-import math
-import numpy
+import numpy as np
 import steps.solver as solvmod
 import steps.utilities.meshio as meshio
 import steps.geom as stetmesh
@@ -59,9 +58,9 @@ def setup_module():
     MESHFILE = 'cyl_diam0_4__len10_12Ktets_STEPS'
 
     # create the array of tet indices to be found at random
-    tetidxs = numpy.zeros(SAMPLE, dtype = 'int')
+    tetidxs = np.zeros(SAMPLE, dtype = 'int')
     # further create the array of tet barycentre distance to centre
-    tetrads = numpy.zeros(SAMPLE)
+    tetrads = np.zeros(SAMPLE)
 
     # Small expected error from non plane source
     tolerance = 3.0/100
@@ -130,12 +129,12 @@ def test_constsourcediff_reac_ode():
     sim = solvmod.TetODE(m, g)
     sim.setTolerances(1e-3, 1e-3)
 
-    tpnts = numpy.arange(0.0, INT, DT)
+    tpnts = np.arange(0.0, INT, DT)
     ntpnts = tpnts.shape[0]
 
 
     #Create the data structure: time points x concentrations
-    res = numpy.zeros((ntpnts, SAMPLE))
+    res = np.zeros((ntpnts, SAMPLE))
 
     # Find the tets connected to the bottom face
     # First find all the tets with ONE face on a boundary
@@ -218,9 +217,8 @@ def test_constsourcediff_reac_ode():
     L = 5.0e-6
     a = 10e-6
     D = DCST
-    pi = math.pi
+    pi = np.pi
     J = FLUX/area
-    cos = math.cos
 
     tpnt_compare = [12, 24]
 
@@ -234,10 +232,10 @@ def test_constsourcediff_reac_ode():
             if (r < radmin) : radmin = r
         
         rsec = (radmax-radmin)/NBINS
-        binmins = numpy.zeros(NBINS+1)
-        tetradsbinned = numpy.zeros(NBINS)
+        binmins = np.zeros(NBINS+1)
+        tetradsbinned = np.zeros(NBINS)
         r = radmin
-        bin_vols = numpy.zeros(NBINS)
+        bin_vols = np.zeros(NBINS)
         
         for b in range(NBINS+1):
             binmins[b] = r
@@ -258,7 +256,7 @@ def test_constsourcediff_reac_ode():
                     bin_vols[b]+=sim.getTetVol(int(tetidxs[i]))
                     filled+=1.0
                     break
-        bin_concs = numpy.zeros(NBINS)
+        bin_concs = np.zeros(NBINS)
         for c in range(NBINS): 
             for d in range(bin_counts[c].__len__()):
                 bin_concs[c] += bin_counts[c][d]
@@ -272,9 +270,9 @@ def test_constsourcediff_reac_ode():
                 nsum = 0.0
                 nmax=100
                 for n in range(1,nmax):
-                    nsum+= (math.pow(-1, n)/math.pow(n, 2))*math.exp(-D*(math.pow(((n*pi)/L), 2)*\
-                tpnts[t]))*cos((n*pi*rad)/L)
-                det_conc = (1.0/6.022e20)*((J*L)/D)*(((D*tpnts[t])/math.pow(L, 2))+((3*math.pow(rad, 2) - math.pow(L, 2))/(6*math.pow(L, 2))) -(2/math.pow(pi, 2))*nsum)
+                    nsum+= (np.power(-1., n)/np.power(n, 2))*np.exp(-D*(np.power(((n*pi)/L), 2)*\
+                tpnts[t]))*np.cos((n*pi*rad)/L)
+                det_conc = (1.0/6.022e20)*((J*L)/D)*(((D*tpnts[t])/np.power(L, 2))+((3*np.power(rad, 2) - np.power(L, 2))/(6*np.power(L, 2))) -(2/np.power(pi, 2))*nsum)
                 steps_conc = bin_concs[i]
                 assert tolerable(det_conc, steps_conc, tolerance)
                 

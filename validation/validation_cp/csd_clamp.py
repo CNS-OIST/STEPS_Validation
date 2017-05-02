@@ -11,20 +11,24 @@
 
 import datetime
 import steps.model as smodel
-import math
-import numpy
+import numpy as np
 import steps.solver as solvmod
 import steps.geom as stetmesh
 import steps.rng as srng
 import steps.utilities.meshio as meshio
-#from pylab import *
 import time
-import pylab
+import os
 
 from tol_funcs import *
 
+
+
 print "Diffusion - Clamped:"
 import csd_clamp_cp
+
+dir_checkpoint = "validation_cp/cp"
+if not os.path.exists(dir_checkpoint):
+    os.makedirs(dir_checkpoint)
 
 rng = srng.create('mt19937', 512) 
 rng.initialize(int(time.time()%4294967295)) # The max unsigned long
@@ -46,9 +50,9 @@ tolerance = 5.0/100
 
 
 # create the array of tet indices to be found at random
-tetidxs = numpy.zeros(SAMPLE, dtype = 'int')
+tetidxs = np.zeros(SAMPLE, dtype = 'int')
 # further create the array of tet barycentre distance to centre
-tetrads = numpy.zeros(SAMPLE)
+tetrads = np.zeros(SAMPLE)
 
 beg_time = time.time()
 
@@ -66,13 +70,13 @@ def erfunc(x, num = 1000):
 		nowx = (i*x)/num 
 		nextx = ((i+1)*x)/num
 		goodx = (nowx+nextx)/2.0
-		erf+=(ds*math.exp(-(goodx*goodx)))
+		erf+=(ds*np.exp(-(goodx*goodx)))
 	
-	return 1 -(2*(erf/math.sqrt(math.pi)))
+	return 1 -(2*(erf/np.sqrt(np.pi)))
 
 
 def getConc(Cs, D, x, t):
-	return (Cs*erfunc(x/(math.sqrt(4*D*t))))
+	return (Cs*erfunc(x/(np.sqrt(4*D*t))))
 
 ########################################################################
 
@@ -126,12 +130,12 @@ def test_csdclamp():
 
     sim = solvmod.Tetexact(m, g, rng)
 
-    tpnts = numpy.arange(0.0, INT, DT)
+    tpnts = np.arange(0.0, INT, DT)
     ntpnts = tpnts.shape[0]
 
 
     #Create the big old data structure: iterations x time points x concentrations
-    res = numpy.zeros((NITER, ntpnts, SAMPLE))
+    res = np.zeros((NITER, ntpnts, SAMPLE))
 
     # Find the tets connected to the bottom face
     # First find all the tets with ONE face on a boundary
@@ -188,9 +192,8 @@ def test_csdclamp():
                 res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
     #print '%d / %d' % (j + 1, NITER)
 
-    itermeans = numpy.mean(res, axis = 0)
+    itermeans = np.mean(res, axis = 0)
 
-    import pylab
 
     ########################################################################
 
@@ -207,10 +210,10 @@ def test_csdclamp():
             if (r < radmin) : radmin = r
         
         rsec = (radmax-radmin)/NBINS
-        binmins = numpy.zeros(NBINS+1)
-        tetradsbinned = numpy.zeros(NBINS)
+        binmins = np.zeros(NBINS+1)
+        tetradsbinned = np.zeros(NBINS)
         r = radmin
-        bin_vols = numpy.zeros(NBINS)
+        bin_vols = np.zeros(NBINS)
         
         for b in range(NBINS+1):
             binmins[b] = r
@@ -231,7 +234,7 @@ def test_csdclamp():
                     bin_vols[b]+=sim.getTetVol(int(tetidxs[i]))
                     filled+=1.0
                     break
-        bin_concs = numpy.zeros(NBINS)
+        bin_concs = np.zeros(NBINS)
         for c in range(NBINS): 
             for d in range(bin_counts[c].__len__()):
                 bin_concs[c] += bin_counts[c][d]

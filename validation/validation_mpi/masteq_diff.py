@@ -22,8 +22,7 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-import math
-import numpy
+import numpy as np
 import time
 
 import steps
@@ -88,13 +87,13 @@ if steps.mpi.rank ==0:
 
 sim = solvmod.TetOpSplit(mdl, geom, rng, False, tet_hosts)
 
-tpnts = numpy.arange(0.0, INT, DT)
+tpnts = np.arange(0.0, INT, DT)
 ntpnts = tpnts.shape[0]
 
 if steps.mpi.rank ==0:
-    res = numpy.zeros([ntpnts])
-    res_std1 = numpy.zeros([ntpnts])
-    res_std2 = numpy.zeros([ntpnts])
+    res = np.zeros([ntpnts])
+    res_std1 = np.zeros([ntpnts])
+    res_std2 = np.zeros([ntpnts])
 
 sim.setCompCount('comp1', 'A', 0)
 sim.setCompCount('comp1', 'B', B0)
@@ -126,7 +125,7 @@ def fact(x): return (1 if x==0 else x * fact(x-1))
 if steps.mpi.rank == 0:
     passed = False
 
-    steps_n_res = numpy.zeros(50)
+    steps_n_res = np.zeros(50)
     for r in res: steps_n_res[r]+=1
     for s in range(50): steps_n_res[s] = steps_n_res[s]/ntpnts
 
@@ -137,7 +136,7 @@ if steps.mpi.rank == 0:
     v = comp1.getVol()*1.0e3 # litres
 
     for m in range(5, 11):
-        analy = (1.0/fact(m))*math.pow((k2*v*v)/(B0*k1), m)*math.exp(-((k2*v*v)/(k1*B0)))
+        analy = (1.0/fact(m))*np.power((k2*v*v)/(B0*k1), m)*np.exp(-((k2*v*v)/(k1*B0)))
         if tolerable(steps_n_res[m], analy, tolerance):
             passed = True
         else:

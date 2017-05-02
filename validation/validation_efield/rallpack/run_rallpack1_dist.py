@@ -1,9 +1,9 @@
 import rallpack1_dist
 import argparse
 import sys
-import numpy as np
 import os.path as path
 import steps.mpi
+import numpy as np
 
 # By default, meshes are searched for under meshes/
 # and reference data under data/rallpack1_correct

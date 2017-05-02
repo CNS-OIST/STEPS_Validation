@@ -30,8 +30,7 @@ import steps.geom as sgeom
 import steps.mpi.solver as solvmod
 import steps.utilities.meshio as smeshio
 import steps.utilities.meshctrl as meshctrl
-import math
-import numpy
+import numpy as np
 
 MESHFILE = "meshes/3tets.inp"
 DCST = 0.02e-9

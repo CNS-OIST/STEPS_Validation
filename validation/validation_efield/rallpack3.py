@@ -11,10 +11,10 @@ import steps.rng as srng
 import steps.utilities.meshio as meshio
 import steps.solver as ssolver
 
-import math
+import numpy as np
+
 import time
 from random import *
-from pylab import *
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -72,10 +72,10 @@ def stats(bench, cdata):
 
     nts = len(bench)
     for t in range(nts):
-        rms+= math.pow((bench[t]-cdata[t]), 2)
+        rms+= np.power((bench[t]-cdata[t]), 2)
     
     rms/=nts
-    rms=math.sqrt(rms)
+    rms=np.sqrt(rms)
     
     return rms
 
@@ -110,7 +110,7 @@ def test_rallpack3():
 
 
     # Total leak conductance for ideal cylinder:
-    surfarea_cyl = 1.0*math.pi*1000*1e-12
+    surfarea_cyl = 1.0*np.pi*1000*1e-12
     L_G_tot = L_G*surfarea_cyl
 
 
@@ -143,7 +143,7 @@ def test_rallpack3():
     # # # # # # # # # # # # # DATA COLLECTION # # # # # # # # # # # # # # # # # # 
 
     # record potential at the two extremes along (z) axis 
-    POT_POS = array([ 0.0, 1.0e-03])
+    POT_POS = np.array([ 0.0, 1.0e-03])
 
     POT_N = len(POT_POS)
 
@@ -179,12 +179,12 @@ def test_rallpack3():
     Leak = smodel.ChanState('Leak', mdl, L)
 
     # Gating kinetics 
-    _a_m = lambda mV: ((((0.1 * (25 -(mV + 65.)) / (math.exp((25 - (mV + 65.)) / 10.) - 1)))))
-    _b_m = lambda mV: ((((4. * math.exp(-((mV + 65.) / 18.))))))
-    _a_h = lambda mV: ((((0.07 * math.exp((-(mV + 65.) / 20.))))))
-    _b_h = lambda mV: ((((1. / (math.exp((30 - (mV + 65.)) / 10.) + 1)))))
-    _a_n = lambda mV: ((((0.01 * (10 -(mV + 65.)) / (math.exp((10 - (mV + 65.)) / 10.) - 1)))))
-    _b_n = lambda mV: ((((0.125 * math.exp(-(mV + 65.) / 80.)))))
+    _a_m = lambda mV: ((((0.1 * (25 -(mV + 65.)) / (np.exp((25 - (mV + 65.)) / 10.) - 1)))))
+    _b_m = lambda mV: ((((4. * np.exp(-((mV + 65.) / 18.))))))
+    _a_h = lambda mV: ((((0.07 * np.exp((-(mV + 65.) / 20.))))))
+    _b_h = lambda mV: ((((1. / (np.exp((30 - (mV + 65.)) / 10.) + 1)))))
+    _a_n = lambda mV: ((((0.01 * (10 -(mV + 65.)) / (np.exp((10 - (mV + 65.)) / 10.) - 1)))))
+    _b_n = lambda mV: ((((0.125 * np.exp(-(mV + 65.) / 80.)))))
 
     Kn0n1  = smodel.VDepSReac('Kn0n1', ssys, slhs = [K_n0], srhs = [K_n1], k = lambda V: 1.0e3 *4.*_a_n(V*1.0e3))  
     Kn1n2  = smodel.VDepSReac('Kn1n2', ssys, slhs = [K_n1], srhs = [K_n2], k = lambda V: 1.0e3 *3.*_a_n(V*1.0e3))  
@@ -232,7 +232,7 @@ def test_rallpack3():
     cyto = sgeom.TmComp('cyto', mesh, range(mesh.ntets))
 
     # The tetrahedrons from which to record potential
-    POT_TET = zeros(POT_N, dtype = 'uint')
+    POT_TET = np.zeros(POT_N, dtype = 'uint')
 
     i=0
     for p in POT_POS:
@@ -327,14 +327,14 @@ def test_rallpack3():
 
 
     surfarea_mesh = sim.getPatchArea('memb')
-    surfarea_cyl = 1.0*math.pi*1000*1e-12
+    surfarea_cyl = 1.0*np.pi*1000*1e-12
     corr_fac_area = surfarea_mesh/surfarea_cyl
 
-    vol_cyl = math.pi*0.5*0.5*1000*1e-18
+    vol_cyl = np.pi*0.5*0.5*1000*1e-18
     vol_mesh = sim.getCompVol('cyto')
     corr_fac_vol = vol_mesh/vol_cyl
 
-    RES_POT = zeros(( SIM_NTPNTS, POT_N))
+    RES_POT = np.zeros(( SIM_NTPNTS, POT_N))
 
 
     for t in memb_tris: sim.setTriCount(t, 'Leak', 1)

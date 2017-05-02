@@ -28,12 +28,11 @@ import steps.mpi
 import steps.model as smodel
 import steps.utilities.geom_decompose as gd
 import steps.mpi.solver as solvmod
-import math
 import steps.utilities.meshio as meshio
 import steps.geom as stetmesh
 import steps.rng as srng
 import time
-import numpy
+import numpy as np
 
 from tol_funcs import *
 
@@ -57,9 +56,9 @@ SAMPLE = 1060
 MESHFILE = 'cyl_diam2__len10_1060tets'
 
 # create the array of tet indices to be found at random
-tetidxs = numpy.zeros(SAMPLE, dtype = 'int')
+tetidxs = np.zeros(SAMPLE, dtype = 'int')
 # further create the array of tet barycentre distance to centre
-tetrads = numpy.zeros(SAMPLE)
+tetrads = np.zeros(SAMPLE)
 
 
 ########################################################################
@@ -118,13 +117,13 @@ if steps.mpi.rank ==0:
 
 sim = solvmod.TetOpSplit(m, g, rng, False, tet_hosts)
 
-tpnts = numpy.arange(0.0, INT, DT)
+tpnts = np.arange(0.0, INT, DT)
 ntpnts = tpnts.shape[0]
 
 
 # Create the big old data structure: iterations x time points x concentrations
 if steps.mpi.rank ==0:
-    res = numpy.zeros((NITER, ntpnts, SAMPLE))
+    res = np.zeros((NITER, ntpnts, SAMPLE))
 
 # Find the tets connected to the bottom face
 # First find all the tets with ONE face on a boundary
@@ -195,9 +194,9 @@ nreac = sim.getReacExtent()
 ########################################################################
 
 if steps.mpi.rank == 0:
-    itermeans = numpy.mean(res, axis = 0)
+    itermeans = np.mean(res, axis = 0)
     D = DCST
-    pi = math.pi
+    pi = np.pi
     nmax = 1000
     N = NINJECT
     N = int((1.0*NINJECT)/nztets)*nztets
@@ -207,9 +206,9 @@ if steps.mpi.rank == 0:
             return
         p=0.0
         for n in range(nmax):
-            if (n==0): A = math.sqrt(1.0/a)
-            else : A = math.sqrt(2.0/a)
-            p+= math.exp(-D*math.pow((n*pi/a), 2)*t)*A*math.cos(n*pi*x/a)*A*a
+            if (n==0): A = np.sqrt(1.0/a)
+            else : A = np.sqrt(2.0/a)
+            p+= np.exp(-D*np.power((n*pi/a), 2)*t)*A*np.cos(n*pi*x/a)*A*a
         
         return p*N/a
 
@@ -229,10 +228,10 @@ if steps.mpi.rank == 0:
             if (r < radmin) : radmin = r
         
         rsec = (radmax-radmin)/NBINS
-        binmins = numpy.zeros(NBINS+1)
-        tetradsbinned = numpy.zeros(NBINS)
+        binmins = np.zeros(NBINS+1)
+        tetradsbinned = np.zeros(NBINS)
         r = radmin
-        bin_vols = numpy.zeros(NBINS)
+        bin_vols = np.zeros(NBINS)
         
         for b in range(NBINS+1):
             binmins[b] = r
@@ -253,7 +252,7 @@ if steps.mpi.rank == 0:
                     bin_vols[b]+=sim.getTetVol(int(tetidxs[i]))
                     filled+=1.0
                     break
-        bin_concs = numpy.zeros(NBINS)
+        bin_concs = np.zeros(NBINS)
         for c in range(NBINS):
             for d in range(bin_counts[c].__len__()):
                 bin_concs[c] += bin_counts[c][d]

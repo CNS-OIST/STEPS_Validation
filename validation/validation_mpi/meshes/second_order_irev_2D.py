@@ -27,9 +27,8 @@ import steps.geom as sgeom
 import steps.rng as srng
 import steps.solver as ssolv
 
-import math
 import time 
-import numpy
+import numpy as np
 from pylab import *
 
 from tol_funcs import *
@@ -83,10 +82,10 @@ rng.initialize(1000)
 sim = ssolv.Wmdirect(mdl, geom, rng)
 sim.reset()
 
-tpnts = numpy.arange(0.0, INT, DT)
+tpnts = np.arange(0.0, INT, DT)
 ntpnts = tpnts.shape[0]
 
-res_m = numpy.zeros([NITER, ntpnts, 3])
+res_m = np.zeros([NITER, ntpnts, 3])
 
 for i in range (0, NITER):
 	sim.reset()
@@ -98,11 +97,11 @@ for i in range (0, NITER):
 		res_m[i, t, 0] = sim.getPatchCount('patch1', 'A')
 		res_m[i, t, 1] = sim.getPatchCount('patch1', 'B')       
 
-mean_res = numpy.mean(res_m, 0)
+mean_res = np.mean(res_m, 0)
 
 
-lnBA = numpy.zeros(ntpnts)
-lineAB = numpy.zeros(ntpnts)
+lnBA = np.zeros(ntpnts)
+lineAB = np.zeros(ntpnts)
 
 C = COUNTA-COUNTB
 passed  =True
@@ -111,8 +110,8 @@ max_err = 0.0
 for i in range(ntpnts):
     A = mean_res[i][0]
     B = mean_res[i][1]
-    lnBA[i] = math.log(B/A)
-    lineAB[i] = math.log(COUNTB/COUNTA) -C*CCST*tpnts[i]
+    lnBA[i] = np.log(B/A)
+    lineAB[i] = np.log(COUNTB/COUNTA) -C*CCST*tpnts[i]
     if not tolerable(lnBA[i], lineAB[i], tolerance): passed = False
 #if (abs(2*(lnBA[i]-lineAB[i])/(lnBA[i]+lineAB[i])) > max_err): max_err = abs(2*(lnBA[i]-lineAB[i])/(lnBA[i]+lineAB[i]))
 #print "max error", max_err*100.0, "%"
