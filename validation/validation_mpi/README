@@ -1,0 +1,5 @@
+Usage:
+
+mpirun -n {np} python validation.py
+
+{np} is the number of MPI processes
