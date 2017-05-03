@@ -1,4 +1,6 @@
+validation/validation_rd_mpi/.logs/
+validation/validation_rd/.logs/
+validation/validation_cp/.logs/
+validation/validation_efield/.logs/
 *.pyc
-.logs
-*.py~
-validation/validation_cp/cp
+*debug_log*
