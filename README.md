@@ -5,10 +5,10 @@ tests are found in the main STEPS repository under test/validation.
 
 To run all validations, clone this repository and go to the validation directory
  
-    ```
-    git clone https://github.com/CNS-OIST/STEPS_Validation.git
-    cd STEPS_Validation/validation
-    ```
+ ```
+ git clone https://github.com/CNS-OIST/STEPS_Validation.git
+ cd STEPS_Validation/validation
+ ```
     
 1. To run all serial validations (validation_rd, validation_cp, validation_efield)
     
