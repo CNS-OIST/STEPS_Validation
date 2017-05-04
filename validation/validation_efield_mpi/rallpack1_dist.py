@@ -19,7 +19,6 @@ import steps.utilities.geom_decompose as gd
 import numpy as np
 import numpy.linalg as la
 import operator
-import time
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -213,24 +212,16 @@ def init_sim(model, mesh, seed, param):
 
     # partition geometry across hosts
 
-    t0 = time.time()
     (tet_hosts,tri_hosts) = host_assignment_by_axis(mesh, memb.tris)
-    t1 = time.time()
-    print0(".... assign to host took " + str(t1-t0))
     # sim = ssolver.TetOpSplit(model, mesh, rng, True, tet_hosts, tri_hosts)
     sim = ssolver.TetOpSplit(model, mesh, rng, param['EF_solver'], tet_hosts, tri_hosts)
-    t2 = time.time()
-    print0(".... TetOpSplit c-tor took " + str(t2-t1))
 
     # Correction factor for deviation between mesh and model cylinder:
     area_cylinder = np.pi * param['diameter'] * param['length']
     area_mesh_factor = sim.getPatchArea('memb') / area_cylinder
 
     # Set initial conditions
-    t0 = time.time()
     sim.reset()
-    t1 = time.time()
-    print0(".... sim.reset() took " + str(t1-t0))
 
     for t in memb.tris: sim.setTriCount(t, 'Leak', 1)
 
@@ -242,8 +233,6 @@ def init_sim(model, mesh, seed, param):
     v_zmin = mesh.getROIData('v_zmin')
     I = param['Iinj']/len(v_zmin)
     for v in v_zmin: sim.setVertIClamp(v, I)
-    t2 = time.time()
-    print0(".... setting all the others took " + str(t2-t1))
 
     return sim
 
@@ -255,10 +244,7 @@ def run_sim(sim, dt, t_end, vertices, verbose=False):
 
     for l in xrange(N):
         if verbose and steps.mpi.rank == 0: print "sim time (ms): ", dt*l*1.0e3
-        t1 = time.time()
         sim.run(l*dt)
-        t2 = time.time()
-        print0("~~~~~ run time step  [done in "+ str(t2-t1)  +" sec]  ~~~~~")
         result[l,:] = [sim.getVertV(v) for v in vertices]
 
     return result
@@ -279,24 +265,9 @@ def run_comparison(seed, mesh_file, mesh_format, mesh_scale, v0_datafile, v1_dat
     vref_0um = np.array([v for (t,v) in snarf(v0_datafile)])
     vref_1000um = np.array([v for (t,v) in snarf(v1_datafile)])
 
-    #mesh_file = "/gpfs/bbp.cscs.ch/project/proj40/meshes_steps_scaling/cylinder_1246549verts.msh"
-
-    print0("~~~~~ build geometry [start] ~~~~~")
-    print0("loading mesh located in: " + mesh_file)
-    t1 = time.time()
     geom = build_geometry(mesh_file, mesh_format, scale=mesh_scale)
-    t2 = time.time()
-    print0("~~~~~ build geometry [done in "+ str(t2-t1)  +" sec]  ~~~~~")
-    print0("~~~~~ build model    [start] ~~~~~")
-    t1 = time.time()
     model = build_model(geom, sim_parameters)
-    t2 = time.time()
-    print0("~~~~~ build model    [done in "+ str(t2-t1)  +" sec]  ~~~~~")
-    print0("~~~~~ initialize sim [start] ~~~~~")
-    t1 = time.time()
     sim = init_sim(model, geom, seed, sim_parameters)
-    t2 = time.time()
-    print0("~~~~~ initialize sim [done in "+ str(t2-t1)  +" sec]  ~~~~~")
 
     # grab sample vertices
     zmin_sample = geom.getROIData('v_zmin_sample')
@@ -319,10 +290,10 @@ def run_comparison(seed, mesh_file, mesh_format, mesh_scale, v0_datafile, v1_dat
     data[4,:] = vref_1000um[0:npt]
 
     # rms difference
-    err_0um = vref_0um[0:npt] - vmean_0um[0:npt]
+    err_0um = data[2,:] - data[1,:] 
     rms_err_0um = la.norm(err_0um)/np.sqrt(npt)
 
-    err_1000um = vref_1000um[0:npt] - vmean_1000um[0:npt]
+    err_1000um = data[4,:] - data[3,:]
     rms_err_1000um = la.norm(err_1000um)/np.sqrt(npt)
 
     return data, rms_err_0um, rms_err_1000um
