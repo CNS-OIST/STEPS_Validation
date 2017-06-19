@@ -16,12 +16,11 @@ To run all validations, clone this repository and go to the validation directory
     python run_validation_tests.py
     ```
 
-2. To run all parallel validations (validation_rd_mpi)
+2. To run all parallel validations (validation_rd_mpi, validation_efield_mpi)
     
     ```
-    mpirun -n 4 python run_validation_rd_mpi_tests.py
+    mpirun -n 4 python run_validation_mpi_tests.py 
     ```
-   (parallel efield validation will be added soon)
     
     
 
