@@ -1,6 +1,6 @@
 # STEPS_Validation
 
-This repository contains long validation tests for STEPS. The sort validation
+This repository contains long validation tests for STEPS. The short validation
 tests are found in the main STEPS repository under test/validation.
 
 To run all validations, clone this repository and go to the validation directory
