@@ -5,6 +5,8 @@
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+from __future__ import print_function, absolute_import
+
 import steps.model as smodel
 import steps.geom as sgeom
 import steps.rng as srng
@@ -61,14 +63,14 @@ def stats(bench, cdata):
     
     time_diff/=nps    
 
-    #print "Number of peaks", nps
-    #print "Mean absolute peak time difference:", time_diff, 'ms'
+    #print("Number of peaks", nps)
+    #print("Mean absolute peak time difference:", time_diff, 'ms')
     
     
     rms = 0
         
     if len(bench) != len(cdata):
-        print "Warning: data different length tpnts", len(bench), len(cdata)
+        print("Warning: data different length tpnts", len(bench), len(cdata))
 
     nts = len(bench)
     for t in range(nts):
@@ -82,7 +84,7 @@ def stats(bench, cdata):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 def test_rallpack3():
-    print "Rallpack 3 with TetODE"
+    print("Rallpack 3 with TetODE")
     #meshfile ='axon_cube_L1000um_D866m_600tets'
     meshfile ='axon_cube_L1000um_D866m_1135tets'
     #meshfile = 'axon_cube_L1000um_D866nm_1978tets'

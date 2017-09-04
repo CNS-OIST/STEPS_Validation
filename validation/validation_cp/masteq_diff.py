@@ -10,6 +10,8 @@
   
 ########################################################################
 
+from __future__ import print_function, absolute_import
+
 import numpy as np
 import time 
 
@@ -19,7 +21,7 @@ import steps.rng as srng
 import steps.solver as ssolv
 import steps.utilities.meshio as meshio
 
-from tol_funcs import *
+from . import tol_funcs
 
 print "Reaction-diffusion - Production and second order degradation:"
 import masteq_diff_cp
@@ -107,7 +109,7 @@ def test_masteqdiff():
 
     for m in range(5, 11):
         analy = (1.0/fact(m))*np.power((k2*v*v)/(B0*k1), m)*np.exp(-((k2*v*v)/(k1*B0)))
-        assert(tolerable(steps_n_res[m], analy, tolerance))
+        assert(tol_funcs.tolerable(steps_n_res[m], analy, tolerance))
         
 
 

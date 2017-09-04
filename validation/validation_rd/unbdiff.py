@@ -35,7 +35,7 @@ import numpy as np
 import datetime
 import time
 
-from tol_funcs import *
+from . import tol_funcs
 
 ########################################################################
 

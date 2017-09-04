@@ -8,6 +8,8 @@
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+from __future__ import print_function, absolute_import
+
 import steps.quiet
 import steps.model as smodel
 import steps.geom as sgeom
@@ -40,7 +42,7 @@ sim_parameters = {
 
 def print0(string):
     if steps.mpi.rank == 0:
-        print str(string)
+        print(str(string))
 
 
 def ROIset(x):
@@ -242,8 +244,9 @@ def run_sim(sim, dt, t_end, vertices, verbose=False):
     result = np.zeros((N, len(vertices)))
     nvert = len(vertices)
 
-    for l in xrange(N):
-        if verbose and steps.mpi.rank == 0: print "sim time (ms): ", dt*l*1.0e3
+    for l in range(N):
+        if verbose and steps.mpi.rank == 0: 
+            print("sim time (ms): ", dt*l*1.0e3)
         sim.run(l*dt)
         result[l,:] = [sim.getVertV(v) for v in vertices]
 

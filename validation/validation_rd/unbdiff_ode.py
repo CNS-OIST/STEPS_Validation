@@ -26,6 +26,8 @@
   
 ########################################################################
 
+from __future__ import print_function, absolute_import
+
 import steps.model as smodel
 import steps.solver as solvmod
 import steps.utilities.meshio as smeshio
@@ -36,7 +38,7 @@ import datetime
 import time
 import numpy as np
 
-from tol_funcs import *
+from . import tol_funcs
 
 ########################################################################
 

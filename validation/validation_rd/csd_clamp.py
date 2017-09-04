@@ -28,6 +28,8 @@
   
 ########################################################################
 
+from __future__ import print_function, absolute_import
+
 import datetime
 import steps.model as smodel
 import numpy as np
@@ -37,7 +39,7 @@ import steps.rng as srng
 import steps.utilities.meshio as meshio
 import time
 
-from tol_funcs import *
+from . import tol_funcs
 
 ########################################################################
 

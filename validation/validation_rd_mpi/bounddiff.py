@@ -5,6 +5,8 @@
 
 ########################################################################
 
+from __future__ import print_function, absolute_import
+
 import steps.model as smodel
 import steps.mpi
 import steps.mpi.solver as solvmod
@@ -19,7 +21,7 @@ import time
 import numpy
 import math
 
-from tol_funcs import *
+from . import tol_funcs
 
 ########################################################################
 
@@ -187,7 +189,7 @@ def test_bounddiff():
     N = int((1.0*NINJECT)/nztets)*nztets
     def getprob(x,t):
             if(x>a): 
-                    print 'x out of bounds'
+                    print('x out of bounds')
                     return
             p=0.0
             for n in range(nmax):

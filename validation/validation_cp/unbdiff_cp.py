@@ -9,6 +9,8 @@
   
 ########################################################################
 
+from __future__ import print_function, absolute_import
+
 import datetime
 import steps.model as smodel
 import numpy as np
@@ -18,7 +20,7 @@ import steps.geom as stetmesh
 import steps.rng as srng
 import time
 
-from tol_funcs import *
+from . import tol_funcs
 
 rng = srng.create('mt19937', 1024) 
 rng.initialize(int(time.time()%4294967295)) # The max unsigned long

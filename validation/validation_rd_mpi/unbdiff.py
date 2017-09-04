@@ -5,6 +5,7 @@
 
 ########################################################################
 
+from __future__ import print_function, absolute_import
 
 import steps.model as smodel
 import steps.mpi
@@ -19,7 +20,7 @@ import math
 import datetime
 import time
 
-from tol_funcs import *
+from . import tol_funcs
 
 ########################################################################
 

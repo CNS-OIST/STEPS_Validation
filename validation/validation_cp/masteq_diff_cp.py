@@ -10,6 +10,8 @@
   
 ########################################################################
 
+from __future__ import print_function, absolute_import
+
 import numpy as np
 import time 
 
@@ -19,7 +21,7 @@ import steps.rng as srng
 import steps.solver as ssolv
 import steps.utilities.meshio as meshio
 
-from tol_funcs import *
+from . import tol_funcs 
 
 ### NOW   A+B-> B,  0->A (see Erban and Chapman, 2009)
 

@@ -5,6 +5,8 @@
 
 ########################################################################
 
+from __future__ import print_function, absolute_import
+
 import steps.model as smodel
 import steps.mpi
 import steps.mpi.solver as solvmod
@@ -17,7 +19,7 @@ import numpy as np
 import time
 import datetime
 
-from tol_funcs import *
+from . import tol_funcs
 
 ########################################################################
 
