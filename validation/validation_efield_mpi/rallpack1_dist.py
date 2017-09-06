@@ -94,10 +94,10 @@ def radial_extrema(geom, vset):
     for v in vset:
         x = geom.getVertex(v)
         s = x[0]*x[0] + x[1]*x[1]
-        if r2min > s or r2min == None:
+        if r2min == None or r2min > s:
             r2min = s
             vmin = v
-        if r2max < s or r2max == None:
+        if r2max == None or r2max < s:
             r2max = s
             vmax = v
 
