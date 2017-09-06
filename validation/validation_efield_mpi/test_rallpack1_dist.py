@@ -1,6 +1,7 @@
+from __future__ import print_function, absolute_import
 
 import os.path as path
-import rallpack1_dist
+from . import rallpack1_dist
 
 def setup_module():
     global C

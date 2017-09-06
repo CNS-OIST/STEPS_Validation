@@ -5,6 +5,8 @@
 
 ########################################################################
 
+from __future__ import print_function, absolute_import
+
 import math
 import numpy
 import time 
@@ -17,7 +19,7 @@ import steps.mpi.solver as solvmod
 import steps.utilities.geom_decompose as gd
 import steps.utilities.meshio as meshio
 
-from tol_funcs import *
+from . import tol_funcs
 
 ########################################################################
 
@@ -107,7 +109,7 @@ def test_masteq_diff():
 
     for m in range(5, 11):
         analy = (1.0/fact(m))*math.pow((k2*v*v)/(B0*k1), m)*math.exp(-((k2*v*v)/(k1*B0)))
-        assert tolerable(steps_n_res[m], analy, tolerance)
+        assert tol_funcs.tolerable(steps_n_res[m], analy, tolerance)
 
 ########################################################################
 # END

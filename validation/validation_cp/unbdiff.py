@@ -9,6 +9,8 @@
   
 ########################################################################
 
+from __future__ import print_function, absolute_import
+
 import datetime
 import steps.model as smodel
 import numpy as np
@@ -18,10 +20,10 @@ import steps.geom as stetmesh
 import steps.rng as srng
 import time
 
-from tol_funcs import *
+from . import tol_funcs
+from . import unbdiff_cp
 
-print "Diffusion - Unbounded:"
-import unbdiff_cp
+print("Diffusion - Unbounded:")
 
 ########################################################################
 
@@ -116,7 +118,7 @@ def test_ubdiff():
             sim.run(tpnts[i])
             for k in range(SAMPLE):
                 res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
-    #print '%d / %d' % (j + 1, NITER)
+    #print('{0} / {1}'.format(j + 1, NITER))
 
     itermeans = np.mean(res, axis = 0)
 
@@ -162,5 +164,5 @@ def test_ubdiff():
                 rad = r_tets_binned[i]*1.0e-6
                 det_conc = 1e-18*((NINJECT/(np.power((4*np.pi*DCST*tpnts[t]),1.5)))*(np.exp((-1.0*(rad*rad))/(4*DCST*tpnts[t]))))
                 steps_conc = bin_concs[i]
-                assert(tolerable(det_conc, steps_conc, tolerance))
+                assert(tol_funcs.tolerable(det_conc, steps_conc, tolerance))
 

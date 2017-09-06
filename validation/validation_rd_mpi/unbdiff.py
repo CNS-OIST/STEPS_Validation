@@ -5,6 +5,7 @@
 
 ########################################################################
 
+from __future__ import print_function, absolute_import
 
 import steps.model as smodel
 import steps.mpi
@@ -19,7 +20,7 @@ import math
 import datetime
 import time
 
-from tol_funcs import *
+from . import tol_funcs
 
 ########################################################################
 
@@ -171,7 +172,7 @@ def test_unbdiff():
                 rad = r_tets_binned[i]*1.0e-6
                 det_conc = 1e-18*((NINJECT/(math.pow((4*math.pi*DCST*tpnts[t]),1.5)))*(math.exp((-1.0*(rad*rad))/(4*DCST*tpnts[t]))))
                 steps_conc = bin_concs[i]
-                assert tolerable(det_conc, steps_conc, tolerance)
+                assert tol_funcs.tolerable(det_conc, steps_conc, tolerance)
 
 ########################################################################
 # END

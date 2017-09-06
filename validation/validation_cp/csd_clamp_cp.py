@@ -9,6 +9,8 @@
   
 ########################################################################
 
+from __future__ import print_function, absolute_import
+
 import datetime
 import steps.model as smodel
 import numpy as np
@@ -19,7 +21,7 @@ import steps.utilities.meshio as meshio
 import time
 import os
 
-from tol_funcs import *
+from . import tol_funcs
 
 dir_checkpoint = "validation_cp/cp"
 if not os.path.exists(dir_checkpoint):

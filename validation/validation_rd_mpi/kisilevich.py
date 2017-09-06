@@ -5,6 +5,8 @@
 
 ########################################################################
 
+from __future__ import print_function, absolute_import
+
 import steps.model as smod
 import steps.geom as sgeom
 import steps.rng as srng
@@ -17,7 +19,7 @@ import time
 import numpy
 import steps.utilities.meshio as meshio
 
-from tol_funcs import *
+from . import tol_funcs
 
 ########################################################################
 
@@ -233,13 +235,13 @@ def test_kisilevich():
                 # compare A
                 det_conc = getdetc(tpnts[tidx], rad)
                 steps_conc = bin_concsA[i]
-                assert tolerable(det_conc, steps_conc, tolerance)
+                assert tol_funcs.tolerable(det_conc, steps_conc, tolerance)
 
             if (tetradsbinned[i] > 5):
                 # compare B
                 det_conc = getdetc(tpnts[tidx], rad)
                 steps_conc = bin_concsB[i]
-                assert tolerable(det_conc, steps_conc, tolerance)
+                assert tol_funcs.tolerable(det_conc, steps_conc, tolerance)
 
 ########################################################################
 # END
