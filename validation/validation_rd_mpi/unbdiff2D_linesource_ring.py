@@ -188,7 +188,7 @@ def test_unbdiff2D_linesource_ring():
                 dist = r_tris_binned[i]*1e-6
                 det_conc = 1e-6*(NINJECT/(4*np.sqrt((np.pi*DCST*tpnts[t]))))*(np.exp((-1.0*(dist*dist))/(4*DCST*tpnts[t])))	
                 steps_conc = bin_concs[i]
-                assert tolerable(det_conc, steps_conc, tolerance)
+                assert tol_funcs.tolerable(det_conc, steps_conc, tolerance)
 
 ########################################################################
 # END

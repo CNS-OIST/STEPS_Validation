@@ -182,7 +182,7 @@ def test_unbdiff2D():
                 rad = r_tris_binned[i]*1.0e-6
                 det_conc = 1.0e-12*(NINJECT/(4*np.pi*DCST*tpnts[t]))*(np.exp((-1.0*(rad*rad))/(4*DCST*tpnts[t])))
                 steps_conc = bin_concs[i]
-                assert tolerable(det_conc, steps_conc, tolerance)
+                assert tol_funcs.tolerable(det_conc, steps_conc, tolerance)
                 
 ########################################################################
 # END

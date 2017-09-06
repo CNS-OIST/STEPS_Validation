@@ -122,7 +122,7 @@ def test_masteq_diff():
 
     for m in range(5, 11):
         analy = (1.0/fact(m))*np.power((k2*v*v)/(B0*k1), m)*np.exp(-((k2*v*v)/(k1*B0)))
-        assert tolerable(steps_n_res[m], analy, tolerance)
+        assert tol_funcs.tolerable(steps_n_res[m], analy, tolerance)
 
 ########################################################################
 # END

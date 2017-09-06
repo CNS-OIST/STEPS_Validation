@@ -276,7 +276,7 @@ def test_constsourcediff_reac_ode():
                 tpnts[t]))*np.cos((n*pi*rad)/L)
                 det_conc = (1.0/6.022e20)*((J*L)/D)*(((D*tpnts[t])/np.power(L, 2))+((3*np.power(rad, 2) - np.power(L, 2))/(6*np.power(L, 2))) -(2/np.power(pi, 2))*nsum)
                 steps_conc = bin_concs[i]
-                assert tolerable(det_conc, steps_conc, tolerance)
+                assert tol_funcs.tolerable(det_conc, steps_conc, tolerance)
                 
 ########################################################################
 # END

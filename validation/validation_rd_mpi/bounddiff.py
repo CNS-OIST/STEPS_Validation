@@ -249,7 +249,7 @@ def test_bounddiff():
                 rad = tetradsbinned[i]*1.0e-6
                 det_conc = (getprob(rad, tpnts[t])/area)*(1.0/6.022e20)
                 steps_conc = bin_concs[i]
-                assert tolerable(det_conc, steps_conc, tolerance)
+                assert tol_funcs.tolerable(det_conc, steps_conc, tolerance)
 
 ########################################################################
 # END

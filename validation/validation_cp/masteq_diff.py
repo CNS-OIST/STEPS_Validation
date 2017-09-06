@@ -23,8 +23,8 @@ import steps.utilities.meshio as meshio
 
 from . import tol_funcs
 
-print "Reaction-diffusion - Production and second order degradation:"
-import masteq_diff_cp
+print("Reaction-diffusion - Production and second order degradation:")
+from . import masteq_diff_cp
 
 ### NOW   A+B-> B,  0->A (see Erban and Chapman, 2009)
 

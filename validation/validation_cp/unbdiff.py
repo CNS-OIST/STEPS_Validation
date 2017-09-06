@@ -21,9 +21,9 @@ import steps.rng as srng
 import time
 
 from . import tol_funcs
+from . import unbdiff_cp
 
 print("Diffusion - Unbounded:")
-import unbdiff_cp
 
 ########################################################################
 

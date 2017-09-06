@@ -22,10 +22,9 @@ import time
 import os
 
 from . import tol_funcs
-
+from . import csd_clamp_cp
 
 print("Diffusion - Clamped:")
-import csd_clamp_cp
 
 dir_checkpoint = "validation_cp/cp"
 if not os.path.exists(dir_checkpoint):
