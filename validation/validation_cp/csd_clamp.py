@@ -28,10 +28,6 @@ from .. import configuration
 
 print("Diffusion - Clamped:")
 
-dir_checkpoint = "validation_cp/cp"
-if not os.path.exists(dir_checkpoint):
-    os.makedirs(dir_checkpoint)
-
 rng = srng.create('mt19937', 512) 
 rng.initialize(int(time.time()%4294967295)) # The max unsigned long
 
@@ -187,7 +183,7 @@ def test_csdclamp():
         volztets += g.getTetVol(z)
 
     for j in range(NITER):
-        sim.restore('./validation_cp/cp/csd_clamp')
+        sim.restore(configuration.checkpoint('csd_clamp'))
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):

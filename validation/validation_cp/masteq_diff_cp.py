@@ -85,6 +85,6 @@ sim.reset()
 sim.setCompCount('comp1', 'A', 0)
 sim.setCompCount('comp1', 'B', B0)
 
-sim.checkpoint('./validation_cp/cp/masteq_diff')
+sim.checkpoint(configuration.checkpoint('masteq_diff'))
 
 

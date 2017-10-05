@@ -114,7 +114,7 @@ def test_ubdiff():
     res = np.zeros((NITER, ntpnts, SAMPLE))
 
     for j in range(NITER):
-        sim.restore('./validation_cp/cp/unbdiff')
+        sim.restore(configuration.checkpoint('unbdiff'))
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):

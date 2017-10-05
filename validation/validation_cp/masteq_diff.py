@@ -85,7 +85,7 @@ def test_masteqdiff():
     res_std1 = np.zeros([ntpnts])
     res_std2 = np.zeros([ntpnts])
 
-    sim.restore('./validation_cp/cp/masteq_diff')
+    sim.restore(configuration.checkpoint('masteq_diff'))
 
     b_time = time.time()
     for t in range(0, ntpnts):

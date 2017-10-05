@@ -24,10 +24,6 @@ import os
 from . import tol_funcs
 from .. import configuration
 
-dir_checkpoint = "validation_cp/cp"
-if not os.path.exists(dir_checkpoint):
-    os.makedirs(dir_checkpoint)
-
 rng = srng.create('mt19937', 512) 
 rng.initialize(int(time.time()%4294967295)) # The max unsigned long
 
@@ -184,5 +180,4 @@ sim.reset()
 for k in minztets:
     sim.setTetConc(k, 'X', CONC)
     sim.setTetClamped(k, 'X', True)
-sim.checkpoint('./validation_cp/cp/csd_clamp')
-
+sim.checkpoint(configuration.checkpoint('csd_clamp'))

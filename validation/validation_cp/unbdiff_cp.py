@@ -109,5 +109,5 @@ res = np.zeros((NITER, ntpnts, SAMPLE))
 
 sim.reset()
 sim.setTetCount(ctetidx, 'X', NINJECT)
-sim.checkpoint('./validation_cp/cp/unbdiff')
+sim.checkpoint(configuration.checkpoint('unbdiff'))
 
