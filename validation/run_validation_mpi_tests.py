@@ -1,17 +1,28 @@
-import nose
-import os
+from __future__ import absolute_import
+
+import os.path as osp
 import sys
 
-if __name__ == '__main__':
-    # It's expected that we are being run from the test subdirectory,
-    # and so all the test modules and the mesh directory is under
-    # 'validation/'.
+import nose
 
-    nose.run(argv=['-s', '-v', 'validation_rd_mpi/unbdiff2D.py'])
-    nose.run(argv=['-s', '-v', 'validation_rd_mpi/unbdiff2D_linesource_ring.py'])
-    nose.run(argv=['-s', '-v', 'validation_rd_mpi/unbdiff.py'])
-    nose.run(argv=['-s', '-v', 'validation_rd_mpi/bounddiff.py'])
-    nose.run(argv=['-s', '-v', 'validation_rd_mpi/csd_clamp.py'])
-    nose.run(argv=['-s', '-v', 'validation_rd_mpi/masteq_diff.py'])
-    nose.run(argv=['-s', '-v', 'validation_rd_mpi/kisilevich.py'])
-    nose.run(argv=['-s', '-v', 'validation_efield_mpi/test_rallpack1_dist.py'])
+from config import configuration
+
+
+DEFAULT_TEST_SUITE = [
+    'validation_rd_mpi/unbdiff2D.py',
+    'validation_rd_mpi/unbdiff2D_linesource_ring.py',
+    'validation_rd_mpi/unbdiff.py',
+    'validation_rd_mpi/bounddiff.py',
+    'validation_rd_mpi/csd_clamp.py',
+    'validation_rd_mpi/masteq_diff.py',
+    'validation_rd_mpi/kisilevich.py',
+    'validation_efield_mpi/test_rallpack1_dist.py',
+]
+
+
+if __name__ == '__main__':
+    test_dir = osp.dirname(osp.abspath(__file__))
+    test_suite = sys.argv[1:] or DEFAULT_TEST_SUITE
+    configuration.mpi = True
+    for suite in test_suite:
+        nose.run(argv=['-s', '-v', osp.join(test_dir, suite)])

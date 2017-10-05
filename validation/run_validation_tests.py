@@ -1,13 +1,28 @@
+import os.path as osp
+import sys
+
 import nose
 
+
+DEFAULT_TEST_SUITE = [
+    'validation_cp',
+    'validation_efield',
+    'validation_rd',
+]
+
+
+def main():
+    test_dir = osp.dirname(osp.abspath(__file__))
+    test_suite = sys.argv[1:] or DEFAULT_TEST_SUITE
+    for suite in test_suite:
+        nose.run(argv=[
+            __file__,
+            '-s',
+            '--all-modules',
+            '-v',
+            osp.join(test_dir, suite)
+        ])
+
+
 if __name__ == '__main__':
-    # It's expected that we are being run from the test subdirectory,
-    # and so all the test modules and the mesh directory is under
-    # 'validation/'.
-
-    nose.run(argv=[__file__,'-s','--all-modules','-v','validation_cp'])
-    nose.run(argv=[__file__,'-s','--all-modules','-v','validation_efield'])
-    nose.run(argv=[__file__,'-s','--all-modules','-v','validation_rd'])
-
-
-
+    main()

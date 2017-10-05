@@ -22,6 +22,7 @@ import time
 import os
 
 from . import tol_funcs
+from .. import configuration
 
 dir_checkpoint = "validation_cp/cp"
 if not os.path.exists(dir_checkpoint):
@@ -90,7 +91,7 @@ def gen_model():
 ########################################################################
 
 def gen_geom():
-    mesh = meshio.loadMesh('./validation_rd/meshes/' +MESHFILE)[0]
+    mesh = meshio.loadMesh(configuration.mesh_path(MESHFILE))[0]
     
     ntets = mesh.countTets()
     

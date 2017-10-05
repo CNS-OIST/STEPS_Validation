@@ -21,7 +21,8 @@ import steps.rng as srng
 import steps.solver as ssolv
 import steps.utilities.meshio as meshio
 
-from . import tol_funcs 
+from . import tol_funcs
+from .. import configuration
 
 ### NOW   A+B-> B,  0->A (see Erban and Chapman, 2009)
 
@@ -62,7 +63,7 @@ diffB.setDcst(DCST_B)
 R1 = smod.Reac('R1', volsys, lhs = [A, B], rhs = [B], kcst = KCST_f)
 R2 = smod.Reac('R2', volsys, lhs = [], rhs = [A], kcst = KCST_b)
 
-geom = meshio.loadMesh('./validation_rd/meshes/'+filename)[0]
+geom = meshio.loadMesh(configuration.mesh_path(filename))[0]
 
 comp1 = sgeom.TmComp('comp1', geom, range(geom.ntets))
 comp1.addVolsys('vsys')

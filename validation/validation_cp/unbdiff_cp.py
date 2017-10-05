@@ -21,6 +21,7 @@ import steps.rng as srng
 import time
 
 from . import tol_funcs
+from .. import configuration
 
 rng = srng.create('mt19937', 1024) 
 rng.initialize(int(time.time()%4294967295)) # The max unsigned long
@@ -69,7 +70,7 @@ def gen_model():
 ########################################################################
 
 def gen_geom():
-    mesh = smeshio.loadMesh('./validation_rd/meshes/'+MESHFILE)[0]
+    mesh = smeshio.loadMesh(configuration.mesh_path(MESHFILE))[0]
     ctetidx = mesh.findTetByPoint([0.0, 0.0, 0.0])
     
     ntets = mesh.countTets()

@@ -6,12 +6,13 @@
 # AIMS: to verify checkpointing and restoring of the spatial stochastic 
 # solver 'Tetexact' in the context of the Clamped-source Diffusion model 
 # (see validation/csd_clamp.py)
-  
+
 ########################################################################
 
 from __future__ import print_function, absolute_import
 
 import datetime
+import os.path as osp
 import steps.model as smodel
 import numpy as np
 import steps.solver as solvmod
@@ -23,6 +24,7 @@ import os
 
 from . import tol_funcs
 from . import csd_clamp_cp
+from .. import configuration
 
 print("Diffusion - Clamped:")
 
@@ -93,7 +95,7 @@ def gen_model():
 ########################################################################
 
 def gen_geom():
-    mesh = meshio.loadMesh('./validation_rd/meshes/' +MESHFILE)[0]
+    mesh = meshio.loadMesh(configuration.mesh_path(MESHFILE))[0]
     
     ntets = mesh.countTets()
     

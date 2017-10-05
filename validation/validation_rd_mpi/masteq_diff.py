@@ -20,6 +20,7 @@ import steps.utilities.geom_decompose as gd
 import steps.utilities.meshio as meshio
 
 from . import tol_funcs
+from .. import configuration
 
 ########################################################################
 
@@ -65,7 +66,7 @@ def test_masteq_diff():
     R1 = smod.Reac('R1', volsys, lhs = [A, B], rhs = [B], kcst = KCST_f)
     R2 = smod.Reac('R2', volsys, lhs = [], rhs = [A], kcst = KCST_b)
 
-    geom = meshio.loadMesh('validation_rd_mpi/meshes/'+filename)[0]
+    geom = meshio.loadMesh(configuration.mesh_path(filename))[0]
 
     comp1 = sgeom.TmComp('comp1', geom, range(geom.ntets))
     comp1.addVolsys('vsys')
