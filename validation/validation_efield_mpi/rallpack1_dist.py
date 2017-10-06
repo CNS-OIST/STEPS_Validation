@@ -16,7 +16,6 @@ import steps.geom as sgeom
 import steps.rng as srng
 import steps.utilities.meshio as meshio
 import steps.mpi.solver as ssolver
-import steps.utilities.geom_decompose as gd
 
 import numpy as np
 import numpy.linalg as la
@@ -214,9 +213,9 @@ def init_sim(model, mesh, seed, param):
 
     # partition geometry across hosts
 
-    (tet_hosts,tri_hosts) = host_assignment_by_axis(mesh, memb.tris)
+    #(tet_hosts,tri_hosts) = host_assignment_by_axis(mesh, memb.tris)
     # sim = ssolver.TetOpSplit(model, mesh, rng, True, tet_hosts, tri_hosts)
-    sim = ssolver.TetOpSplit(model, mesh, rng, param['EF_solver'], tet_hosts, tri_hosts)
+    sim = ssolver.TetOpSplit(model, mesh, rng, param['EF_solver'])
 
     # Correction factor for deviation between mesh and model cylinder:
     area_cylinder = np.pi * param['diameter'] * param['length']

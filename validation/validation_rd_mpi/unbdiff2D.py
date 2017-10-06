@@ -10,7 +10,6 @@ from __future__ import print_function, absolute_import
 import steps.model as smodel
 import steps.mpi
 import steps.mpi.solver as solvmod
-import steps.utilities.geom_decompose as gd
 import steps.utilities.meshio as smeshio
 import steps.geom as stetmesh
 import steps.rng as srng
@@ -114,9 +113,7 @@ def test_unbdiff2D():
     m = gen_model()
     g, patch_tris, patch_tris_n, ctri_idx, trirads, triareas = gen_geom()
 
-    tet_hosts = gd.binTetsByAxis(g, steps.mpi.nhosts)
-    tri_hosts = gd.partitionTris(g, tet_hosts, patch_tris)
-    sim = solvmod.TetOpSplit(m, g, rng, False, tet_hosts, tri_hosts)
+    sim = solvmod.TetOpSplit(m, g, rng, False)
     
     tpnts = np.arange(0.0, INT, DT)
     ntpnts = tpnts.shape[0]

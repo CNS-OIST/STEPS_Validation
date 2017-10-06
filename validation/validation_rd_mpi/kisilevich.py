@@ -12,7 +12,6 @@ import steps.geom as sgeom
 import steps.rng as srng
 import steps.mpi
 import steps.mpi.solver as solvmod
-import steps.utilities.geom_decompose as gd
 
 import math
 import time 
@@ -124,8 +123,7 @@ def test_kisilevich():
     rng = srng.create('r123', 512)
     rng.initialize(1000)
 
-    tet_hosts = gd.binTetsByAxis(mesh, steps.mpi.nhosts)
-    sim = solvmod.TetOpSplit(mdl, mesh, rng, False, tet_hosts)
+    sim = solvmod.TetOpSplit(mdl, mesh, rng, False)
 
     tpnts = numpy.arange(0.0, INT, DT)
     ntpnts = tpnts.shape[0]
