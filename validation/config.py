@@ -30,8 +30,7 @@ class Configuration(object):
     def checkpoint(self, name):
         """Get path to checkpoint given in parameter
         """
-        this_dir = osp.dirname(osp.abspath(__file__))
-        checkpoints_dir = osp.join(this_dir, 'checkpoints')
+        checkpoints_dir = osp.join(os.getcwd(), 'checkpoints')
         if not osp.isdir(checkpoints_dir):
             os.makedirs(checkpoints_dir)
         return osp.join(checkpoints_dir, name)
