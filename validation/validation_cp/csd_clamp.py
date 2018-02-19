@@ -6,12 +6,13 @@
 # AIMS: to verify checkpointing and restoring of the spatial stochastic 
 # solver 'Tetexact' in the context of the Clamped-source Diffusion model 
 # (see validation/csd_clamp.py)
-  
+
 ########################################################################
 
 from __future__ import print_function, absolute_import
 
 import datetime
+import os.path as osp
 import steps.model as smodel
 import numpy as np
 import steps.solver as solvmod
@@ -23,12 +24,9 @@ import os
 
 from . import tol_funcs
 from . import csd_clamp_cp
+from .. import configuration
 
 print("Diffusion - Clamped:")
-
-dir_checkpoint = "validation_cp/cp"
-if not os.path.exists(dir_checkpoint):
-    os.makedirs(dir_checkpoint)
 
 rng = srng.create('mt19937', 512) 
 rng.initialize(int(time.time()%4294967295)) # The max unsigned long
@@ -93,7 +91,7 @@ def gen_model():
 ########################################################################
 
 def gen_geom():
-    mesh = meshio.loadMesh('./validation_rd/meshes/' +MESHFILE)[0]
+    mesh = meshio.loadMesh(configuration.mesh_path(MESHFILE))[0]
     
     ntets = mesh.countTets()
     
@@ -185,7 +183,7 @@ def test_csdclamp():
         volztets += g.getTetVol(z)
 
     for j in range(NITER):
-        sim.restore('./validation_cp/cp/csd_clamp')
+        sim.restore(configuration.checkpoint('csd_clamp'))
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):

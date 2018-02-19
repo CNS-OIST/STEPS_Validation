@@ -22,6 +22,7 @@ import time
 
 from . import tol_funcs
 from . import unbdiff_cp
+from .. import configuration
 
 print("Diffusion - Unbounded:")
 
@@ -75,7 +76,7 @@ def test_ubdiff():
     ########################################################################
 
     def gen_geom():
-        mesh = smeshio.loadMesh('./validation_rd/meshes/'+MESHFILE)[0]
+        mesh = smeshio.loadMesh(configuration.mesh_path(MESHFILE))[0]
         ctetidx = mesh.findTetByPoint([0.0, 0.0, 0.0])
         
         ntets = mesh.countTets()
@@ -113,7 +114,7 @@ def test_ubdiff():
     res = np.zeros((NITER, ntpnts, SAMPLE))
 
     for j in range(NITER):
-        sim.restore('./validation_cp/cp/unbdiff')
+        sim.restore(configuration.checkpoint('unbdiff'))
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):

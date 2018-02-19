@@ -7,6 +7,8 @@
 
 from __future__ import print_function, absolute_import
 
+import os.path as osp
+
 import steps.model as smodel
 import steps.geom as sgeom
 import steps.rng as srng
@@ -17,6 +19,8 @@ import numpy as np
 
 import time
 from random import *
+
+from .. import configuration
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -229,7 +233,8 @@ def test_rallpack3():
     OC_Na = smodel.OhmicCurr('OC_Na', ssys, chanstate = Na_m3h0, erev = Na_rev, g = Na_G/Na_ro ) 
 
     # Mesh geometry
-    mesh = meshio.loadMesh('validation_efield/meshes/'+meshfile)[0]
+    mesh_path = osp.join('validation_efield', 'meshes', meshfile)
+    mesh = meshio.loadMesh(configuration.path(mesh_path))[0]
 
     cyto = sgeom.TmComp('cyto', mesh, range(mesh.ntets))
 
@@ -371,29 +376,28 @@ def test_rallpack3():
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     # Benchmark
-    # At 0um- the end of the mesh
-    ifile_benchmark_x0 = open('validation_efield/data/rallpack3_benchmark/rallpack3_0_0.001dt_1000seg', 'r')
-
-    # At 1000um- the end of the mesh
-    ifile_benchmark_x1000 = open('validation_efield/data/rallpack3_benchmark/rallpack3_1000_0.001dt_1000seg', 'r')
-
-    tpnt_benchmark = []
+    data_dir = configuration.path(osp.join('validation_efield', 'data', 'rallpack3_benchmark'))
     v_benchmark_x0 = []
     v_benchmark_x1000 = []
+    tpnt_benchmark = []
 
-    lines_benchmark_x0 = ifile_benchmark_x0.readlines()[2:]
+    # At 0um- the end of the mesh
+    with open(osp.join(data_dir, 'rallpack3_0_0.001dt_1000seg')) as istr:
+        # Read in mv and ms
+        next(istr)
+        next(istr)
+        for line in istr:
+            nums = line.split()
+            tpnt_benchmark.append(float(nums[0]))
+            v_benchmark_x0.append(float(nums[1]))
 
-    # Read in mv and ms
-    for line_benchmark_x0 in lines_benchmark_x0:
-        nums = line_benchmark_x0.split()
-        tpnt_benchmark.append(float(nums[0]))
-        v_benchmark_x0.append(float(nums[1]))
-        
-    lines_benchmark_x1000 = ifile_benchmark_x1000.readlines()[2:]
-
-    for line_benchmark_x1000 in lines_benchmark_x1000:
-        nums = line_benchmark_x1000.split()
-        v_benchmark_x1000.append(float(nums[1]))
+    # At 1000um- the end of the mesh
+    with open(osp.join(data_dir, 'rallpack3_1000_0.001dt_1000seg')) as istr:
+        next(istr)
+        next(istr)
+        for line in istr:
+            nums = line.split()
+            v_benchmark_x1000.append(float(nums[1]))
 
     # Get rid of the last point which seems to be missing from STEPS
     v_benchmark_x0 = v_benchmark_x0[:-1]

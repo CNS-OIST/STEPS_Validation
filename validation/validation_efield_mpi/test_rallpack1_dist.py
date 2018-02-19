@@ -2,12 +2,13 @@ from __future__ import print_function, absolute_import
 
 import os.path as path
 from . import rallpack1_dist
+from .. import configuration
 
 def setup_module():
     global C
 
     # defaults
-    C={ 'meshdir': 'validation_efield/meshes',
+    C={ 'meshdir': configuration.path('validation_efield/meshes'),
         'mesh': 'axon_cube_L1000um_D866nm_1978tets',
         'meshfmt': 'xml',
         'meshscale': 1,

@@ -22,6 +22,7 @@ import numpy
 import math
 
 from . import tol_funcs
+from .. import configuration
 
 ########################################################################
 
@@ -72,7 +73,7 @@ def gen_model():
 ########################################################################
 
 def gen_geom():
-    mesh = meshio.loadMesh('validation_rd_mpi/meshes/' +MESHFILE)[0]
+    mesh = meshio.loadMesh(configuration.mesh_path(MESHFILE))[0]
     
     a = mesh.getBoundMax()[2]-mesh.getBoundMin()[2]
     area = mesh.getMeshVolume()/a

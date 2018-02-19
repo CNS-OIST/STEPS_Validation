@@ -22,10 +22,7 @@ import time
 import os
 
 from . import tol_funcs
-
-dir_checkpoint = "validation_cp/cp"
-if not os.path.exists(dir_checkpoint):
-    os.makedirs(dir_checkpoint)
+from .. import configuration
 
 rng = srng.create('mt19937', 512) 
 rng.initialize(int(time.time()%4294967295)) # The max unsigned long
@@ -90,7 +87,7 @@ def gen_model():
 ########################################################################
 
 def gen_geom():
-    mesh = meshio.loadMesh('./validation_rd/meshes/' +MESHFILE)[0]
+    mesh = meshio.loadMesh(configuration.mesh_path(MESHFILE))[0]
     
     ntets = mesh.countTets()
     
@@ -183,5 +180,4 @@ sim.reset()
 for k in minztets:
     sim.setTetConc(k, 'X', CONC)
     sim.setTetClamped(k, 'X', True)
-sim.checkpoint('./validation_cp/cp/csd_clamp')
-
+sim.checkpoint(configuration.checkpoint('csd_clamp'))

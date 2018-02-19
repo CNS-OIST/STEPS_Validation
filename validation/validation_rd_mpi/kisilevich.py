@@ -20,6 +20,7 @@ import numpy
 import steps.utilities.meshio as meshio
 
 from . import tol_funcs
+from .. import configuration
 
 ########################################################################
 
@@ -64,7 +65,7 @@ def test_kisilevich():
     D_b = smod.Diff('D_b', volsys, B)
     D_b.setDcst(DCSTB)
 
-    mesh = meshio.loadMesh('validation_rd_mpi/meshes/brick_40_4_4_1686tets')[0]
+    mesh = meshio.loadMesh(configuration.mesh_path('brick_40_4_4_1686tets'))[0]
 
     VOLA = mesh.getMeshVolume()/2.0
     VOLB = VOLA

@@ -33,6 +33,7 @@ import time
 import numpy as np
 import steps.utilities.meshio as meshio
 from . import tol_funcs
+from .. import configuration
 
 ########################################################################
 
@@ -80,7 +81,7 @@ def test_kis_ode():
     D_b = smod.Diff('D_b', volsys, B)
     D_b.setDcst(DCSTB)
 
-    mesh = meshio.loadMesh('validation_rd/meshes/brick_40_4_4_STEPS')[0]
+    mesh = meshio.loadMesh(configuration.mesh_path('brick_40_4_4_STEPS'))[0]
     ntets = mesh.countTets()
 
     VOLA = mesh.getMeshVolume()/2.0

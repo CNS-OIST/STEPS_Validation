@@ -22,6 +22,7 @@ import copy
 import numpy as np
 
 from . import tol_funcs
+from .. import configuration
 
 ########################################################################
 
@@ -62,7 +63,7 @@ def gen_model():
 ########################################################################
 
 def gen_geom():
-    mesh = smeshio.loadMesh('validation_rd_mpi/meshes/'+MESHFILE)[0]
+    mesh = smeshio.loadMesh(configuration.mesh_path(MESHFILE))[0]
         
     ntets = mesh.countTets()
     comp = stetmesh.TmComp('cyto', mesh, range(ntets))
