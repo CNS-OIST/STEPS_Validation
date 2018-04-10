@@ -22,6 +22,8 @@ import numpy as np
 import numpy.linalg as la
 import operator
 
+from .. import configuration
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 sim_parameters = {
@@ -261,7 +263,7 @@ def run_comparison(seed, mesh_file, mesh_format, mesh_scale, v0_datafile, v1_dat
     sim_dt = 5.0e-5
 
     def snarf(fname):
-        F = open(fname, 'r')
+        F = open(configuration.path(fname), 'r')
         for line in F: yield tuple([float(x) for x in line.split()])
         F.close()
 
