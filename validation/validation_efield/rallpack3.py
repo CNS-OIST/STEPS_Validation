@@ -8,17 +8,21 @@
 from __future__ import print_function, absolute_import
 
 import os.path as osp
-
-import steps.model as smodel
-import steps.geom as sgeom
-import steps.rng as srng
-import steps.utilities.meshio as meshio
-import steps.solver as ssolver
+from random import *
+import time
 
 import numpy as np
+try:
+  from steps import UNKNOWN_TET
+except ImportError:
+  UNKNOWN_TET = -1
+import steps.geom as sgeom
+import steps.model as smodel
+import steps.rng as srng
+import steps.solver as ssolver
+import steps.utilities.meshio as meshio
 
-import time
-from random import *
+
 
 from .. import configuration
 
@@ -255,20 +259,12 @@ def test_rallpack3():
 
     for i in range(mesh.ntets):
         tettemp = mesh.getTetTetNeighb(i)
-        if (tettemp[0] ==-1 or tettemp[1] == -1 or tettemp[2] == -1 or tettemp[3] == -1): 
+        templist = [t for t in range(4) if tettemp[t] == UNKNOWN_TET]
+        if templist:
             boundtets.append(i)
-            templist = []
-            if (tettemp[0] == -1): 
-                templist.append(0)
-            if (tettemp[1] == -1): 
-                templist.append(1)
-            if (tettemp[2] == -1): 
-                templist.append(2)
-            if (tettemp[3] == -1): 
-                templist.append(3)
             bt_srftriidx.append(templist)
 
-    assert (boundtets.__len__() == bt_srftriidx.__len__())
+    assert len(boundtets) == len(bt_srftriidx)
 
     # Find the tets on the z=0 and z=1000um boundaries, and the triangles
     minztets = []

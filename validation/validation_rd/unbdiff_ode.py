@@ -1,4 +1,4 @@
-########################################################################
+#######################################################################
 
 # 3D diffusion in an infinite volume from a point source. 
 
@@ -28,15 +28,19 @@
 
 from __future__ import print_function, absolute_import
 
-import steps.model as smodel
-import steps.solver as solvmod
-import steps.utilities.meshio as smeshio
-import steps.geom as stetmesh
-import steps.rng as srng
-
 import datetime
 import time
+
 import numpy as np
+try:
+    from steps import UNKNOWN_TET
+except ImportError:
+    UNKNOWN_TET = -1
+import steps.geom as stetmesh
+import steps.model as smodel
+import steps.rng as srng
+import steps.solver as solvmod
+import steps.utilities.meshio as smeshio
 
 from . import tol_funcs
 from .. import configuration
@@ -154,7 +158,7 @@ def gen_geom():
         
         idx = mesh.findTetByPoint([xpnt, ypnt, zpnt])
         
-        if (idx == -1): continue
+        if (idx == UNKNOWN_TET): continue
         if (idx not in tetidxs): 
             tetidxs[numfilled] = idx
             numfilled += 1

@@ -31,13 +31,18 @@
 from __future__ import print_function, absolute_import
 
 import datetime
-import steps.model as smodel
+import time
+
 import numpy as np
+try:
+    from steps import UNKNOWN_TET
+except ImportError:
+    UNKNOWN_TET = -1
+import steps.geom as stetmesh
+import steps.model as smodel
+import steps.rng as srng
 import steps.solver as solvmod
 import steps.utilities.meshio as meshio
-import steps.geom as stetmesh
-import steps.rng as srng
-import time
 
 from . import tol_funcs
 from .. import configuration
@@ -147,21 +152,13 @@ def test_constsourcediff_reac_ode():
     bt_srftriidx = []
 
     for i in range(ntets):
-            tettemp = g.getTetTetNeighb(i)
-            if (tettemp[0] ==-1 or tettemp[1] == -1 or tettemp[2] == -1 or tettemp[3] == -1): 
-                    boundtets.append(i)
-                    templist = []
-                    if (tettemp[0] == -1): 
-                            templist.append(0)
-                    if (tettemp[1] == -1): 
-                            templist.append(1)
-                    if (tettemp[2] == -1): 
-                            templist.append(2)
-                    if (tettemp[3] == -1): 
-                            templist.append(3)
-                    bt_srftriidx.append(templist)
+        tettemp = g.getTetTetNeighb(i)
+        templist = [t for t in range(4) if tettemp[t] == UNKNOWN_TET]
+        if templist:
+            boundtets.append(i)
+            bt_srftriidx.append(templist)
 
-    assert (boundtets.__len__() == bt_srftriidx.__len__())
+    assert len(boundtets) == len(bt_srftriidx)
                     
     minztets = []
     maxztets = []

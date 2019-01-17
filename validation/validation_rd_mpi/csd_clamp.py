@@ -1,4 +1,4 @@
-########################################################################
+#######################################################################
 
 # This is the parallel version of csd_clamp.py in validation_rd.
 # Use for parallel TetOpSplit validation.
@@ -8,16 +8,21 @@
 from __future__ import print_function, absolute_import
 
 import datetime
-import steps.model as smodel
 import math
+import time
+
 import numpy
+try:
+    from steps import UNKNOWN_TET
+except ImportError:
+    UNKNOWN_TET = -1
+import steps.geom as stetmesh
+import steps.model as smodel
 import steps.mpi
 import steps.mpi.solver as solvmod
-import steps.utilities.geom_decompose as gd
-import steps.geom as stetmesh
 import steps.rng as srng
+import steps.utilities.geom_decompose as gd
 import steps.utilities.meshio as meshio
-import time
 
 from . import tol_funcs
 from .. import configuration
@@ -102,7 +107,7 @@ def gen_geom():
     while (numfilled < SAMPLE):
         tetidxs[numfilled] = numfilled
         numfilled +=1
-    
+
     # Now find the distance of the centre of the tets to the Z lower face
     for i in range(SAMPLE):
         baryc = mesh.getTetBarycenter(int(tetidxs[i]))
@@ -141,22 +146,15 @@ def test_csd_clamped():
     # store the 0to3 index of the surface triangle for each of these boundary tets
     bt_srftriidx = []
 
-    for i in range(ntets):
-            tettemp = g.getTetTetNeighb(i)
-            if (tettemp[0] ==-1 or tettemp[1] == -1 or tettemp[2] == -1 or tettemp[3] == -1): 
-                    boundtets.append(i)
-                    templist = []
-                    if (tettemp[0] == -1): 
-                            templist.append(0)
-                    if (tettemp[1] == -1): 
-                            templist.append(1)
-                    if (tettemp[2] == -1): 
-                            templist.append(2)
-                    if (tettemp[3] == -1): 
-                            templist.append(3)
-                    bt_srftriidx.append(templist)
 
-    assert (boundtets.__len__() == bt_srftriidx.__len__())
+    for i in range(ntets):
+        tettemp = g.getTetTetNeighb(i)
+        templist = [t for t in range(4) if tettemp[t] == UNKNOWN_TET]
+        if templist:
+            boundtets.append(i)
+            bt_srftriidx.append(templist)
+
+    assert len(boundtets) == len(bt_srftriidx)
 
     minztets = []
     boundminz = g.getBoundMin()[2] + 0.01e-06
@@ -187,7 +185,7 @@ def test_csd_clamped():
         for k in minztets:
             sim.setTetConc(k, 'X', CONC)
             sim.setTetClamped(k, 'X', True)
-            totset+=sim.getTetCount(k, 'X')    
+            totset+=sim.getTetCount(k, 'X')
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):
