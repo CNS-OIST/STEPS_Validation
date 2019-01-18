@@ -151,9 +151,10 @@ def test_bounddiff():
     for i in range(ntets):
         tettemp = g.getTetTetNeighb(i)
         templist = [t for t in range(4) if tettemp[t] == UNKNOWN_TET]
+        boundtets.append(i)
         bt_srftriidx.append(templist)
 
-    assert (boundtets.__len__() == bt_srftriidx.__len__())
+    assert len(boundtets) == len(bt_srftriidx)
 
     minztets = []
     boundminz = g.getBoundMin()[2] + 0.01e-06
