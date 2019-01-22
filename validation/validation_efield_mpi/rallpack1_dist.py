@@ -15,7 +15,7 @@ import operator
 import numpy as np
 import numpy.linalg as la
 try:
-    from steps import UNKNOWN_TET, UNKNOWN_TRI
+    from steps.geom import UNKNOWN_TET, UNKNOWN_TRI
 except ImportError:
     UNKNOWN_TET = -1
     UNKNOWN_TRI = -1

@@ -13,7 +13,7 @@ import time
 
 import numpy as np
 try:
-  from steps import UNKNOWN_TET
+  from steps.geom import UNKNOWN_TET
 except ImportError:
   UNKNOWN_TET = -1
 import steps.geom as sgeom
