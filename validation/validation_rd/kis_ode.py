@@ -24,14 +24,19 @@
 
 from __future__ import print_function, absolute_import
 
-import steps.model as smod
+import time 
+
+import numpy as np
+try:
+    from steps.geom import UNKNOWN_TET
+except ImportError:
+    UNKNOWN_TET = -1
 import steps.geom as sgeom
+import steps.model as smod
 import steps.rng as srng
 import steps.solver as ssolv
-
-import time 
-import numpy as np
 import steps.utilities.meshio as meshio
+
 from . import tol_funcs
 from .. import configuration
 
@@ -109,7 +114,7 @@ def test_kis_ode():
                     
                     idx = mesh.findTetByPoint([xpnt, ypnt, zpnt])
                     
-                    if (idx == -1): continue
+                    if (idx == UNKNOWN_TET): continue
                     if (idx not in tetidxs): 
                             tetidxs[numfilled] = idx
                             numfilled += 1

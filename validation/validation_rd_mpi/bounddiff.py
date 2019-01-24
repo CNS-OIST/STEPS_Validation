@@ -7,19 +7,23 @@
 
 from __future__ import print_function, absolute_import
 
-import steps.model as smodel
-import steps.mpi
-import steps.mpi.solver as solvmod
-import steps.utilities.geom_decompose as gd
-import steps.utilities.meshio as meshio
-import steps.geom as stetmesh
-import steps.rng as srng
-
 import datetime
 import math
 import time
+
 import numpy
-import math
+try:
+    from steps.geom import UNKNOWN_TET
+except ImportError:
+    UNKNOWN_TET = -1
+import steps.geom as stetmesh
+import steps.model as smodel
+import steps.mpi
+import steps.mpi.solver as solvmod
+import steps.rng as srng
+import steps.utilities.geom_decompose as gd
+import steps.utilities.meshio as meshio
+
 
 from . import tol_funcs
 from .. import configuration
@@ -127,21 +131,13 @@ def test_bounddiff():
     bt_srftriidx = []
 
     for i in range(ntets):
-            tettemp = g.getTetTetNeighb(i)
-            if (tettemp[0] ==-1 or tettemp[1] == -1 or tettemp[2] == -1 or tettemp[3] == -1): 
-                    boundtets.append(i)
-                    templist = []
-                    if (tettemp[0] == -1): 
-                            templist.append(0)
-                    if (tettemp[1] == -1): 
-                            templist.append(1)
-                    if (tettemp[2] == -1): 
-                            templist.append(2)
-                    if (tettemp[3] == -1): 
-                            templist.append(3)
-                    bt_srftriidx.append(templist)
+        tettemp = g.getTetTetNeighb(i)
+        templist = [t for t in range(4) if tettemp[t] == UNKNOWN_TET]
+        if templist:
+            boundtets.append(i)
+            bt_srftriidx.append(templist)
 
-    assert (boundtets.__len__() == bt_srftriidx.__len__())
+    assert len(boundtets) == len(bt_srftriidx)
 
     minztets = []
     boundminz = g.getBoundMin()[2] + 0.01e-06

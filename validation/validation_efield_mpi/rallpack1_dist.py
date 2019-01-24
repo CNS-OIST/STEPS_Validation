@@ -10,17 +10,23 @@
 
 from __future__ import print_function, absolute_import
 
-import steps.quiet
-import steps.model as smodel
-import steps.geom as sgeom
-import steps.rng as srng
-import steps.utilities.meshio as meshio
-import steps.mpi.solver as ssolver
-import steps.utilities.geom_decompose as gd
+import operator
 
 import numpy as np
 import numpy.linalg as la
-import operator
+try:
+    from steps.geom import UNKNOWN_TET, UNKNOWN_TRI
+except ImportError:
+    UNKNOWN_TET = -1
+    UNKNOWN_TRI = -1
+import steps.geom as sgeom
+import steps.model as smodel
+import steps.mpi.solver as ssolver
+import steps.quiet
+import steps.rng as srng
+import steps.utilities.geom_decompose as gd
+import steps.utilities.meshio as meshio
+
 
 from .. import configuration
 
@@ -52,12 +58,12 @@ def ROIset(x):
 
 def boundary_tets(mesh):
     return (i for i in range(mesh.ntets)
-            if any([nb == -1 for nb in mesh.getTestNeighb(i)]))
+            if any([nb == UNKNOWN_TET for nb in mesh.getTestNeighb(i)]))
 
 def boundary_tris(mesh):
     def btris(tet):
         return [mesh.getTetTriNeighb(tet)[face] for face in range(4)
-                if mesh.getTetTetNeighb(tet)[face]==-1]
+                if mesh.getTetTetNeighb(tet)[face] == UNKNOWN_TRI]
 
     return (tri for tet in range(mesh.ntets) for tri in btris(tet))
 
@@ -119,7 +125,7 @@ def consistent_neighbourhood_part(mesh, tri_set):
 
     while unvisited:
         tri = unvisited.pop()
-        tet_queue = [tet for tet in mesh.getTriTetNeighb(tri) if tet >= 0]
+        tet_queue = [tet for tet in mesh.getTriTetNeighb(tri) if tet != UNKNOWN_TET]
         tri_part = [tri]
 
         while tet_queue:
@@ -127,7 +133,7 @@ def consistent_neighbourhood_part(mesh, tri_set):
             for face in [tri for tri in mesh.getTetTriNeighb(tet) if tri in unvisited]:
                 unvisited.remove(face)
                 tri_part.append(face)
-                for other_tet in [tet2 for tet2 in mesh.getTriTetNeighb(face) if tet2 != tet and tet2 !=-1]:
+                for other_tet in [tet2 for tet2 in mesh.getTriTetNeighb(face) if tet2 != tet and tet2 != UNKNOWN_TET]:
                     tet_queue.append(other_tet)
 
         parts.append(tri_part)
@@ -140,7 +146,7 @@ def consistent_neighbourhood_part(mesh, tri_set):
 
 def host_assignment_by_axis(mesh, tri_set):
     def tet_neighbs(tri):
-        return [tet for tet in mesh.getTriTetNeighb(tri) if tet != -1]
+        return [tet for tet in mesh.getTriTetNeighb(tri) if tet != UNKNOWN_TET]
 
     tet_hosts = gd.binTetsByAxis(mesh, steps.mpi.nhosts)
     tri_hosts = {}
