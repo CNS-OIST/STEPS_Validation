@@ -4,3 +4,6 @@ validation/validation_cp/.logs/
 validation/validation_efield/.logs/
 *.pyc
 *debug_log*
+benchmark/parallel/spatial/.logs/
+benchmark/serial/spatial/.logs/
+benchmark/serial/well_mixed/.logs/

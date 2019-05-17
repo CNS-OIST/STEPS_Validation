@@ -1,0 +1,34 @@
+Test Date,20190517
+CPU Info
+count,24
+extended_model,3
+l2_cache_line_size,6
+python_version,2.7.15.final.0 (64 bit)
+family,6
+bits,64
+brand,Intel(R) Xeon(R) CPU E5-2697 v2 @ 2.70GHz
+vendor_id,GenuineIntel
+cpuinfo_version,[5, 0, 0]
+raw_arch_string,x86_64
+flags,['1gbpage', 'acpi', 'aes', 'apic', 'avx', 'avx1.0', 'clflush', 'clfsh', 'cmov', 'cx16', 'cx8', 'dca', 'de', 'ds', 'ds_cpl', 'dscpl', 'dtes64', 'dts', 'em64t', 'erms', 'est', 'f16c', 'fpu', 'fxsr', 'ht', 'htt', 'lahf', 'lahf_lm', 'mca', 'mce', 'mmx', 'mon', 'monitor', 'msr', 'mtrr', 'osxsave', 'pae', 'pat', 'pbe', 'pcid', 'pclmulqdq', 'pdcm', 'pge', 'pni', 'popcnt', 'pse', 'pse36', 'rdrand', 'rdrnd', 'rdtscp', 'rdwrfsgs', 'sep', 'smep', 'smx', 'ss', 'sse', 'sse2', 'sse3', 'sse4.1', 'sse4.2', 'sse4_1', 'sse4_2', 'ssse3', 'syscall', 'tm', 'tm2', 'tpr', 'tsc', 'tscdeadline', 'tsci', 'tsctmr', 'vme', 'vmx', 'x2apic', 'xd', 'xsave', 'xtpr']
+l2_cache_size,256
+l2_cache_associativity,0x100L
+stepping,4
+hz_actual_raw,[2700000000, 0]
+hz_actual,2.7000 GHz
+arch,X86_64
+model,62
+hz_advertised_raw,[2700000000, 0]
+hz_advertised,2.7000 GHz
+
+
+Wmdirect
+Solver construction time (sec),1.075619e+02
+Solver initial time (sec),3.056648e-01
+Solver run time (sec),6.665820e+01
+
+Wmrssa
+Solver construction time (sec),1.068901e+02
+Solver initial time (sec),3.753960e-01
+Solver run time (sec),1.507385e+01
+
