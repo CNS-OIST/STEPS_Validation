@@ -1,4 +1,4 @@
-Test Date,20190517
+Test Date,20190522
 CPU Info
 count,24
 extended_model,3
@@ -23,12 +23,12 @@ hz_advertised,2.7000 GHz
 
 
 Wmdirect
-Solver construction time (sec),1.075619e+02
-Solver initial time (sec),3.056648e-01
-Solver run time (sec),6.665820e+01
+Solver construction time (sec),1.077372e+02
+Solver initial time (sec),3.222921e-01
+Solver run time (sec),6.793776e+01
 
 Wmrssa
-Solver construction time (sec),1.068901e+02
-Solver initial time (sec),3.753960e-01
-Solver run time (sec),1.507385e+01
+Solver construction time (sec),1.069287e+02
+Solver initial time (sec),3.916259e-01
+Solver run time (sec),1.568824e+01
 

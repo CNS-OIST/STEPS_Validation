@@ -1,0 +1,33 @@
+Test Date,20190522
+CPU Info
+count,24
+python_version,2.7.15.final.0 (64 bit)
+family,6
+bits,64
+brand,Intel(R) Xeon(R) CPU E5-2697 v2 @ 2.70GHz
+vendor_id,GenuineIntel
+cpuinfo_version,[5, 0, 0]
+raw_arch_string,x86_64
+flags,['1gbpage', 'acpi', 'aes', 'apic', 'avx1.0', 'clfsh', 'cmov', 'cx16', 'cx8', 'de', 'ds', 'dscpl', 'dtes64', 'em64t', 'erms', 'est', 'f16c', 'fpu', 'fxsr', 'htt', 'lahf', 'mca', 'mce', 'mmx', 'mon', 'msr', 'mtrr', 'osxsave', 'pae', 'pat', 'pbe', 'pcid', 'pclmulqdq', 'pdcm', 'pge', 'popcnt', 'pse', 'pse36', 'rdrand', 'rdtscp', 'rdwrfsgs', 'sep', 'smep', 'smx', 'ss', 'sse', 'sse2', 'sse3', 'sse4.1', 'sse4.2', 'ssse3', 'syscall', 'tm', 'tm2', 'tpr', 'tsc', 'tsci', 'tsctmr', 'vme', 'vmx', 'x2apic', 'xd', 'xsave']
+l2_cache_size,256
+stepping,4
+hz_actual_raw,[2700000000, 0]
+hz_actual,2.7000 GHz
+arch,X86_64
+model,62
+hz_advertised_raw,[2700000000, 0]
+hz_advertised,2.7000 GHz
+
+
+Model setup time (sec),1.819961e-01
+Geometry setup time (sec),5.347496e+02
+Tetexact
+Solver construction time (sec),5.047594e+01
+Solver initial time (sec),2.456776e+01
+Solver run time (sec),2.411893e+02
+
+TetODE
+Solver construction time (sec),3.744911e+01
+Solver initial time (sec),1.117082e-01
+Solver run time (sec),1.187015e+03
+

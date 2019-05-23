@@ -1,4 +1,4 @@
-Test Date,20190517
+Test Date,20190522
 CPU Info
 count,24
 model,62
@@ -17,17 +17,12 @@ hz_actual,2.7000 GHz
 arch,X86_64
 hz_advertised_raw,(2700000000, 0)
 hz_advertised,2.7000 GHz
+Num. Procs,10
 
-
-Model setup time (sec),1.733320e-01
-Geometry setup time (sec),2.277257e+02
-Tetexact
-Solver construction time (sec),5.334148e+01
-Solver initial time (sec),2.506866e+01
-Solver run time (sec),2.392523e+02
-
-TetODE
-Solver construction time (sec),4.077579e+01
-Solver initial time (sec),1.150320e-01
-Solver run time (sec),1.268818e+03
+Model setup time (sec),8.341908e-02
+Geometry setup time (sec),5.224125e+01
+Parallel TetOPSplit
+Solver construction time (sec),1.955184e+02
+Solver initial time (sec),2.532446e+01
+Solver run time (sec),3.109254e+02
 

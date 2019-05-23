@@ -637,10 +637,15 @@ def gen_geom():
         memb = sgeom.TmPatch('memb', mesh, memb_tris, cyto, outer)
 
     memb.addSurfsys('ssys')
-
-    membrane = sgeom.Memb(
+    
+    if steps.__version__ == '3.4.1':
+        membrane = sgeom.Memb(
+        'membrane', mesh, [memb], opt_file_name='./meshes/' + meshfile_ab + "_optimalidx_old"
+        )
+    else:
+        membrane = sgeom.Memb(
         'membrane', mesh, [memb], opt_file_name='./meshes/' + meshfile_ab + "_optimalidx"
-    )
+        )
     return mesh
 
 # # # # # # # # # # # # # # # # # # # # # # # # SIMULATION  # # # # # # # # # # # # # # # # # # # # # #

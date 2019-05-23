@@ -7,3 +7,4 @@ validation/validation_efield/.logs/
 benchmark/parallel/spatial/.logs/
 benchmark/serial/spatial/.logs/
 benchmark/serial/well_mixed/.logs/
+benchmark/.logs/
