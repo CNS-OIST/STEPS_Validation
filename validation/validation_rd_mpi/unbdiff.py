@@ -14,7 +14,12 @@ import steps.utilities.geom_decompose as gd
 import steps.utilities.meshio as smeshio
 import steps.geom as stetmesh
 import steps.rng as srng
-
+try:
+    from steps.geom import UNKNOWN_TET
+    from steps.geom import INDEX_DTYPE
+except ImportError:
+    UNKNOWN_TET = -1
+    INDEX_DTYPE = 'int'
 import numpy
 import math
 import datetime
@@ -55,7 +60,7 @@ def setup_module():
 
     # create the array of tet indices to be found at random
     global tetidxs
-    tetidxs = numpy.zeros(SAMPLE, dtype = 'int')
+    tetidxs = numpy.zeros(SAMPLE, dtype = INDEX_DTYPE)
     for i in range(SAMPLE): tetidxs[i] = i
 
     # further create the array of tet barycentre distance to centre
@@ -128,7 +133,7 @@ def test_unbdiff():
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):
-                res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
+                res[j, i, k] = sim.getTetCount(tetidxs[k], 'X')
 
     itermeans = numpy.mean(res, axis = 0)
 

@@ -12,16 +12,17 @@ from random import *
 import time
 
 import numpy as np
-try:
-  from steps.geom import UNKNOWN_TET
-except ImportError:
-  UNKNOWN_TET = -1
 import steps.geom as sgeom
 import steps.model as smodel
 import steps.rng as srng
 import steps.solver as ssolver
 import steps.utilities.meshio as meshio
-
+try:
+    from steps.geom import UNKNOWN_TET
+    from steps.geom import INDEX_DTYPE
+except ImportError:
+    UNKNOWN_TET = -1
+    INDEX_DTYPE = 'int'
 
 
 from .. import configuration

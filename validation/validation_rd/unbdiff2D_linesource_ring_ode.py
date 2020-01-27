@@ -28,7 +28,12 @@ import steps.solver as solvmod
 import steps.utilities.meshio as smeshio
 import steps.geom as stetmesh
 import steps.rng as srng
-
+try:
+    from steps.geom import UNKNOWN_TET
+    from steps.geom import INDEX_DTYPE
+except ImportError:
+    UNKNOWN_TET = -1
+    INDEX_DTYPE = 'int'
 import datetime
 import time
 import numpy as np
@@ -178,7 +183,7 @@ def test_unbdiff2D_linesource_ring_ode():
             for b in range(bin_n):
                 if(i_r>=bin_mins[b] and i_r<bin_mins[b+1]):
                     bin_counts[b].append(res_count[t][i])
-                    bin_areas[b]+=sim.getTriArea(int(patch_tris[i]))
+                    bin_areas[b]+=sim.getTriArea(patch_tris[i])
                     break
         
         bin_concs = np.zeros(bin_n)

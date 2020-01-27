@@ -32,16 +32,17 @@ import datetime
 import time
 
 import numpy as np
-try:
-    from steps.geom import UNKNOWN_TET
-except ImportError:
-    UNKNOWN_TET = -1
 import steps.geom as stetmesh
 import steps.model as smodel
 import steps.rng as srng
 import steps.solver as solvmod
 import steps.utilities.meshio as smeshio
-
+try:
+    from steps.geom import UNKNOWN_TET
+    from steps.geom import INDEX_DTYPE
+except ImportError:
+    UNKNOWN_TET = -1
+    INDEX_DTYPE = 'int'
 from . import tol_funcs
 from .. import configuration
 
@@ -79,7 +80,7 @@ def setup_module():
     MESHFILE = 'sphere_rad10_77Ktets'
 
     # create the array of tet indices to be found at random
-    tetidxs = np.zeros(SAMPLE, dtype = 'int')
+    tetidxs = np.zeros(SAMPLE, dtype = INDEX_DTYPE)
     for i in range(SAMPLE): tetidxs[i] = i
 
     # further create the array of tet barycentre distance to centre
@@ -168,12 +169,12 @@ def gen_geom():
     # Now find the distance of the centre of the tets to the centre of the centre tet (at 0,0,0)
     cbaryc = mesh.getTetBarycenter(ctetidx)
     for i in range(SAMPLE):
-        baryc = mesh.getTetBarycenter(int(tetidxs[i]))
+        baryc = mesh.getTetBarycenter(tetidxs[i])
         r2 = np.power((baryc[0]-cbaryc[0]),2) + np.power((baryc[1]-cbaryc[1]),2) + np.power((baryc[2]-cbaryc[2]),2)
         r = np.sqrt(r2)
         # Conver to microns
         tetrads[i] = r*1.0e6
-        tetvols[i] = mesh.getTetVol(int(tetidxs[i]))
+        tetvols[i] = mesh.getTetVol(tetidxs[i])
     
     return mesh
 
@@ -204,7 +205,7 @@ def test_unbdiff_ode():
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):
-                res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
+                res[j, i, k] = sim.getTetCount(tetidxs[k], 'X')
                 
     itermeans = np.mean(res, axis = 0)
 

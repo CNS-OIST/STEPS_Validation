@@ -13,7 +13,12 @@ import steps.rng as srng
 import steps.mpi
 import steps.mpi.solver as solvmod
 import steps.utilities.geom_decompose as gd
-
+try:
+    from steps.geom import UNKNOWN_TET
+    from steps.geom import INDEX_DTYPE
+except ImportError:
+    UNKNOWN_TET = -1
+    INDEX_DTYPE = 'int'
 import math
 import time 
 import numpy
@@ -45,7 +50,7 @@ def test_kisilevich():
     tolerance = 7.5/100
 
     # create the array of tet indices to be found at random
-    tetidxs = numpy.zeros(SAMPLE, dtype = 'int')
+    tetidxs = numpy.zeros(SAMPLE, dtype = INDEX_DTYPE)
     # further create the array of tet barycentre distance to centre
     tetrads = numpy.zeros(SAMPLE)
 
@@ -115,7 +120,7 @@ def test_kisilevich():
 
     # Now find the distance of the centre of the tets to the Z lower face
     for i in range(SAMPLE):
-        baryc = mesh.getTetBarycenter(int(tetidxs[i]))
+        baryc = mesh.getTetBarycenter(tetidxs[i])
         r = baryc[0]
         tetrads[i] = r*1.0e6
 
@@ -147,8 +152,8 @@ def test_kisilevich():
         for t in range(0, ntpnts):
             sim.run(tpnts[t])
             for k in range(SAMPLE):
-                resA[i,t,k] = sim.getTetCount(int(tetidxs[k]), 'A')
-                resB[i,t,k] = sim.getTetCount(int(tetidxs[k]), 'B')
+                resA[i,t,k] = sim.getTetCount(tetidxs[k], 'A')
+                resB[i,t,k] = sim.getTetCount(tetidxs[k], 'B')
 
 
     itermeansA = numpy.mean(resA, axis=0)
