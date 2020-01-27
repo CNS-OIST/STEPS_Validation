@@ -27,16 +27,17 @@ from __future__ import print_function, absolute_import
 import time 
 
 import numpy as np
-try:
-    from steps.geom import UNKNOWN_TET
-except ImportError:
-    UNKNOWN_TET = -1
 import steps.geom as sgeom
 import steps.model as smod
 import steps.rng as srng
 import steps.solver as ssolv
 import steps.utilities.meshio as meshio
-
+try:
+    from steps.geom import UNKNOWN_TET
+    from steps.geom import INDEX_DTYPE
+except ImportError:
+    UNKNOWN_TET = -1
+    INDEX_DTYPE = 'int'
 from . import tol_funcs
 from .. import configuration
 
@@ -59,7 +60,7 @@ def test_kis_ode():
     SAMPLE = 5000
 
     # create the array of tet indices to be found at random
-    tetidxs = np.zeros(SAMPLE, dtype = 'int')
+    tetidxs = np.zeros(SAMPLE, dtype = INDEX_DTYPE)
     # further create the array of tet barycentre distance to centre
     tetrads = np.zeros(SAMPLE)
 
@@ -167,8 +168,8 @@ def test_kis_ode():
         for t in range(0, ntpnts):
             sim.run(tpnts[t])
             for k in range(SAMPLE):
-                resA[i,t,k] = sim.getTetCount(int(tetidxs[k]), 'A')
-                resB[i,t,k] = sim.getTetCount(int(tetidxs[k]), 'B')
+                resA[i,t,k] = sim.getTetCount(tetidxs[k], 'A')
+                resB[i,t,k] = sim.getTetCount(tetidxs[k], 'B')
             
     itermeansA = np.mean(resA, axis=0)
     itermeansB = np.mean(resB, axis=0)

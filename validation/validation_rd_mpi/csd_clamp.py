@@ -12,10 +12,6 @@ import math
 import time
 
 import numpy
-try:
-    from steps.geom import UNKNOWN_TET
-except ImportError:
-    UNKNOWN_TET = -1
 import steps.geom as stetmesh
 import steps.model as smodel
 import steps.mpi
@@ -23,7 +19,12 @@ import steps.mpi.solver as solvmod
 import steps.rng as srng
 import steps.utilities.geom_decompose as gd
 import steps.utilities.meshio as meshio
-
+try:
+    from steps.geom import UNKNOWN_TET
+    from steps.geom import INDEX_DTYPE
+except ImportError:
+    UNKNOWN_TET = -1
+    INDEX_DTYPE = 'int'
 from . import tol_funcs
 from .. import configuration
 
@@ -52,7 +53,7 @@ def setup_module():
     tolerance = 5.0/100
 
     # create the array of tet indices to be found at random
-    tetidxs = numpy.zeros(SAMPLE, dtype = 'int')
+    tetidxs = numpy.zeros(SAMPLE, dtype = INDEX_DTYPE)
     # further create the array of tet barycentre distance to centre
     tetrads = numpy.zeros(SAMPLE)
 
@@ -189,7 +190,7 @@ def test_csd_clamped():
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):
-                res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
+                res[j, i, k] = sim.getTetCount(tetidxs[k], 'X')
     #print('{0} / {1}'.format(j + 1, NITER))
 
     itermeans = numpy.mean(res, axis = 0)

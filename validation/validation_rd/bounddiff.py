@@ -33,16 +33,17 @@ import datetime
 import time
 
 import numpy as np
-try:
-    from steps.geom import UNKNOWN_TET
-except ImportError:
-    UNKNOWN_TET  = -1
 import steps.model as smodel
 import steps.solver as solvmod
 import steps.utilities.meshio as meshio
 import steps.geom as stetmesh
 import steps.rng as srng
-
+try:
+    from steps.geom import UNKNOWN_TET
+    from steps.geom import INDEX_DTYPE
+except ImportError:
+    UNKNOWN_TET = -1
+    INDEX_DTYPE = 'int'
 
 from . import tol_funcs
 from .. import configuration
@@ -75,7 +76,7 @@ def setup_module():
     MESHFILE = 'cyl_diam2__len10_1060tets'
 
     # create the array of tet indices to be found at random
-    tetidxs = np.zeros(SAMPLE, dtype = 'int')
+    tetidxs = np.zeros(SAMPLE, dtype = INDEX_DTYPE)
     # further create the array of tet barycentre distance to centre
     tetrads = np.zeros(SAMPLE)
 
@@ -114,7 +115,7 @@ def gen_geom():
     
     # Now find the distance of the centre of the tets to the Z lower face
     for i in range(SAMPLE):
-        baryc = mesh.getTetBarycenter(int(tetidxs[i]))
+        baryc = mesh.getTetBarycenter(tetidxs[i])
         min = mesh.getBoundMin()
         r = baryc[2] - min[2]
         # Convert to microns
