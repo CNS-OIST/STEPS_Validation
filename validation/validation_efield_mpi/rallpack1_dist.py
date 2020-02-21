@@ -220,11 +220,7 @@ def init_sim(model, mesh, seed, param):
 
     memb = sgeom.castToTmPatch(mesh.getPatch('memb'))
 
-    # partition geometry across hosts
-
-    (tet_hosts,tri_hosts) = host_assignment_by_axis(mesh, memb.tris)
-    # sim = ssolver.TetOpSplit(model, mesh, rng, True, tet_hosts, tri_hosts)
-    sim = ssolver.TetOpSplit(model, mesh, rng, param['EF_solver'], tet_hosts, tri_hosts)
+    sim = ssolver.TetOpSplit(model, mesh, rng, param['EF_solver'], (steps.mpi.nhosts - 2, 2))
 
     # Correction factor for deviation between mesh and model cylinder:
     area_cylinder = np.pi * param['diameter'] * param['length']

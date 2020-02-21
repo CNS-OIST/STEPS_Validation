@@ -112,8 +112,7 @@ def test_unbdiff():
     # And fetch the total number of tets to make the data structures
     ntets = g.countTets()
 
-    tet_hosts = gd.binTetsByAxis(g, steps.mpi.nhosts)
-    sim = solvmod.TetOpSplit(m, g, rng, False, tet_hosts)
+    sim = solvmod.TetOpSplit(m, g, rng, False)
 
 
     tpnts = numpy.arange(0.0, INT, DT)

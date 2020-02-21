@@ -74,8 +74,7 @@ def test_masteq_diff():
     rng = srng.create('r123', 512)
     rng.initialize(1000)
 
-    tet_hosts = gd.binTetsByAxis(geom, steps.mpi.nhosts)
-    sim = solvmod.TetOpSplit(mdl, geom, rng, False, tet_hosts)
+    sim = solvmod.TetOpSplit(mdl, geom, rng, False)
 
     sim.reset()
 

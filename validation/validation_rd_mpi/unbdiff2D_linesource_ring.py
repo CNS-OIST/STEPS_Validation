@@ -115,10 +115,7 @@ def test_unbdiff2D_linesource_ring():
     m = gen_model()
     g, patch_tris, partition_tris, patch_tris_n, inject_tris, tridists, triareas = gen_geom()
 
-    tet_hosts = gd.binTetsByAxis(g, steps.mpi.nhosts)
-    tri_hosts = gd.partitionTris(g, tet_hosts, partition_tris)
-
-    sim = solvmod.TetOpSplit(m, g, rng, False, tet_hosts, tri_hosts)
+    sim = solvmod.TetOpSplit(m, g, rng, False)
 
     tpnts = np.arange(0.0, INT, DT)
     ntpnts = tpnts.shape[0]
