@@ -14,7 +14,7 @@ results are statistically equal. In other words, if we cannot exclude using a go
 There are 2 ways to use the code: using raw or refined data. Raw data must be extracted and refined before it can be 
 compared. Refined data provides already meaningful traces that can be used for comparison. In both cases 
 sample/benchmark data go in their respective folders. For raw data we also need to provide what refined data must be 
-extracted. A small example in main.py walks throw this process
+extracted. Check rallpack3.py and caburst.py for hint on how to use the module
 
   
 
