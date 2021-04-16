@@ -197,7 +197,7 @@ class Comparator:
         plt.ylabel(f"{trace_b.name} [{trace_b.unit}]")
         plt.legend()
         if savefig_path:
-            file_name = re.sub(r'[\\/:"*?<>|]+', "", title)
+            file_name = "".join([c for c in title if re.match(r'\w', c)])
             plt.savefig(os.path.join(savefig_path, file_name))
         plt.show()
 
@@ -219,6 +219,6 @@ class Comparator:
         title = f"{trace}_{op}"
         p.set_title(title)
         if savefig_path:
-            file_name = re.sub(r'[\\/:"*?<>|]+', "", title)
+            file_name = "".join([c for c in title if re.match(r'\w', c)])
             plt.savefig(os.path.join(savefig_path, file_name))
         plt.show()

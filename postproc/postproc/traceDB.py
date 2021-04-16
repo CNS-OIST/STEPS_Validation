@@ -210,7 +210,7 @@ class Trace:
         plt.ylabel(self.unit)
 
         if savefig_path:
-            file_name = re.sub(r'[\\/:"*?<>|]+', "", title)
+            file_name = "".join([c for c in title if re.match(r'\w', c)])
             plt.savefig(os.path.join(savefig_path, file_name))
         plt.show()
 
