@@ -4,3 +4,6 @@ validation/validation_cp/.logs/
 validation/validation_efield/.logs/
 *.pyc
 *debug_log*
+postproc/*/
+.idea/
+!postproc/postproc/
