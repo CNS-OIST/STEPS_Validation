@@ -1,8 +1,11 @@
 import os
 import numpy
 import scipy
+import seaborn
 import matplotlib.pyplot as plt
 import collections
+import pandas
+import re
 
 from .utils import Utils
 
@@ -46,9 +49,9 @@ class Trace:
         self.name = name
         self.unit = unit
         self.multi = multi
-        self.raw_traces = collections.OrderedDict()
+        self.raw_traces = pandas.DataFrame()
         self.derivation_params = derivation_params
-        self.refined_traces = reduce_ops
+        self.refined_traces = pandas.DataFrame(reduce_ops)
         self.raw_traces_common_prefix_len = 0
         self.raw_traces_common_suffix_len = 0
 
@@ -68,7 +71,7 @@ class Trace:
             - self.raw_traces_common_suffix_len
         ]
 
-    def __str__(self, raw_trace_idxs=[]):
+    def __str__(self, raw_trace_idx=[]):
         """Print
 
         Args:
@@ -78,23 +81,11 @@ class Trace:
         ss = f"name: {self.name}\n"
         ss += f"unit: {self.unit}\n"
         ss += f"multi: {self.multi}\n"
-
-        ss += f"raw_traces ({len(self.raw_traces)}):\n"
-
-        if not raw_trace_idxs:
-            raw_trace_keys = list(self.raw_traces.keys())
+        if raw_trace_idx:
+            ss += f"raw_traces:\n{next(iter(self.raw_traces, raw_trace_idx))}\n"
         else:
-            raw_trace_keys = [
-                next(iter(self.raw_traces.keys()), i) for i in raw_trace_idxs
-            ]
-
-        for k in raw_trace_keys:
-            v = self.raw_traces[k]
-            ss += f"{self._trim_raw_trace_name(k)} ({len(v)}): {numpy.array(v)}\n"
-
-        ss += f"refined_traces ({len(self.refined_traces)}):\n"
-        for k, v in self.refined_traces.items():
-            ss += f"{k}: {numpy.array(v)[raw_trace_idxs]}\n"
+            ss += f"raw_traces:\n{self.raw_traces}\n"
+        ss += f"refined_traces:\n{self.refined_traces}"
 
         return ss
 
@@ -105,6 +96,9 @@ class Trace:
             self.raw_traces[file_path].append(val)
         else:
             self.raw_traces[file_path] = [val]
+
+    def add_raw_trace(self, file_path, trace):
+        self.raw_traces[file_path] = self.multi * trace
 
     def derive_raw_data(self, traces):
         """Derive the current self.raw_traces from other traces
@@ -142,10 +136,6 @@ class Trace:
 
             self.raw_traces[file] = self.multi * numpy.array(derived_trace)
 
-    def reduce_ops(self):
-        """Service function to get the operations required to compute the refined_traces"""
-        return self.refined_traces.keys()
-
     def refine(self, time_trace={}):
         """Fill refined_traces using evaluating the keys as member functions in Utils, numpy or scipy
 
@@ -153,19 +143,22 @@ class Trace:
         function of Utils, numpy or scipy. In case of a list, the first term is the member function while the others
         are arguments to be fed after the traces.
         """
-        for op_key, file_path in self.refined_traces.items():
-            if isinstance(file_path, str):
-                f = open(file_path)
 
-                trace = []
+        for op_key in self.refined_traces.columns:
+            tr = []
+            if len(self.refined_traces[op_key]) == 1 and isinstance(
+                self.refined_traces[op_key][0], str
+            ):
+                f = open(self.refined_traces[op_key][0])
                 for l in f.readlines():
                     try:
-                        trace.append(self.multi * float(l))
+                        tr.append(self.multi * float(l))
                     except:
                         pass
-                self.refined_traces[op_key] = trace
+
             else:
                 for file, trace in self.raw_traces.items():
+                    pass
 
                     op_args = []
                     op = op_key
@@ -192,15 +185,23 @@ class Trace:
                         raise TraceDBError(
                             f"The derived trace {self.name} presents an unknown operation {op}."
                         )
+                    tr.append(val)
 
-                    self.refined_traces[op_key].append(val)
+            self.refined_traces[op_key] = tr
 
-    def plot(self, time_trace, savefig_path=None):
-        """Plot all the raw_traces"""
+    def plot(self, time_trace, trace_files=[], savefig_path=None):
+        """Plot all raw_traces"""
+
+        if not trace_files:
+            trace_files = self.raw_traces.keys()
+        else:
+            trace_files = numpy.array(self.raw_traces.keys())[trace_files]
+
         title = self.name
 
         plt.clf()
-        for file, trace in self.raw_traces.items():
+        for file in trace_files:
+            trace = self.raw_traces[file]
             t = time_trace.raw_traces[file]
             plt.plot(t, trace, label=f"trace_{self._trim_raw_trace_name(file)}")
 
@@ -209,7 +210,12 @@ class Trace:
         plt.ylabel(self.unit)
 
         if savefig_path:
-            plt.savefig(os.path.join(savefig_path, title))
+            file_name = re.sub(r'[\\/:"*?<>|]+', "", title)
+            plt.savefig(os.path.join(savefig_path, file_name))
+        plt.show()
+
+    def distplot(self, op):
+        seaborn.histplot(data=self.refined_traces, x=op)
         plt.show()
 
 
@@ -248,9 +254,9 @@ class TraceDB:
         self._derive_raw_data()
 
         self._refine()
-
-        for i in self.traces:
-            self.traces[i]._update_raw_traces_common_prefix_and_suffix()
+        #
+        # for i in self.traces:
+        #     self.traces[i]._update_raw_traces_common_prefix_and_suffix()
 
     def get_time_trace(self):
         return self.traces.get(self.time_trace, None)
@@ -289,25 +295,47 @@ class TraceDB:
             file_path (str): file from which data must be extracted
         """
 
-        f = open(file_path)
+        header = 0
+        with open(file_path) as f:
+            for ls in f.readlines():
+                try:
+                    [float(x) for x in ls.split()]
+                    break
+                except:
+                    header += 1
 
-        for l in f.readlines():
-            try:
-                ls = l.split()
-                if len(ls) == len(self.root_traces):
-                    for idx, trace_name in enumerate(self.root_traces):
-                        self.traces[trace_name].append_to_raw_trace(
-                            file_path, float(ls[idx])
-                        )
-            except:
-                pass
+        data = pandas.read_csv(
+            file_path, delim_whitespace=True, names=self.root_traces, header=header
+        )
+        data = data.apply(pandas.to_numeric, errors="coerce").dropna()
+
+        for k, v in data.items():
+            self.traces[k].add_raw_trace(file_path, v)
+
+        #
+        #
+        # f = open(file_path)
+        #
+        # tmp = []
+        #
+        # for l in f.readlines():
+        #     try:
+        #         ls = l.split()
+        #         if len(ls) == len(self.root_traces):
+        #             tmp.extend([float(i) for i in ls])
+        #     except:
+        #         pass
+        #
+        # tmp = numpy.array(tmp).reshape(len(tmp)//len(self.root_traces), len(self.root_traces))
+        # for idx, trace_name in enumerate(self.root_traces):
+        #     self.traces[trace_name].add_raw_trace(file_path, tmp[:, idx])
 
     def _refine(self):
         """Service function that calls refine on all the traces"""
         for trace_name in self.traces:
             self.traces[trace_name].refine(self.get_time_trace())
 
-    def plot(self, trace_names=[], savefig_path=None):
+    def plot(self, trace_names=[], trace_files=[], savefig_path=None):
         """Plot
 
         Args:
@@ -325,4 +353,8 @@ class TraceDB:
             if trace.name == time_trace.name:
                 continue
 
-            trace.plot(time_trace=time_trace, savefig_path=savefig_path)
+            trace.plot(
+                trace_files=trace_files,
+                time_trace=time_trace,
+                savefig_path=savefig_path,
+            )

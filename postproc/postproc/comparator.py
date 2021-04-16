@@ -2,6 +2,9 @@ from scipy import stats
 import numpy
 import matplotlib.pyplot as plt
 import os
+import pandas
+import seaborn
+import re
 
 from .traceDB import TraceDB
 from .utils import Utils
@@ -23,6 +26,7 @@ class Comparator:
         self.benchmark = benchmark
 
     def test_ks(self):
+        """Kolmogorov–Smirnov test """
         out = []
 
         for trace_name, trace_b in self.benchmark.traces.items():
@@ -46,7 +50,12 @@ class Comparator:
                 pass
         return out
 
-    def mse(self, normalized=True):
+    def mse_refactored(self, normalized=True):
+        """Refactored mean square error
+
+        This is the square root of the mean square error refactored based on a parameter that should be
+        representative of the signal as a whole (it is 0 only if the signal is flat)
+        """
         time_trace_b = self.benchmark.get_time_trace()
         time_trace_s = self.sample.get_time_trace()
 
@@ -109,10 +118,23 @@ class Comparator:
         trace_name_s=None,
         raw_trace_idx_b=0,
         raw_trace_idx_s=0,
-        time_trace_name_s=None,
         time_trace_name_b=None,
+        time_trace_name_s=None,
         savefig_path=None,
     ):
+        """Compare traces:
+
+        particular realization of sample vs particular realization of benchmark
+
+        Args:
+              - trace_name_b (str): name of the benchmark trace
+              - trace_name_s (str, optional): name of the sample trace
+              - raw_trace_idx_b (int, optional): idx of the particular benchmark realization
+              - raw_trace_idx_s (int, optional): idx of the particular sample realization
+              - time_trace_name_b (str, optional): name of the time trace of the benchmark
+              - time_trace_name_s (str, optional): name of the time trace of the sample
+              - savefig_path (str, optional): path to save the file
+        """
         if not trace_name_s:
             trace_name_s = trace_name_b
         if not time_trace_name_s:
@@ -139,13 +161,13 @@ class Comparator:
         trace_b = self.benchmark.traces[trace_name_b]
         trace_s = self.sample.traces[trace_name_s]
         print("benchmark:")
-        print(trace_b.__str__([raw_trace_idx_b]))
+        print(trace_b.__str__(raw_trace_idx_b))
         if time_trace_name_b:
-            print(time_trace_b.__str__([raw_trace_idx_b]))
+            print(time_trace_b.__str__(raw_trace_idx_b))
         print("sample:")
-        print(trace_s.__str__([raw_trace_idx_s]))
+        print(trace_s.__str__(raw_trace_idx_s))
         if time_trace_name_s:
-            print(time_trace_s.__str__([raw_trace_idx_s]))
+            print(time_trace_s.__str__(raw_trace_idx_s))
 
         title = f"{trace_b.name}_vs_{time_trace_b.name}"
 
@@ -175,5 +197,28 @@ class Comparator:
         plt.ylabel(f"{trace_b.name} [{trace_b.unit}]")
         plt.legend()
         if savefig_path:
-            plt.savefig(os.path.join(savefig_path, title))
+            file_name = re.sub(r'[\\/:"*?<>|]+', "", title)
+            plt.savefig(os.path.join(savefig_path, file_name))
+        plt.show()
+
+    def distplot(self, trace, op, bins=50, savefig_path=None):
+        """Distribution plot
+
+        Distribution plot comparison of a refined trace between benchmark and sample
+
+        Args:
+              - trace (str): trace name
+              - op (str): operation performed to refine the raw traces
+              - bins=(int, optional): bin number for the distplot
+              - savefig_path (str): path to save the figure
+        """
+        trace_b = self.benchmark.traces[trace].refined_traces[op]
+        trace_s = self.sample.traces[trace].refined_traces[op]
+        newdf = pandas.DataFrame({"benchmark": trace_b, "sample": trace_s})
+        p = seaborn.histplot(data=newdf, bins=bins)
+        title = f"{trace}_{op}"
+        p.set_title(title)
+        if savefig_path:
+            file_name = re.sub(r'[\\/:"*?<>|]+', "", title)
+            plt.savefig(os.path.join(savefig_path, file_name))
         plt.show()

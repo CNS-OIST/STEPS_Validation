@@ -88,20 +88,43 @@ class Utils:
     @staticmethod
     def fft(trace, time_trace):
         """Fast Fourier Transform (only positive side)"""
+        trace = numpy.array(trace)
+        time_trace = numpy.array(time_trace)
+
         T = time_trace[1] - time_trace[0]
         N = len(trace)
+
         yf = numpy.abs(fft(trace)[0 : N // 2]) * 2 / N
+
         xf = fftfreq(N, T)[: N // 2]
+
         return xf, yf
 
     @staticmethod
-    def freq3(trace, time_trace, prominence_multi: float = 0.01):
+    def freq3(trace, time_trace, prominence_multi: float = 0.5):
         """Frequency computed using the fft"""
-        xf, yf = Utils.fft(trace, time_trace)
-        fpeaks = Utils.peaks(yf, prominence_multi)
-        imax = numpy.argmax(yf[fpeaks[0]])
+        trace = numpy.array(trace)
+        time_trace = numpy.array(time_trace)
 
-        return xf[fpeaks[0][imax]]
+        xf, yf = Utils.fft(trace, time_trace)
+        xf = xf[1:]
+        yf = yf[1:]
+        fpeaks = Utils.peaks(yf, prominence_multi)
+
+        f = xf[fpeaks[0][0]]
+
+        # if True:
+        # # if f < 50 or f > 100:
+        #     import matplotlib.pyplot as plt
+        #     plt.figure()
+        #     plt.plot(time_trace, trace)
+        #     plt.figure()
+        #     plt.plot(xf[:150], yf[:150])
+        #     plt.show()
+        #
+        #     exit()
+
+        return f
 
     @staticmethod
     def _format_traces(x0, y0, x1, y1):
