@@ -295,6 +295,8 @@ class TraceDB:
             file_path (str): file from which data must be extracted
         """
 
+        print(f"Extract {file_path}")
+
         header = 0
         with open(file_path) as f:
             for ls in f.readlines():

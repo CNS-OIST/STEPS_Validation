@@ -10,7 +10,7 @@ multi = 1
 traces_s = [
     Trace("t", "s", multi=multi),
     Trace(
-        "V_z_min",
+        "V_max_on_vertices_z_min",
         "V",
         multi=multi,
         reduce_ops={
@@ -18,28 +18,27 @@ traces_s = [
             "amax": [],
             "mean": [],
             "max_prominence": [],
+            "max_prominence_t": [],
             "['i_prominence', 1]": [],
             "freq2": [],
             "freq3": [],
-            "['i_prominence_timeshift', 0]": [],
-            "['i_prominence_timeshift', 1]": [],
-            "['i_prominence_timeshift', 2]": [],
-            "['i_prominence_timeshift', 3]": [],
-            "['i_prominence_timeshift', 4]": [],
-            "['i_prominence_timeshift', 5]": [],
-            "['i_prominence_timeshift', 6]": [],
-            "['i_prominence_timeshift', 7]": [],
-            "['i_prominence_timeshift', 8]": [],
-            "['i_prominence_timeshift', 9]": [],
-            "['i_prominence_timeshift', 10]": [],
-            "['i_prominence_timeshift', 11]": [],
-            "['i_prominence_timeshift', 12]": [],
-            "['i_prominence_timeshift', 13]": [],
-            "['i_prominence_timeshift', 14]": [],
+            "['i_prominence_t', 0]": [],
+            "['i_prominence_t', 1]": [],
+            "['i_prominence_t', 2]": [],
+            "['i_prominence_t', 3]": [],
+            "['i_prominence_t', 4]": [],
+            "['i_prominence_t', 5]": [],
+            "['i_prominence_t', 6]": [],
+            "['i_prominence_t', 7]": [],
+            "['i_prominence_t', 8]": [],
+            "['i_prominence_t', 9]": [],
+            "['i_prominence_t', 10]": [],
+            "['i_prominence_t', 11]": [],
+            "['i_prominence_t', 12]": [],
         },
     ),
     Trace(
-        "V_z_max",
+        "V_max_on_vertices_z_max",
         "V",
         multi=multi,
         reduce_ops={
@@ -47,26 +46,27 @@ traces_s = [
             "amax": [],
             "mean": [],
             "max_prominence": [],
+            "max_prominence_t": [],
             "['i_prominence', 1]": [],
             "freq2": [],
             "freq3": [],
-            "['i_prominence_timeshift', 0]": [],
-            "['i_prominence_timeshift', 1]": [],
-            "['i_prominence_timeshift', 2]": [],
-            "['i_prominence_timeshift', 3]": [],
-            "['i_prominence_timeshift', 4]": [],
-            "['i_prominence_timeshift', 5]": [],
-            "['i_prominence_timeshift', 6]": [],
-            "['i_prominence_timeshift', 7]": [],
-            "['i_prominence_timeshift', 8]": [],
-            "['i_prominence_timeshift', 9]": [],
-            "['i_prominence_timeshift', 10]": [],
-            "['i_prominence_timeshift', 11]": [],
-            "['i_prominence_timeshift', 12]": [],
-            "['i_prominence_timeshift', 13]": [],
-            "['i_prominence_timeshift', 14]": [],
+            "['i_prominence_t', 0]": [],
+            "['i_prominence_t', 1]": [],
+            "['i_prominence_t', 2]": [],
+            "['i_prominence_t', 3]": [],
+            "['i_prominence_t', 4]": [],
+            "['i_prominence_t', 5]": [],
+            "['i_prominence_t', 6]": [],
+            "['i_prominence_t', 7]": [],
+            "['i_prominence_t', 8]": [],
+            "['i_prominence_t', 9]": [],
+            "['i_prominence_t', 10]": [],
+            "['i_prominence_t', 11]": [],
+            "['i_prominence_t', 12]": [],
         },
     ),
+    # Trace("V_max_on_vertices_z_min", "V", multi=multi),
+    # Trace("V_max_on_vertices_z_max", "V", multi=multi),
     Trace(
         "dVdt_z_min",
         "V/s",
@@ -75,7 +75,7 @@ traces_s = [
             "amax": [],
             "mean": [],
         },
-        derivation_params=["gradient", ["V_z_min", "t"]],
+        derivation_params=["gradient", ["V_max_on_vertices_z_min", "t"]],
     ),
     Trace(
         "dVdt_z_max",
@@ -85,7 +85,7 @@ traces_s = [
             "amax": [],
             "mean": [],
         },
-        derivation_params=["gradient", ["V_z_max", "t"]],
+        derivation_params=["gradient", ["V_max_on_vertices_z_max", "t"]],
     ),
 ]
 
@@ -99,10 +99,10 @@ for idx, _ in enumerate([i for i in traces_b if not i.derivation_params]):
 
 """Create the sample database"""
 sample = TraceDB(traces_s, "rallpack3/raw_data/sample/sampling5e-6")
-sample.plot(savefig_path="rallpack3/pics")
+# sample.plot(savefig_path="rallpack3/pics")
 """Create the benchmark database"""
 benchmark = TraceDB(traces_b, "rallpack3/raw_data/benchmark")
-benchmark.plot(savefig_path="rallpack3/pics")
+# benchmark.plot(savefig_path="rallpack3/pics")
 
 """Create the comparator for advanced studies"""
 comp = Comparator(benchmark=benchmark, sample=sample)
@@ -113,68 +113,56 @@ comp.test_ks()
 comp.mse_refactored()
 
 """Plots"""
-comp.distplot("V_z_min", "['i_prominence_timeshift', 0]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_min", "['i_prominence_timeshift', 1]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_min", "['i_prominence_timeshift', 2]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_min", "['i_prominence_timeshift', 3]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_min", "['i_prominence_timeshift', 4]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_min", "['i_prominence_timeshift', 5]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_min", "['i_prominence_timeshift', 6]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_min", "['i_prominence_timeshift', 7]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_min", "['i_prominence_timeshift', 8]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_min", "['i_prominence_timeshift', 9]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 0]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 1]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 2]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 3]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 4]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 5]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 6]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 7]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 8]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 9]", savefig_path="rallpack3/pics")
 comp.distplot(
-    "V_z_min", "['i_prominence_timeshift', 10]", savefig_path="rallpack3/pics"
+    "V_max_on_vertices_z_min", "['i_prominence_t', 10]", savefig_path="rallpack3/pics"
 )
 comp.distplot(
-    "V_z_min", "['i_prominence_timeshift', 11]", savefig_path="rallpack3/pics"
+    "V_max_on_vertices_z_min", "['i_prominence_t', 11]", savefig_path="rallpack3/pics"
 )
 comp.distplot(
-    "V_z_min", "['i_prominence_timeshift', 12]", savefig_path="rallpack3/pics"
-)
-comp.distplot(
-    "V_z_min", "['i_prominence_timeshift', 13]", savefig_path="rallpack3/pics"
-)
-comp.distplot(
-    "V_z_min", "['i_prominence_timeshift', 14]", savefig_path="rallpack3/pics"
+    "V_max_on_vertices_z_min", "['i_prominence_t', 12]", savefig_path="rallpack3/pics"
 )
 
-comp.distplot("V_z_max", "['i_prominence_timeshift', 0]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_max", "['i_prominence_timeshift', 1]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_max", "['i_prominence_timeshift', 2]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_max", "['i_prominence_timeshift', 3]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_max", "['i_prominence_timeshift', 4]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_max", "['i_prominence_timeshift', 5]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_max", "['i_prominence_timeshift', 6]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_max", "['i_prominence_timeshift', 7]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_max", "['i_prominence_timeshift', 8]", savefig_path="rallpack3/pics")
-comp.distplot("V_z_max", "['i_prominence_timeshift', 9]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 0]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 1]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 2]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 3]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 4]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 5]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 6]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 7]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 8]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 9]", savefig_path="rallpack3/pics")
 comp.distplot(
-    "V_z_max", "['i_prominence_timeshift', 10]", savefig_path="rallpack3/pics"
+    "V_max_on_vertices_z_max", "['i_prominence_t', 10]", savefig_path="rallpack3/pics"
 )
 comp.distplot(
-    "V_z_max", "['i_prominence_timeshift', 11]", savefig_path="rallpack3/pics"
+    "V_max_on_vertices_z_max", "['i_prominence_t', 11]", savefig_path="rallpack3/pics"
 )
 comp.distplot(
-    "V_z_max", "['i_prominence_timeshift', 12]", savefig_path="rallpack3/pics"
-)
-comp.distplot(
-    "V_z_max", "['i_prominence_timeshift', 13]", savefig_path="rallpack3/pics"
-)
-comp.distplot(
-    "V_z_max", "['i_prominence_timeshift', 14]", savefig_path="rallpack3/pics"
+    "V_max_on_vertices_z_max", "['i_prominence_t', 12]", savefig_path="rallpack3/pics"
 )
 
 
 sample_raw_trace_idx = 0
 
 comp.plot(
-    trace_name_b="V_z_min",
+    trace_name_b="V_max_on_vertices_z_min",
     raw_trace_idx_s=sample_raw_trace_idx,
     savefig_path="rallpack3/pics",
 )
 comp.plot(
-    trace_name_b="V_z_max",
+    trace_name_b="V_max_on_vertices_z_max",
     raw_trace_idx_s=sample_raw_trace_idx,
     savefig_path="rallpack3/pics",
 )
@@ -182,14 +170,14 @@ comp.plot(
 comp.plot(
     trace_name_b="dVdt_z_min",
     raw_trace_idx_s=sample_raw_trace_idx,
-    time_trace_name_b="V_z_min",
-    time_trace_name_s="V_z_min",
+    time_trace_name_b="V_max_on_vertices_z_min",
+    time_trace_name_s="V_max_on_vertices_z_min",
     savefig_path="rallpack3/pics",
 )
 comp.plot(
     trace_name_b="dVdt_z_max",
     raw_trace_idx_s=sample_raw_trace_idx,
-    time_trace_name_b="V_z_max",
-    time_trace_name_s="V_z_max",
+    time_trace_name_b="V_max_on_vertices_z_max",
+    time_trace_name_s="V_max_on_vertices_z_max",
     savefig_path="rallpack3/pics",
 )

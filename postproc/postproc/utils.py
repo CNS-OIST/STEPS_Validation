@@ -36,13 +36,19 @@ class Utils:
         peaks = Utils.peaks(trace, prominence_multi)
         prominences = peaks[1]["prominences"]
 
-        if len(prominences):
-            return numpy.amax(prominences)
-        else:
-            return 0
+        return numpy.amax(prominences)
 
     @staticmethod
-    def amax_timeshift(trace: list, time_trace: list):
+    def max_prominence_t(trace: list, time_trace: list, prominence_multi: float = 0.01):
+        trace = numpy.array(trace)
+        peaks = Utils.peaks(trace, prominence_multi)
+        prominences = peaks[1]["prominences"]
+        i_peak = numpy.argmax(prominences)
+
+        return time_trace[peaks[0][i_peak]]
+
+    @staticmethod
+    def amax_t(trace: list, time_trace: list):
         """Time stamp of the max"""
         return time_trace[numpy.argmax(trace)]
 
@@ -56,7 +62,7 @@ class Utils:
         return prominences[i_peak]
 
     @staticmethod
-    def i_prominence_timeshift(
+    def i_prominence_t(
         trace: list, time_trace: list, i_peak: int, prominence_multi: float = 0.01
     ):
         """Time stamp of the ith peak"""
@@ -112,17 +118,6 @@ class Utils:
         fpeaks = Utils.peaks(yf, prominence_multi)
 
         f = xf[fpeaks[0][0]]
-
-        # if True:
-        # # if f < 50 or f > 100:
-        #     import matplotlib.pyplot as plt
-        #     plt.figure()
-        #     plt.plot(time_trace, trace)
-        #     plt.figure()
-        #     plt.plot(xf[:150], yf[:150])
-        #     plt.show()
-        #
-        #     exit()
 
         return f
 
