@@ -5,6 +5,8 @@ import seaborn
 import matplotlib.pyplot as plt
 import collections
 import pandas
+import shutil
+
 import re
 
 from .utils import Utils
@@ -55,6 +57,8 @@ class Trace:
         self.raw_traces_common_prefix_len = 0
         self.raw_traces_common_suffix_len = 0
 
+
+
     def _update_raw_traces_common_prefix_and_suffix(self):
         """Service function to compute trimmmable raw_data file names"""
         self.raw_traces_common_prefix_len = len(
@@ -88,6 +92,32 @@ class Trace:
         ss += f"refined_traces:\n{self.refined_traces}"
 
         return ss
+
+    def raw_traces_to_parquet(self, path):
+        self.raw_traces.to_parquet(os.path.join(path, f"{self.name}.parquet"))
+
+    def raw_traces_from_parquet(self, path):
+        self.raw_traces = pandas.read_parquet(os.path.join(path, f"{self.name}.parquet"))
+
+    def refined_traces_to_parquet(self, path):
+        self.refined_traces.to_parquet(os.path.join(path, f"{self.name}.parquet"))
+
+    def refined_traces_from_parquet(self, path):
+
+
+        if not len(self.refined_traces.columns):
+            return
+
+        data = pandas.read_parquet(os.path.join(path, f"{self.name}.parquet"))
+
+        if not self.raw_traces.empty and len(self.raw_traces.columns) != len(data):
+            raise TraceError(f"The number of raw_traces ({len(self.raw_traces.columns)}) does not match the number "
+                             f"of loaded refined trace raws ({len(data.index)})")
+
+        if set(self.refined_traces.columns) != set(data.columns):
+            raise TraceError(f"The refined traces requested have changed, the cache is invalid")
+
+        self.refined_traces = data
 
     def append_to_raw_trace(self, file_path, val):
         """Service function to append to a raw_trace"""
@@ -217,6 +247,8 @@ class Trace:
     def distplot(self, op):
         seaborn.histplot(data=self.refined_traces, x=op)
         plt.show()
+        
+
 
 
 class TraceDBError(Exception):
@@ -229,7 +261,8 @@ class TraceDB:
     This class maintains all the traces of a particular simulation type (sample or benchmark)
     """
 
-    def __init__(self, traces, folder_path="", time_trace="t"):
+    def __init__(self, traces, folder_path="", time_trace="t", clear_raw_traces_cache=False,
+                 clear_refined_traces_cache=False):
         """Init
 
         Args:
@@ -249,14 +282,14 @@ class TraceDB:
 
         self.folder_path = folder_path
 
-        self._extract_all_raw_data()
 
-        self._derive_raw_data()
 
-        self._refine()
-        #
-        # for i in self.traces:
-        #     self.traces[i]._update_raw_traces_common_prefix_and_suffix()
+        self._extract_all_raw_data(clear_raw_traces_cache)
+
+        self._refine(clear_refined_traces_cache)
+
+        for i in self.traces:
+            self.traces[i]._update_raw_traces_common_prefix_and_suffix()
 
     def get_time_trace(self):
         return self.traces.get(self.time_trace, None)
@@ -272,15 +305,60 @@ class TraceDB:
         for trace_name in self.traces:
             self.traces[trace_name].derive_raw_data(self.traces)
 
-    def _extract_all_raw_data(self):
+    def _refine(self, clear_cache=False):
+        """Service function that calls refine on all the traces"""
+
+        cache_path = os.path.join(self.folder_path, "refined_traces_cache/")
+
+        if clear_cache:
+            try:
+                shutil.rmtree(cache_path)
+            except OSError:
+                pass
+
+        if not os.path.exists(cache_path):
+            os.makedirs(cache_path)
+
+        for trace_name in self.traces:
+            try:
+                self.traces[trace_name].refined_traces_from_parquet(cache_path)
+            except:
+                self.traces[trace_name].refine(self.get_time_trace())
+                self.traces[trace_name].refined_traces_to_parquet(cache_path)
+
+    def _extract_all_raw_data(self, clear_cache=False):
         """Extract all raw data from the files in self.folder_path (not recursive) """
 
-        if self.folder_path:
+        if not self.folder_path:
+            return
+
+        cache_path = os.path.join(self.folder_path, "raw_traces_cache/")
+
+        if clear_cache:
+            try:
+                shutil.rmtree(cache_path)
+            except OSError:
+                pass
+
+        if not os.path.exists(cache_path):
+            os.makedirs(cache_path)
+
+        try:
+            for k in self.traces.keys():
+                self.traces[k].raw_traces_from_parquet(cache_path)
+            print("Successfully loaded from cache")
+        except:
             root, _, files = next(os.walk(self.folder_path))
             files.sort()
             for f in files:
                 file_path = os.path.join(root, f)
                 self._extract_raw_data(file_path)
+
+            self._derive_raw_data()
+
+            for v in self.traces.values():
+                v.raw_traces_to_parquet(cache_path)
+        
 
     def _extract_raw_data(self, file_path: str):
         """Extract raw data from a file
@@ -314,28 +392,8 @@ class TraceDB:
         for k, v in data.items():
             self.traces[k].add_raw_trace(file_path, v)
 
-        #
-        #
-        # f = open(file_path)
-        #
-        # tmp = []
-        #
-        # for l in f.readlines():
-        #     try:
-        #         ls = l.split()
-        #         if len(ls) == len(self.root_traces):
-        #             tmp.extend([float(i) for i in ls])
-        #     except:
-        #         pass
-        #
-        # tmp = numpy.array(tmp).reshape(len(tmp)//len(self.root_traces), len(self.root_traces))
-        # for idx, trace_name in enumerate(self.root_traces):
-        #     self.traces[trace_name].add_raw_trace(file_path, tmp[:, idx])
 
-    def _refine(self):
-        """Service function that calls refine on all the traces"""
-        for trace_name in self.traces:
-            self.traces[trace_name].refine(self.get_time_trace())
+
 
     def plot(self, trace_names=[], trace_files=[], savefig_path=None):
         """Plot

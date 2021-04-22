@@ -215,7 +215,7 @@ class Comparator:
         trace_b = self.benchmark.traces[trace].refined_traces[op]
         trace_s = self.sample.traces[trace].refined_traces[op]
         newdf = pandas.DataFrame({"benchmark": trace_b, "sample": trace_s})
-        p = seaborn.histplot(data=newdf, bins=bins)
+        p = seaborn.histplot(data=newdf, bins=bins, stat="probability", common_norm=False)
         title = f"{trace}_{op}"
         p.set_title(title)
         if savefig_path:

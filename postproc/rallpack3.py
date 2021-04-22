@@ -22,6 +22,19 @@ traces_s = [
             "['i_prominence', 1]": [],
             "freq2": [],
             "freq3": [],
+            "['i_prominence_y', 0]": [],
+            "['i_prominence_y', 1]": [],
+            "['i_prominence_y', 2]": [],
+            "['i_prominence_y', 3]": [],
+            "['i_prominence_y', 4]": [],
+            "['i_prominence_y', 5]": [],
+            "['i_prominence_y', 6]": [],
+            "['i_prominence_y', 7]": [],
+            "['i_prominence_y', 8]": [],
+            "['i_prominence_y', 9]": [],
+            "['i_prominence_y', 10]": [],
+            "['i_prominence_y', 11]": [],
+            "['i_prominence_y', 12]": [],
             "['i_prominence_t', 0]": [],
             "['i_prominence_t', 1]": [],
             "['i_prominence_t', 2]": [],
@@ -50,7 +63,20 @@ traces_s = [
             "['i_prominence', 1]": [],
             "freq2": [],
             "freq3": [],
-            "['i_prominence_t', 0]": [],
+            "['i_prominence_y', 0]": [],
+            "['i_prominence_y', 1]": [],
+            "['i_prominence_y', 2]": [],
+            "['i_prominence_y', 3]": [],
+            "['i_prominence_y', 4]": [],
+            "['i_prominence_y', 5]": [],
+            "['i_prominence_y', 6]": [],
+            "['i_prominence_y', 7]": [],
+            "['i_prominence_y', 8]": [],
+            "['i_prominence_y', 9]": [],
+            "['i_prominence_y', 10]": [],
+            "['i_prominence_y', 11]": [],
+            "['i_prominence_y', 12]": [],
+            "['i_prominence_y', 0]": [],
             "['i_prominence_t', 1]": [],
             "['i_prominence_t', 2]": [],
             "['i_prominence_t', 3]": [],
@@ -98,10 +124,11 @@ for idx, _ in enumerate([i for i in traces_b if not i.derivation_params]):
     traces_b[idx].multi = 1e-3
 
 """Create the sample database"""
-sample = TraceDB(traces_s, "rallpack3/raw_data/sample/sampling5e-6")
+sample = TraceDB(traces_s, "rallpack3/sample/sampling5e-6")
+
 # sample.plot(savefig_path="rallpack3/pics")
 """Create the benchmark database"""
-benchmark = TraceDB(traces_b, "rallpack3/raw_data/benchmark")
+benchmark = TraceDB(traces_b, "rallpack3/benchmark")
 # benchmark.plot(savefig_path="rallpack3/pics")
 
 """Create the comparator for advanced studies"""
@@ -113,44 +140,44 @@ comp.test_ks()
 comp.mse_refactored()
 
 """Plots"""
-comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 0]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 1]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 2]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 3]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 4]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 5]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 6]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 7]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 8]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_min", "['i_prominence_t', 9]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_y', 0]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_y', 1]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_y', 2]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_y', 3]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_y', 4]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_y', 5]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_y', 6]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_y', 7]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_y', 8]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_min", "['i_prominence_y', 9]", savefig_path="rallpack3/pics")
 comp.distplot(
-    "V_max_on_vertices_z_min", "['i_prominence_t', 10]", savefig_path="rallpack3/pics"
+    "V_max_on_vertices_z_min", "['i_prominence_y', 10]", savefig_path="rallpack3/pics"
 )
 comp.distplot(
-    "V_max_on_vertices_z_min", "['i_prominence_t', 11]", savefig_path="rallpack3/pics"
+    "V_max_on_vertices_z_min", "['i_prominence_y', 11]", savefig_path="rallpack3/pics"
 )
 comp.distplot(
-    "V_max_on_vertices_z_min", "['i_prominence_t', 12]", savefig_path="rallpack3/pics"
+    "V_max_on_vertices_z_min", "['i_prominence_y', 12]", savefig_path="rallpack3/pics"
 )
 
-comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 0]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 1]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 2]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 3]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 4]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 5]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 6]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 7]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 8]", savefig_path="rallpack3/pics")
-comp.distplot("V_max_on_vertices_z_max", "['i_prominence_t', 9]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_y', 0]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_y', 1]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_y', 2]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_y', 3]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_y', 4]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_y', 5]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_y', 6]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_y', 7]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_y', 8]", savefig_path="rallpack3/pics")
+comp.distplot("V_max_on_vertices_z_max", "['i_prominence_y', 9]", savefig_path="rallpack3/pics")
 comp.distplot(
-    "V_max_on_vertices_z_max", "['i_prominence_t', 10]", savefig_path="rallpack3/pics"
+    "V_max_on_vertices_z_max", "['i_prominence_y', 10]", savefig_path="rallpack3/pics"
 )
 comp.distplot(
-    "V_max_on_vertices_z_max", "['i_prominence_t', 11]", savefig_path="rallpack3/pics"
+    "V_max_on_vertices_z_max", "['i_prominence_y', 11]", savefig_path="rallpack3/pics"
 )
 comp.distplot(
-    "V_max_on_vertices_z_max", "['i_prominence_t', 12]", savefig_path="rallpack3/pics"
+    "V_max_on_vertices_z_max", "['i_prominence_y', 12]", savefig_path="rallpack3/pics"
 )
 
 

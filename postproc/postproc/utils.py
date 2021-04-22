@@ -71,6 +71,15 @@ class Utils:
         return time_trace[peaks[0][i_peak]]
 
     @staticmethod
+    def i_prominence_y(
+        trace: list, time_trace: list, i_peak: int, prominence_multi: float = 0.01
+    ):
+        """Height of the ith peak"""
+        trace = numpy.array(trace)
+        peaks = Utils.peaks(trace, prominence_multi)
+        return trace[peaks[0][i_peak]]
+
+    @staticmethod
     def freq(trace: list, time_trace: list):
         """Frequency computed as n_peaks/simulation_time"""
         trace = numpy.array(trace)
