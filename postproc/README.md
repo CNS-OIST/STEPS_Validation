@@ -17,9 +17,4 @@ compared. Refined data provides already meaningful traces that can be used for c
 sample/benchmark data go in their respective folders. For raw data we also need to provide what refined data must be 
 extracted. 
 
-TL;DR: Check rallpack3.py and caburst.py for hint on how to use the module
-
-
-
-  
-
+TL;DR: Check rallpack3.py and caburst.py for hints on how to use the module

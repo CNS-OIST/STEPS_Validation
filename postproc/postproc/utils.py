@@ -1,5 +1,5 @@
 import numpy
-from scipy import interpolate
+from scipy import interpolate, stats
 from scipy.signal import find_peaks
 from scipy.fft import fft, fftfreq
 
@@ -12,6 +12,11 @@ class Utils:
     """Class that collects general mathematic methods"""
 
     @staticmethod
+    def val(trace: list, time_trace: list, t: float):
+        idx = numpy.argmin(numpy.abs(numpy.array(time_trace) - t))
+        return trace[idx]
+
+    @staticmethod
     def peaks(trace: list, prominence_multi: float = 0.01):
         """Extract the peaks from a trace based on the prominence
 
@@ -22,16 +27,17 @@ class Utils:
         trace = numpy.array(trace)
         max = numpy.amax(trace)
         min = numpy.amin(trace)
-        return find_peaks(trace, prominence=prominence_multi * (max - min))
+        prominence = prominence_multi * (max - min)
+        return find_peaks(trace, prominence=prominence)
 
     @staticmethod
-    def n_peaks(trace: list):
+    def n_peaks(trace: list, prominence_multi: float = 0.1):
         """Get number of peaks"""
         trace = numpy.array(trace)
-        return len(Utils.peaks(trace)[0])
+        return len(Utils.peaks(trace, prominence_multi)[0])
 
     @staticmethod
-    def max_prominence(trace: list, prominence_multi: float = 0.01):
+    def max_prominence(trace: list, prominence_multi: float = 0.1):
         trace = numpy.array(trace)
         peaks = Utils.peaks(trace, prominence_multi)
         prominences = peaks[1]["prominences"]
@@ -39,8 +45,9 @@ class Utils:
         return numpy.amax(prominences)
 
     @staticmethod
-    def max_prominence_t(trace: list, time_trace: list, prominence_multi: float = 0.01):
+    def max_prominence_t(trace: list, time_trace: list, prominence_multi: float = 0.1):
         trace = numpy.array(trace)
+        time_trace = numpy.array(time_trace)
         peaks = Utils.peaks(trace, prominence_multi)
         prominences = peaks[1]["prominences"]
         i_peak = numpy.argmax(prominences)
@@ -48,46 +55,78 @@ class Utils:
         return time_trace[peaks[0][i_peak]]
 
     @staticmethod
+    def max_prominence_y(trace: list, prominence_multi: float = 0.1):
+        trace = numpy.array(trace)
+        peaks = Utils.peaks(trace, prominence_multi)
+        prominences = peaks[1]["prominences"]
+        i_peak = numpy.argmax(prominences)
+
+        return trace[peaks[0][i_peak]]
+
+    @staticmethod
     def amax_t(trace: list, time_trace: list):
         """Time stamp of the max"""
         return time_trace[numpy.argmax(trace)]
 
     @staticmethod
-    def i_prominence(i_peak: int, trace: list, prominence_multi: float = 0.01):
+    def i_prominence(trace: list, i_peak: int, prominence_multi: float = 0.1):
         """Prominence of the ith peak"""
         trace = numpy.array(trace)
         peaks = Utils.peaks(trace, prominence_multi)
         prominences = peaks[1]["prominences"]
+        if len(prominences) > i_peak:
+            return prominences[i_peak]
+        else:
+            return float('NaN')
 
-        return prominences[i_peak]
 
     @staticmethod
     def i_prominence_t(
-        trace: list, time_trace: list, i_peak: int, prominence_multi: float = 0.01
+        trace: list, time_trace: list, i_peak: int, prominence_multi: float = 0.1
     ):
         """Time stamp of the ith peak"""
         trace = numpy.array(trace)
         peaks = Utils.peaks(trace, prominence_multi)
-        return time_trace[peaks[0][i_peak]]
+
+        if len(peaks[0]) > i_peak:
+            return time_trace[peaks[0][i_peak]]
+        else:
+            return float('NaN')
 
     @staticmethod
-    def i_prominence_y(
-        trace: list, time_trace: list, i_peak: int, prominence_multi: float = 0.01
-    ):
+    def i_prominence_y(trace: list, i_peak: int, prominence_multi: float = 0.1):
         """Height of the ith peak"""
         trace = numpy.array(trace)
         peaks = Utils.peaks(trace, prominence_multi)
-        return trace[peaks[0][i_peak]]
+        if len(peaks[0]) > i_peak:
+            return trace[peaks[0][i_peak]]
+        else:
+            return float('NaN')
 
     @staticmethod
-    def freq(trace: list, time_trace: list):
+    def freq(trace, time_trace, prominence_multi: float = 0.1):
+        """Frequency computed using the fft"""
+        trace = numpy.array(trace)
+        time_trace = numpy.array(time_trace)
+
+        xf, yf = Utils.fft(trace, time_trace)
+        xf = xf[1:]
+        yf = yf[1:]
+        fpeaks = Utils.peaks(yf, prominence_multi)
+
+        f = xf[fpeaks[0][0]]
+
+        return f
+
+    @staticmethod
+    def freq2(trace: list, time_trace: list):
         """Frequency computed as n_peaks/simulation_time"""
         trace = numpy.array(trace)
         time_trace = numpy.array(time_trace)
         return Utils.n_peaks(trace) / (time_trace[-1] - time_trace[0])
 
     @staticmethod
-    def freq2(trace: list, time_trace: list):
+    def freq3(trace: list, time_trace: list):
         """Frequency computed as avg(1/T) where T is the period between peaks"""
         trace = numpy.array(trace)
         time_trace = numpy.array(time_trace)
@@ -116,21 +155,6 @@ class Utils:
         return xf, yf
 
     @staticmethod
-    def freq3(trace, time_trace, prominence_multi: float = 0.5):
-        """Frequency computed using the fft"""
-        trace = numpy.array(trace)
-        time_trace = numpy.array(time_trace)
-
-        xf, yf = Utils.fft(trace, time_trace)
-        xf = xf[1:]
-        yf = yf[1:]
-        fpeaks = Utils.peaks(yf, prominence_multi)
-
-        f = xf[fpeaks[0][0]]
-
-        return f
-
-    @staticmethod
     def _format_traces(x0, y0, x1, y1):
         """Format 2 traces so that present same sampling
 
@@ -153,7 +177,9 @@ class Utils:
         return interp_y0, interp_y1, x_intersection
 
     @staticmethod
-    def sqrtmse(sample_time_trace, sample, benchmark_time_trace, benchmark):
+    def sqrtmse(
+        sample_time_trace, sample, benchmark_time_trace, benchmark, percent=False
+    ):
         """Square root of the mean square error"""
 
         sample_time_trace = numpy.array(sample_time_trace)
@@ -164,6 +190,17 @@ class Utils:
             sample_time_trace, sample, benchmark_time_trace, benchmark
         )
 
-        diff = numpy.array(interp_sample) - numpy.array(interp_benchmark)
+        interp_benchmark = numpy.array(interp_benchmark)
+        interp_sample = numpy.array(interp_sample)
+        diff = interp_benchmark - interp_sample
+        if percent:
+            diff /= numpy.maximum(abs(interp_benchmark), abs(interp_sample))
 
         return numpy.sqrt(numpy.square(diff).mean()), iterp_time, diff
+
+    @staticmethod
+    def conf_int(a, confidence=0.95):
+        r = stats.t.interval(
+            confidence, len(a) - 1, loc=numpy.mean(a), scale=stats.sem(a)
+        )
+        return r
