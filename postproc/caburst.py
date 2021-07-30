@@ -24,7 +24,7 @@ for membrane in ["smooth", "spiny"]:
                     "max_prominence_t": [],
                     "['i_prominence_y', 1]": [],
                     "['val', 0.05]": [],
-                    "n_peaks":[]
+                    "n_peaks": [],
                 },
             )
         )
@@ -40,9 +40,6 @@ benchmark = TraceDB(
     clear_raw_traces_cache=True,
     clear_refined_traces_cache=True,
 )
-
-
-
 
 
 """Create the sample traces"""
@@ -66,7 +63,7 @@ for membrane in ["smooth", "spiny"]:
                     "max_prominence_t": [],
                     "['i_prominence_y', 1]": [],
                     "['val', 0.05]": [],
-                    "n_peaks":[]
+                    "n_peaks": [],
                 },
             )
         )
@@ -76,14 +73,11 @@ for membrane in ["smooth", "spiny"]:
 sample = TraceDB(
     "STEPS4",
     traces_s,
-    "caburst/sample/A0_dot_1e-9",
+    "caburst/sample/benchmark_32nodes",
     clear_raw_traces_cache=True,
     clear_refined_traces_cache=True,
 )
 
-
-sample.plot()
-exit()
 
 # """Create the comparator for advanced studies"""
 comp = Comparator(benchmark=benchmark, sample=sample)
@@ -108,15 +102,15 @@ for k, v in sorted(comp.mse_refactored().items(), key=lambda k: k[0]):
 # for membrane in ["smooth", "spiny"]:
 #     for op in ["max", "min"]:
 #         comp.distplot(f"{membrane}_{op}_V", "['i_prominence_y', 1]", binwidth=binwidth_y, savefig_path="caburst/pics",suffix="")
-        # for t in [0.01, 0.02, 0.03, 0.04, 0.05]:
-        #     comp.distplot(f"{membrane}_{op}_V", f"['val', {t}]", binwidth=binwidth_y, savefig_path="caburst/pics",
-        #                   suffix="no_GHK")
-        # comp.distplot(f"{membrane}_{op}_V", "amin", binwidth=binwidth_y, savefig_path="caburst/pics",
-        #               suffix="no_GHK")
-        # comp.distplot(f"{membrane}_{op}_V", "amax", binwidth=binwidth_y, savefig_path="caburst/pics",
-        #               suffix="no_GHK")
-        # comp.distplot(f"{membrane}_{op}_V", "max_prominence_t", binwidth=binwidth_t, savefig_path="caburst/pics",
-        #               suffix="no_GHK")
+# for t in [0.01, 0.02, 0.03, 0.04, 0.05]:
+#     comp.distplot(f"{membrane}_{op}_V", f"['val', {t}]", binwidth=binwidth_y, savefig_path="caburst/pics",
+#                   suffix="no_GHK")
+# comp.distplot(f"{membrane}_{op}_V", "amin", binwidth=binwidth_y, savefig_path="caburst/pics",
+#               suffix="no_GHK")
+# comp.distplot(f"{membrane}_{op}_V", "amax", binwidth=binwidth_y, savefig_path="caburst/pics",
+#               suffix="no_GHK")
+# comp.distplot(f"{membrane}_{op}_V", "max_prominence_t", binwidth=binwidth_t, savefig_path="caburst/pics",
+#               suffix="no_GHK")
 
 
 # for membrane in ["smooth", "spiny"]:
@@ -127,11 +121,19 @@ for k, v in sorted(comp.mse_refactored().items(), key=lambda k: k[0]):
 for membrane in ["smooth", "spiny"]:
     for op in ["max", "min"]:
         comp.avgplot(
-            trace_name=f"{membrane}_{op}_V", conf_lvl=0, savefig_path="caburst/pics", suffix="")
+            trace_name=f"{membrane}_{op}_V",
+            conf_lvl=0,
+            savefig_path="caburst/pics",
+            suffix="",
+        )
 for membrane in ["smooth", "spiny"]:
     for op in ["max", "min"]:
         comp.avgplot(
-            trace_name=f"{membrane}_{op}_V", std=False, savefig_path="caburst/pics", suffix="")
+            trace_name=f"{membrane}_{op}_V",
+            std=False,
+            savefig_path="caburst/pics",
+            suffix="",
+        )
 
 
 # sample_raw_trace_idx =0

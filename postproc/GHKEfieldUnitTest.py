@@ -10,27 +10,45 @@ Tell the program what is inside the raw data and what aliases you want to perfor
 traces_3 = []
 traces_3.append(Trace("t", "s"))
 for i in ["Na", "D", "E"]:
-    traces_3.append(Trace(f"{i}_count", "n_molecules",reduce_ops={
-                        "amin": [],
-                        "amax": [],
-                        "['val', 0.002]": [],
-                        "['val', 0.005]": [],
-                        "['val', 0.008]": [],
-                    },))
-traces_3.append(Trace("V_min", "V",reduce_ops={
-                        "amin": [],
-                        "amax": [],
-                        "['val', 0.002]": [],
-                        "['val', 0.005]": [],
-                        "['val', 0.008]": [],
-                    },))
-traces_3.append(Trace("V_max", "V",reduce_ops={
-                        "amin": [],
-                        "amax": [],
-                        "['val', 0.002]": [],
-                        "['val', 0.005]": [],
-                        "['val', 0.008]": [],
-                    },))
+    traces_3.append(
+        Trace(
+            f"{i}_count",
+            "n_molecules",
+            reduce_ops={
+                "amin": [],
+                "amax": [],
+                "['val', 0.002]": [],
+                "['val', 0.005]": [],
+                "['val', 0.008]": [],
+            },
+        )
+    )
+traces_3.append(
+    Trace(
+        "V_min",
+        "V",
+        reduce_ops={
+            "amin": [],
+            "amax": [],
+            "['val', 0.002]": [],
+            "['val', 0.005]": [],
+            "['val', 0.008]": [],
+        },
+    )
+)
+traces_3.append(
+    Trace(
+        "V_max",
+        "V",
+        reduce_ops={
+            "amin": [],
+            "amax": [],
+            "['val', 0.002]": [],
+            "['val', 0.005]": [],
+            "['val', 0.008]": [],
+        },
+    )
+)
 
 """Create the sample database"""
 steps_3 = TraceDB(
@@ -50,29 +68,45 @@ traces_4 = []
 traces_4.append(Trace("it", ""))
 traces_4.append(Trace("t", "s"))
 for i in ["Na", "D", "E"]:
-    traces_4.append(Trace(f"{i}_count", "n_molecules",reduce_ops={
-                        "amin": [],
-                        "amax": [],
-                        "['val', 0.002]": [],
-                        "['val', 0.005]": [],
-                        "['val', 0.008]": [],
-                    },))
-traces_4.append(Trace("V_min", "V",reduce_ops={
-                        "amin": [],
-                        "amax": [],
-                        "['val', 0.002]": [],
-                        "['val', 0.005]": [],
-                        "['val', 0.008]": [],
-                    },))
-traces_4.append(Trace("V_max", "V",reduce_ops={
-                        "amin": [],
-                        "amax": [],
-                        "['val', 0.002]": [],
-                        "['val', 0.005]": [],
-                        "['val', 0.008]": [],
-                    },))
-
-
+    traces_4.append(
+        Trace(
+            f"{i}_count",
+            "n_molecules",
+            reduce_ops={
+                "amin": [],
+                "amax": [],
+                "['val', 0.002]": [],
+                "['val', 0.005]": [],
+                "['val', 0.008]": [],
+            },
+        )
+    )
+traces_4.append(
+    Trace(
+        "V_min",
+        "V",
+        reduce_ops={
+            "amin": [],
+            "amax": [],
+            "['val', 0.002]": [],
+            "['val', 0.005]": [],
+            "['val', 0.008]": [],
+        },
+    )
+)
+traces_4.append(
+    Trace(
+        "V_max",
+        "V",
+        reduce_ops={
+            "amin": [],
+            "amax": [],
+            "['val', 0.002]": [],
+            "['val', 0.005]": [],
+            "['val', 0.008]": [],
+        },
+    )
+)
 
 
 """Create the sample database"""
@@ -85,17 +119,14 @@ steps_4 = TraceDB(
 )
 
 
-
-
 comp = Comparator(benchmark=steps_3, sample=steps_4)
 
 for k, v in sorted(comp.test_ks().items(), key=lambda k: k[0]):
     print(k, v)
 
 for i in ["Na", "D", "E"]:
-    comp.avgplot(trace_name=f"{i}_count", std=False, savefig_path="GHKEfieldUnitTest/pics")
+    comp.avgplot(
+        trace_name=f"{i}_count", std=False, savefig_path="GHKEfieldUnitTest/pics"
+    )
 for i in ["min", "max"]:
     comp.avgplot(trace_name=f"V_{i}", std=False, savefig_path="GHKEfieldUnitTest/pics")
-
-
-

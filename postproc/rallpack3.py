@@ -20,8 +20,8 @@ traces_s.append(
         reduce_ops={
             "amin": [],
             "amax": [],
-            **{f"['i_prominence', {i}]":[] for i in range(n_expected_peaks)},
-            **{f"['i_prominence_t', {i}]":[] for i in range(n_expected_peaks)},
+            **{f"['i_prominence', {i}]": [] for i in range(n_expected_peaks)},
+            **{f"['i_prominence_t', {i}]": [] for i in range(n_expected_peaks)},
             "freq": [],
         },
     )
@@ -62,7 +62,6 @@ sample = TraceDB(
 )
 
 
-
 """Create the benchmark traces """
 multi = 1e-3
 traces_b = []
@@ -76,8 +75,8 @@ traces_b.append(
         reduce_ops={
             "amin": [],
             "amax": [],
-            **{f"['i_prominence', {i}]":[] for i in range(n_expected_peaks)},
-            **{f"['i_prominence_t', {i}]":[] for i in range(n_expected_peaks)},
+            **{f"['i_prominence', {i}]": [] for i in range(n_expected_peaks)},
+            **{f"['i_prominence_t', {i}]": [] for i in range(n_expected_peaks)},
             "freq": [],
         },
     )
@@ -94,8 +93,6 @@ benchmark = TraceDB(
     clear_raw_traces_cache=True,
     clear_refined_traces_cache=True,
 )
-
-
 
 
 """Create the comparator for advanced studies"""
@@ -116,20 +113,19 @@ bindwidth_t = 0.0005
 bindwidth_Hz = 1
 
 
-
 comp.distplot(
     "V_z_min",
     f"freq",
     binwidth=bindwidth_Hz,
     savefig_path="rallpack3/pics",
-    suffix="rallpack3"
+    suffix="rallpack3",
 )
 comp.distplot(
     "V_z_max",
     f"freq",
     binwidth=bindwidth_Hz,
     savefig_path="rallpack3/pics",
-    suffix="rallpack3"
+    suffix="rallpack3",
 )
 
 # for i in [0, 1, 9]:
@@ -164,14 +160,6 @@ comp.distplot(
 #         savefig_path="rallpack3/pics",
 #         suffix="rallpack3"
 #     )
-
-
-
-
-
-
-
-
 
 
 #

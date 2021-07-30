@@ -262,7 +262,14 @@ class Comparator:
         plt.show()
 
     def avgplot(
-        self, trace_name, std=True, conf_lvl=0.95, savefig_path=None, suffix="", xlim=None, ylim=None
+        self,
+        trace_name,
+        std=True,
+        conf_lvl=0.95,
+        savefig_path=None,
+        suffix="",
+        xlim=None,
+        ylim=None,
     ):
         time_trace_b = self.benchmark.get_time_trace()
 
@@ -272,13 +279,22 @@ class Comparator:
         trace_s = self.sample.traces[trace_name]
 
         avg_b = trace_b.raw_traces.mean(axis=1)
+        nt_b = len(trace_b.raw_traces.columns)
         avg_s = trace_s.raw_traces.mean(axis=1)
+        nt_s = len(trace_s.raw_traces.columns)
 
         plt.clf()
 
-
-        plt.plot(time_trace_b.raw_traces.iloc[:, 0], avg_b, label=f"avg_{self.benchmark.name}")
-        plt.plot(time_trace_s.raw_traces.iloc[:, 0], avg_s, label=f"avg_{self.sample.name}")
+        plt.plot(
+            time_trace_b.raw_traces.iloc[:, 0],
+            avg_b,
+            label=f"avg_{self.benchmark.name}_(nt: {nt_b})",
+        )
+        plt.plot(
+            time_trace_s.raw_traces.iloc[:, 0],
+            avg_s,
+            label=f"avg_{self.sample.name}_(nt: {nt_s})",
+        )
 
         title = f"{trace_name} avg"
 
@@ -414,7 +430,7 @@ class Comparator:
         )
         p = seaborn.histplot(
             data=newdf, binwidth=binwidth, stat="probability", common_norm=False
-        )#, palette=["grey", "black"]
+        )  # , palette=["grey", "black"]
         title = f"{trace}_{op}"
         p.set_title(title)
         if savefig_path:

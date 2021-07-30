@@ -77,8 +77,7 @@ class Utils:
         if len(prominences) > i_peak:
             return prominences[i_peak]
         else:
-            return float('NaN')
-
+            return float("NaN")
 
     @staticmethod
     def i_prominence_t(
@@ -91,7 +90,7 @@ class Utils:
         if len(peaks[0]) > i_peak:
             return time_trace[peaks[0][i_peak]]
         else:
-            return float('NaN')
+            return float("NaN")
 
     @staticmethod
     def i_prominence_y(trace: list, i_peak: int, prominence_multi: float = 0.1):
@@ -101,7 +100,7 @@ class Utils:
         if len(peaks[0]) > i_peak:
             return trace[peaks[0][i_peak]]
         else:
-            return float('NaN')
+            return float("NaN")
 
     @staticmethod
     def freq(trace, time_trace, prominence_multi: float = 0.1):
