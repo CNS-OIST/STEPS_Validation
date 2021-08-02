@@ -9,7 +9,7 @@ Tell the program what is inside the raw data and what aliases you want to perfor
 """
 traces_3 = []
 traces_3.append(Trace("t", "s"))
-for i in ["Na", "D", "E"]:
+for i in ["Na", "D", "E", "Na_surf"]:
     traces_3.append(
         Trace(
             f"{i}_count",
@@ -67,7 +67,7 @@ Tell the program what is inside the raw data and what aliases you want to perfor
 traces_4 = []
 traces_4.append(Trace("it", ""))
 traces_4.append(Trace("t", "s"))
-for i in ["Na", "D", "E"]:
+for i in ["Na", "D", "E", "Na_surf"]:
     traces_4.append(
         Trace(
             f"{i}_count",
@@ -124,9 +124,11 @@ comp = Comparator(benchmark=steps_3, sample=steps_4)
 for k, v in sorted(comp.test_ks().items(), key=lambda k: k[0]):
     print(k, v)
 
-for i in ["Na", "D", "E"]:
+
+for i in ["Na", "D", "E", "Na_surf"]:
     comp.avgplot(
         trace_name=f"{i}_count", std=False, savefig_path="GHKEfieldUnitTest/pics"
     )
+
 for i in ["min", "max"]:
     comp.avgplot(trace_name=f"V_{i}", std=False, savefig_path="GHKEfieldUnitTest/pics")
