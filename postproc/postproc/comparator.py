@@ -23,36 +23,53 @@ class Comparator:
     population
     """
 
-    def __init__(self, benchmark: TraceDB, sample: TraceDB):
-        self.sample = sample
-        self.benchmark = benchmark
+    def __init__(self, traceDBs):
+        # swich to a dict in case we get a list
+        self.traceDBs = {v.name: v for v in traceDBs}
+        if len(self.traceDBs) != len(traceDBs):
+            raise ComparatorError("Different traces have the same name!")
 
-    def test_ks(self, traces: set = {}, ops: set = {}):
+    def _combinatory_map(self, fff, *argv, **kwargs):
+        """Apply the function func to all the possible pair combinations in self.traceDBs
+
+        We suppose that A vs B == B vs A or that we are interested only in one of the two comparisons.
+        If the order of
+        traceDBs
+        matters, the most benchmark-like tracesDBs must be put in front
+        """
+        out = {}
+        traceDB_names = list(self.traceDBs.keys())
+        for idx_b, benchmarkDB_name in enumerate(traceDB_names):
+            for sampleDB_name in traceDB_names[idx_b + 1 :]:
+                out[f"{benchmarkDB_name}_vs_{sampleDB_name}"] = fff(
+                    benchmarkDB_name, sampleDB_name, *argv, **kwargs
+                )
+        return out
+
+    def test_ks(self, *argv, **kwargs):
+        """ combinatory wrapper"""
+        return self._combinatory_map(self._test_ks, *argv, **kwargs)
+
+    def _test_ks(self, benchmarkDB_name, sampleDB_name):
         """Kolmogorov–Smirnov test """
+        benchmark, sample = (
+            self.traceDBs[benchmarkDB_name],
+            self.traceDBs[sampleDB_name],
+        )
+
         out = {}
 
-        if len(traces) == 0:
-            traces = self.benchmark.traces.keys() & self.sample.traces.keys()
-        else:
-            traces = (
-                self.benchmark.traces.keys() & self.sample.traces.keys() & set(traces)
-            )
+        # we compare only the traces that are shared among the 2 databases
+        traces = benchmark.traces.keys() & sample.traces.keys()
 
         # for trace_name, trace_b in self.benchmark.traces.items():
         for trace_name in traces:
-            trace_s = self.sample.traces[trace_name]
-            trace_b = self.benchmark.traces[trace_name]
+            trace_s = sample.traces[trace_name]
+            trace_b = benchmark.traces[trace_name]
 
-            if len(ops) == 0:
-                ops = set(trace_b.refined_traces.keys()) & set(
-                    trace_s.refined_traces.keys()
-                )
-            else:
-                ops = (
-                    set(trace_b.refined_traces.keys())
-                    & set(trace_s.refined_traces.keys())
-                    & set(ops)
-                )
+            ops = set(trace_b.refined_traces.keys()) & set(
+                trace_s.refined_traces.keys()
+            )
 
             for op in ops:
                 refined_trace_b = trace_b.refined_traces[op]
@@ -60,16 +77,23 @@ class Comparator:
                 out[trace_name + "_" + op] = stats.ks_2samp(
                     refined_trace_s, refined_trace_b
                 )
-
         return out
 
-    def refined_traces_diff(self, normalized=True):
+    def refined_traces_diff(self, *argv, **kwargs):
+        """ combinatory wrapper"""
+        return self._combinatory_map(self._refined_traces_diff, *argv, **kwargs)
 
+    def _refined_traces_diff(self, benchmarkDB_name, sampleDB_name, normalized=True):
+        """ Compute difference of refined traces """
+        benchmark, sample = (
+            self.traceDBs[benchmarkDB_name],
+            self.traceDBs[sampleDB_name],
+        )
         out = {}
-        for trace_name, trace_b in self.benchmark.traces.items():
+        for trace_name, trace_b in benchmark.traces.items():
             for op, refined_trace_b in trace_b.refined_traces.items():
                 try:
-                    trace_s = self.sample.traces[trace_name]
+                    trace_s = sample.traces[trace_name]
                     refined_trace_s = trace_s.refined_traces[op]
                 except KeyError:
                     continue
@@ -103,27 +127,41 @@ class Comparator:
 
         return out
 
-    def mse_refactored(self, normalized=True):
+    def mse_refactored(self, *argv, **kwargs):
+        """ combinatory wrapper"""
+        return self._combinatory_map(self._mse_refactored, *argv, **kwargs)
+
+    def _mse_refactored(self, benchmarkDB_name, sampleDB_name, normalized=True):
         """Refactored mean square error
 
         This is the square root of the mean square error refactored based on a parameter that should be
         representative of the signal as a whole (it is 0 only if the signal is flat)
         """
-        time_trace_b = self.benchmark.get_time_trace()
-        time_trace_s = self.sample.get_time_trace()
+        benchmark, sample = (
+            self.traceDBs[benchmarkDB_name],
+            self.traceDBs[sampleDB_name],
+        )
+
+        time_trace_b = benchmark.get_time_trace()
+        time_trace_s = sample.get_time_trace()
 
         mse_lists = {}
-        for trace_name, trace_b in self.benchmark.traces.items():
+        for trace_name, trace_b in benchmark.traces.items():
             if trace_name == time_trace_b.name:
                 continue
-            if any(["amax", "amin"]) not in trace_b.refined_traces and normalized:
+
+            if (
+                any(mm not in trace_b.refined_traces for mm in ["amax", "amin"])
+                and normalized
+            ):
+
                 logging.warning(
-                    f"Comparator needs 'amax' and 'amin' for the trace {trace_name} in benchmark to "
+                    f"Comparator needs 'amax' and 'amin' for the trace {trace_name} in {benchmarkDB_name} to "
                     f"compute the normalized mse. Trace skipped."
                 )
                 continue
 
-            trace_s = self.sample.traces[trace_name]
+            trace_s = sample.traces[trace_name]
 
             mse_lists[trace_name] = []
             for file_b, raw_trace_b in trace_b.raw_traces.items():
@@ -150,6 +188,7 @@ class Comparator:
             mse_lists[trace_name] = (mse_lists[trace_name], norm_factor)
 
         out = {}
+
         for trace_name, (mse_list, norm_factor) in mse_lists.items():
             mse_list = numpy.array(mse_list) / norm_factor
 
@@ -162,11 +201,16 @@ class Comparator:
                 "amin": amin,
                 "norm_factor": norm_factor,
             }
-
         return out
 
-    def plot(
+    def plot(self, *argv, **kwargs):
+        """ combinatory wrapper"""
+        return self._combinatory_map(self._plot, *argv, **kwargs)
+
+    def _plot(
         self,
+        benchmarkDB_name,
+        sampleDB_name,
         trace_name_b,
         trace_name_s=None,
         raw_trace_idx_b=0,
@@ -181,6 +225,8 @@ class Comparator:
         particular realization of sample vs particular realization of benchmark
 
         Args:
+              - traceDB_b (str): trace database name for the benchmark
+              - traceDB_s (str): trace database name for the sample
               - trace_name_b (str): name of the benchmark trace
               - trace_name_s (str, optional): name of the sample trace
               - raw_trace_idx_b (int, optional): idx of the particular benchmark realization
@@ -189,36 +235,41 @@ class Comparator:
               - time_trace_name_s (str, optional): name of the time trace of the sample
               - savefig_path (str, optional): path to save the file
         """
+        benchmark, sample = (
+            self.traceDBs[benchmarkDB_name],
+            self.traceDBs[sampleDB_name],
+        )
+
         if not trace_name_s:
             trace_name_s = trace_name_b
         if not time_trace_name_s:
             time_trace_name_s = time_trace_name_b
 
-        raw_trace_name_b = list(self.benchmark.traces[trace_name_b].raw_traces.keys())[
+        raw_trace_name_b = list(benchmark.traces[trace_name_b].raw_traces.keys())[
             raw_trace_idx_b
         ]
-        raw_trace_name_s = list(self.sample.traces[trace_name_s].raw_traces.keys())[
+        raw_trace_name_s = list(sample.traces[trace_name_s].raw_traces.keys())[
             raw_trace_idx_s
         ]
 
         time_trace_b = (
-            self.benchmark.get_time_trace()
+            benchmark.get_time_trace()
             if not time_trace_name_b
-            else self.benchmark.traces[time_trace_name_b]
+            else benchmark.traces[time_trace_name_b]
         )
         time_trace_s = (
-            self.sample.get_time_trace()
+            sample.get_time_trace()
             if not time_trace_name_s
-            else self.sample.traces[time_trace_name_s]
+            else sample.traces[time_trace_name_s]
         )
 
-        trace_b = self.benchmark.traces[trace_name_b]
-        trace_s = self.sample.traces[trace_name_s]
-        print("benchmark:")
+        trace_b = benchmark.traces[trace_name_b]
+        trace_s = sample.traces[trace_name_s]
+        print(f"{benchmarkDB_name}:")
         print(trace_b.__str__(raw_trace_idx_b))
         if time_trace_name_b:
             print(time_trace_b.__str__(raw_trace_idx_b))
-        print("sample:")
+        print(f"{sampleDB_name}:")
         print(trace_s.__str__(raw_trace_idx_s))
         if time_trace_name_s:
             print(time_trace_s.__str__(raw_trace_idx_s))
@@ -226,20 +277,20 @@ class Comparator:
         short_name_b = trace_b.short_name(raw_trace_name_b)
         short_name_s = trace_s.short_name(raw_trace_name_s)
 
-        title = f"{trace_b.name}_b_{short_name_b}_vs_s_{short_name_s}"
+        title = f"{trace_b.name}_{benchmarkDB_name}_{short_name_b}_vs_{sampleDB_name}_{short_name_s}"
 
         plt.clf()
 
         plt.plot(
             time_trace_b.raw_traces[raw_trace_name_b],
             trace_b.raw_traces[raw_trace_name_b],
-            label=f"benchmark {short_name_b}",
+            label=f"{benchmarkDB_name} {short_name_b}",
         )
 
         plt.plot(
             time_trace_s.raw_traces[raw_trace_name_s],
             trace_s.raw_traces[raw_trace_name_s],
-            label=f"sample {short_name_s}",
+            label=f"{sampleDB_name} {short_name_s}",
         )
         if not time_trace_name_s and not time_trace_name_b:
             _, interp_time, interp_diff = Utils.sqrtmse(
@@ -261,113 +312,19 @@ class Comparator:
             plt.savefig(os.path.join(savefig_path, file_name))
         plt.show()
 
-    def avgplot(
+    def diffplot(self, *argv, **kwargs):
+        """ combinatory wrapper"""
+        return self._combinatory_map(self._diffplot, *argv, **kwargs)
+
+    def _diffplot(
         self,
+        benchmarkDB_name,
+        sampleDB_name,
         trace_name,
-        std=True,
-        conf_lvl=0.95,
         savefig_path=None,
+        percent=False,
         suffix="",
-        xlim=None,
-        ylim=None,
     ):
-        time_trace_b = self.benchmark.get_time_trace()
-
-        time_trace_s = self.sample.get_time_trace()
-
-        trace_b = self.benchmark.traces[trace_name]
-        trace_s = self.sample.traces[trace_name]
-
-        avg_b = trace_b.raw_traces.mean(axis=1)
-        nt_b = len(trace_b.raw_traces.columns)
-        avg_s = trace_s.raw_traces.mean(axis=1)
-        nt_s = len(trace_s.raw_traces.columns)
-
-        plt.clf()
-
-        plt.plot(
-            time_trace_b.raw_traces.iloc[:, 0],
-            avg_b,
-            label=f"avg_{self.benchmark.name}_(nt: {nt_b})",
-        )
-        plt.plot(
-            time_trace_s.raw_traces.iloc[:, 0],
-            avg_s,
-            label=f"avg_{self.sample.name}_(nt: {nt_s})",
-        )
-
-        title = f"{trace_name} avg"
-
-        if std:
-            title += " std"
-            std_b = trace_b.raw_traces.std(axis=1)
-            std_s = trace_s.raw_traces.std(axis=1)
-            plt.fill_between(
-                time_trace_b.raw_traces.iloc[:, 0],
-                avg_b + std_b,
-                avg_b - std_b,
-                label=f"std_{self.benchmark.name}",
-                alpha=0.5,
-            )
-            plt.fill_between(
-                time_trace_s.raw_traces.iloc[:, 0],
-                avg_s + std_s,
-                avg_s - std_s,
-                label=f"std_{self.sample.name}",
-                alpha=0.5,
-            )
-
-        if conf_lvl > 0:
-            title += f" conf_int {conf_lvl}"
-            conf_int_b = numpy.array(
-                list(
-                    zip(
-                        *trace_b.raw_traces.apply(
-                            lambda x: Utils.conf_int(x, conf_lvl), axis=1
-                        )
-                    )
-                )
-            )
-            conf_int_s = numpy.array(
-                list(
-                    zip(
-                        *trace_s.raw_traces.apply(
-                            lambda x: Utils.conf_int(x, conf_lvl), axis=1
-                        )
-                    )
-                )
-            )
-
-            plt.fill_between(
-                time_trace_b.raw_traces.iloc[:, 0],
-                conf_int_b[0],
-                conf_int_b[1],
-                label=f"conf_int_{self.benchmark.name}",
-                alpha=0.3,
-            )
-            plt.fill_between(
-                time_trace_s.raw_traces.iloc[:, 0],
-                conf_int_s[0],
-                conf_int_s[1],
-                label=f"conf_int_{self.sample.name}",
-                alpha=0.3,
-            )
-
-        plt.legend()
-        plt.title(title)
-        plt.xlim(xlim)
-        plt.ylim(ylim)
-
-        if savefig_path:
-            file_name = re.sub(" ", "_", title)
-            if suffix:
-                file_name += "_" + suffix
-            file_name += ".png"
-            plt.savefig(os.path.join(savefig_path, file_name))
-
-        plt.show()
-
-    def diffplot(self, trace_name, savefig_path=None, percent=False, suffix=""):
         """Compare traces:
 
         plot differences between all the realizations in benchmark vs the ones in sample
@@ -378,13 +335,18 @@ class Comparator:
               - savefig_path (str, optional): path to save the file
         """
 
-        time_trace_b = self.benchmark.get_time_trace()
-        time_trace_s = self.sample.get_time_trace()
+        benchmark, sample = (
+            self.traceDBs[benchmarkDB_name],
+            self.traceDBs[sampleDB_name],
+        )
 
-        trace_b = self.benchmark.traces[trace_name]
-        trace_s = self.sample.traces[trace_name]
+        time_trace_b = benchmark.get_time_trace()
+        time_trace_s = sample.get_time_trace()
 
-        title = f"{trace_name} (b-s)"
+        trace_b = benchmark.traces[trace_name]
+        trace_s = sample.traces[trace_name]
+
+        title = f"{trace_name} ({benchmarkDB_name}-{sampleDB_name})"
 
         plt.clf()
         plt.title(title)
@@ -409,7 +371,9 @@ class Comparator:
             plt.savefig(os.path.join(savefig_path, file_name))
         plt.show()
 
-    def distplot(self, trace, op, binwidth=0.005, savefig_path=None, suffix=""):
+    def distplot(
+        self, trace, op, binwidth=0.005, savefig_path=None, suffix="", traceDB_names=[]
+    ):
         """Distribution plot
 
         Distribution plot comparison of a refined trace between benchmark and sample
@@ -420,17 +384,22 @@ class Comparator:
               - bins=(int, optional): bin number for the distplot
               - savefig_path (str): path to save the figure
         """
-        trace_b = self.benchmark.traces[trace].refined_traces[op]
-        trace_s = self.sample.traces[trace].refined_traces[op]
+        if len(traceDB_names) == 0:
+            traceDB_names = self.traceDBs.keys()
         newdf = pandas.DataFrame(
             {
-                f"{self.benchmark.name} ({len(trace_b)})": trace_b,
-                f"{self.sample.name} ({len(trace_s)})": trace_s,
+                f"{k} ({len(v.traces[trace].refined_traces[op])})": v.traces[
+                    trace
+                ].refined_traces[op]
+                for k, v in self.traceDBs.items()
+                if k in traceDB_names
             }
         )
+
         p = seaborn.histplot(
             data=newdf, binwidth=binwidth, stat="probability", common_norm=False
         )  # , palette=["grey", "black"]
+
         title = f"{trace}_{op}"
         p.set_title(title)
         if savefig_path:
@@ -439,4 +408,79 @@ class Comparator:
                 file_name += "_" + suffix
             file_name += ".png"
             plt.savefig(os.path.join(savefig_path, file_name))
+        plt.show()
+
+    def avgplot(
+        self,
+        trace_name,
+        std=True,
+        conf_lvl=0.95,
+        savefig_path=None,
+        suffix="",
+        xlim=None,
+        ylim=None,
+    ):
+        """Average plot with std deviations and confidence bands"""
+        plt.clf()
+        for traceDB_name, traceDB in self.traceDBs.items():
+
+            time_trace = traceDB.get_time_trace()
+            trace = traceDB.traces[trace_name]
+
+            avg0 = trace.raw_traces.mean(axis=1)
+            nt = len(trace.raw_traces.columns)
+
+            plt.plot(
+                time_trace.raw_traces.iloc[:, 0],
+                avg0,
+                label=f"avg_{traceDB_name}_(nt: {nt})",
+            )
+
+            if std:
+                std0 = trace.raw_traces.std(axis=1)
+                plt.fill_between(
+                    time_trace.raw_traces.iloc[:, 0],
+                    avg0 + std0,
+                    avg0 - std0,
+                    label=f"std_{traceDB_name}",
+                    alpha=0.5,
+                )
+
+            if conf_lvl > 0:
+                conf_int = numpy.array(
+                    list(
+                        zip(
+                            *trace.raw_traces.apply(
+                                lambda x: Utils.conf_int(x, conf_lvl), axis=1
+                            )
+                        )
+                    )
+                )
+
+                plt.fill_between(
+                    time_trace.raw_traces.iloc[:, 0],
+                    conf_int[0],
+                    conf_int[1],
+                    label=f"conf_int_{traceDB_name}",
+                    alpha=0.3,
+                )
+
+        title = f"{trace_name} avg"
+        if std:
+            title += " std"
+        if conf_lvl:
+            title += f" conf_int {conf_lvl}"
+
+        plt.legend()
+        plt.title(title)
+        plt.xlim(xlim)
+        plt.ylim(ylim)
+
+        if savefig_path:
+            file_name = re.sub(" ", "_", title)
+            if suffix:
+                file_name += "_" + suffix
+            file_name += ".png"
+            plt.savefig(os.path.join(savefig_path, file_name))
+
         plt.show()

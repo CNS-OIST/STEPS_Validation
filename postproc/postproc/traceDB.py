@@ -347,6 +347,34 @@ class TraceDB:
     def __len__(self):
         return len(self.traces)
 
+    def rewrite_raw_traces(self, suffix="_1"):
+        """Rewrite raw trace files after they were loaded
+
+        Useful to convert dimensions
+        """
+
+        if len(suffix) == 0:
+            cont = input(
+                "I am going to re-write the raw traces. Are you sure you want to proceed? [y/n] (This "
+                "operation cannot "
+                "be reversed)"
+            )
+
+            if cont != "y":
+                logging.warning("Aborted")
+                return
+
+            logging.warning("I am going to rewrite the raw traces")
+
+        for file_path in next(iter(self.traces.values())).raw_traces.keys():
+            df = pandas.DataFrame(
+                {k: v.raw_traces[file_path] for k, v in self.traces.items()}
+            )
+            base_file_path, ext = os.path.splitext(file_path)
+            final_path = f"{base_file_path}{suffix}{ext}"
+            logging.warning(f"rewriting {final_path} ...")
+            df.to_csv(final_path, sep=" ", index=False)
+
     def _derive_raw_data(self):
         """Service function to call derive on all traces"""
         for trace_name in self.traces:
@@ -426,7 +454,7 @@ class TraceDB:
 
         logging.info(f"Extract {file_path}")
 
-        header = 0
+        header = -1
         with open(file_path) as f:
             for ls in f.readlines():
                 try:
@@ -446,8 +474,13 @@ class TraceDB:
                     header += 1
 
         data = pandas.read_csv(
-            file_path, delim_whitespace=True, names=self.root_traces, header=header
+            file_path,
+            delim_whitespace=True,
+            names=self.root_traces,
+            header=None,
+            skiprows=range(header + 1),
         )
+
         data = data.apply(pandas.to_numeric, errors="coerce").dropna()
 
         for k, v in data.items():

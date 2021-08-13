@@ -22,18 +22,16 @@ for membrane in ["smooth", "spiny"]:
                     "amin": [],
                     "amax": [],
                     "max_prominence_t": [],
-                    "['i_prominence_y', 1]": [],
+                    "['i_peak_y', 1]": [],
                     "['val', 0.05]": [],
                     "n_peaks": [],
                 },
             )
         )
 
-    # traces_b[1].refined_traces["['i_prominence_t', 1, 0.01]"] = []
-
 
 """ create the benchmark database"""
-benchmark = TraceDB(
+benchmark_STEPS3 = TraceDB(
     "STEPS3",
     traces_b,
     "caburst/benchmark/test_100",
@@ -61,7 +59,7 @@ for membrane in ["smooth", "spiny"]:
                     "amin": [],
                     "amax": [],
                     "max_prominence_t": [],
-                    "['i_prominence_y', 1]": [],
+                    "['i_peak_y', 1]": [],
                     "['val', 0.05]": [],
                     "n_peaks": [],
                 },
@@ -70,7 +68,7 @@ for membrane in ["smooth", "spiny"]:
 
 
 """Create the sample database"""
-sample = TraceDB(
+sample_STEPS4 = TraceDB(
     "STEPS4",
     traces_s,
     "caburst/sample/benchmark_32nodes",
@@ -80,43 +78,22 @@ sample = TraceDB(
 
 
 # """Create the comparator for advanced studies"""
-comp = Comparator(benchmark=benchmark, sample=sample)
+comp = Comparator(traceDBs=[sample_STEPS4, benchmark_STEPS3])
 
-
-# """Refined traces diff"""
-# for trace_name, res in comp.refined_traces_diff().items():
-#     for op, v in res.items():
-#         print(trace_name, op, *v.items())
 
 """Perform the ks test"""
 
-for k, v in sorted(comp.test_ks().items(), key=lambda k: k[0]):
-    print(k, v)
+for tDBnames, ks_tests in comp.test_ks().items():
+    print(tDBnames)
+    for k, v in sorted(ks_tests.items(), key=lambda k: k[0]):
+        print(k, v)
 """Compute the mse"""
-for k, v in sorted(comp.mse_refactored().items(), key=lambda k: k[0]):
-    print(k, *v.items())
-# """Plots"""
-#
-# binwidth_y = 0.0001
-# binwidth_t = 0.0001
-# for membrane in ["smooth", "spiny"]:
-#     for op in ["max", "min"]:
-#         comp.distplot(f"{membrane}_{op}_V", "['i_prominence_y', 1]", binwidth=binwidth_y, savefig_path="caburst/pics",suffix="")
-# for t in [0.01, 0.02, 0.03, 0.04, 0.05]:
-#     comp.distplot(f"{membrane}_{op}_V", f"['val', {t}]", binwidth=binwidth_y, savefig_path="caburst/pics",
-#                   suffix="no_GHK")
-# comp.distplot(f"{membrane}_{op}_V", "amin", binwidth=binwidth_y, savefig_path="caburst/pics",
-#               suffix="no_GHK")
-# comp.distplot(f"{membrane}_{op}_V", "amax", binwidth=binwidth_y, savefig_path="caburst/pics",
-#               suffix="no_GHK")
-# comp.distplot(f"{membrane}_{op}_V", "max_prominence_t", binwidth=binwidth_t, savefig_path="caburst/pics",
-#               suffix="no_GHK")
+for tDBnames, mse_refactored in comp.mse_refactored().items():
+    print(tDBnames)
+    for k, v in sorted(mse_refactored.items(), key=lambda k: k[0]):
+        print(k, *v.items())
 
-
-# for membrane in ["smooth", "spiny"]:
-#     for op in ["max", "min"]:
-#         comp.diffplot(
-#             trace_name=f"{membrane}_{op}_V", savefig_path="caburst/pics")
+"""Plots"""
 
 for membrane in ["smooth", "spiny"]:
     for op in ["max", "min"]:
@@ -134,15 +111,3 @@ for membrane in ["smooth", "spiny"]:
             savefig_path="caburst/pics",
             suffix="",
         )
-
-
-# sample_raw_trace_idx =0
-#
-# for membrane in ["smooth", "spiny"]:
-#     for op in ["max", "min"]:
-#         comp.plot(
-#             trace_name_b=f"{membrane}_{op}_V",
-#             raw_trace_idx_b=0,
-#             raw_trace_idx_s=sample_raw_trace_idx,
-#             savefig_path="caburst/pics",
-#         )

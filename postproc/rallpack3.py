@@ -4,15 +4,14 @@ import copy
 import numpy
 
 """Create the sample traces
-                
+
 Tell the program what is inside the raw data and what alaiyses you want to perform for each trace
 """
 multi = 1
-n_expected_peaks = 12
-traces_s = []
-traces_s.append(Trace("t", "s", multi=multi))
+traces_sample_STEPS4 = []
+traces_sample_STEPS4.append(Trace("t", "s", multi=multi))
 
-traces_s.append(
+traces_sample_STEPS4.append(
     Trace(
         "V_z_min",
         "V",
@@ -20,91 +19,109 @@ traces_s.append(
         reduce_ops={
             "amin": [],
             "amax": [],
-            **{f"['i_prominence', {i}]": [] for i in range(n_expected_peaks)},
-            **{f"['i_prominence_t', {i}]": [] for i in range(n_expected_peaks)},
+            **{f"['i_peak_y', {i}]": [] for i in range(9)},
+            **{f"['i_peak_t', {i}]": [] for i in range(9)},
             "freq": [],
         },
     )
 )
+traces_sample_STEPS4.append(copy.deepcopy(traces_sample_STEPS4[-1]))
+traces_sample_STEPS4[-1].name = "V_z_max"
 
-
-traces_s.append(copy.deepcopy(traces_s[-1]))
-traces_s[-1].name = "V_z_max"
-
-
-# Trace(
-#     "dVdt_z_min",
-#     "V/s",
-#     reduce_ops={
-#         "amin": [],
-#         "amax": [],
-#         "mean": [],
-#     },
-#     derivation_params=["gradient", ["V_max_on_vertices_z_min", "t"]],
-# ),
-# Trace(
-#     "dVdt_z_max",
-#     "V/s",
-#     reduce_ops={
-#         "amin": [],
-#         "amax": [],
-#         "mean": [],
-#     },
-#     derivation_params=["gradient", ["V_max_on_vertices_z_max", "t"]],
-# ),
 """Create the sample database"""
-sample = TraceDB(
-    "STEPS 4",
-    traces_s,
-    "rallpack3/sample/sampling5e-6",
-    clear_raw_traces_cache=False,
-    clear_refined_traces_cache=False,
-)
-
-
-"""Create the benchmark traces """
-multi = 1e-3
-traces_b = []
-traces_b.append(Trace("t", "s", multi=multi))
-
-traces_b.append(
-    Trace(
-        "V_z_min",
-        "V",
-        multi=multi,
-        reduce_ops={
-            "amin": [],
-            "amax": [],
-            **{f"['i_prominence', {i}]": [] for i in range(n_expected_peaks)},
-            **{f"['i_prominence_t', {i}]": [] for i in range(n_expected_peaks)},
-            "freq": [],
-        },
-    )
-)
-traces_b.append(copy.deepcopy(traces_b[-1]))
-traces_b[-1].name = "V_z_max"
-
-# sample.plot(savefig_path="rallpack3/pics")
-"""Create the benchmark database"""
-benchmark = TraceDB(
-    "neuron",
-    traces_b,
-    "rallpack3/benchmark",
+sample_STEPS4 = TraceDB(
+    "STEPS4",
+    traces_sample_STEPS4,
+    "/home/katta/projects/STEPS4Models/Validations/rallpack3/sample_STEPS4/results",
     clear_raw_traces_cache=True,
     clear_refined_traces_cache=True,
 )
 
 
+##########################################
+
+"""Create the benchmark STEPS 3 traces """
+multi = 1
+traces_benchmark_STEPS3 = []
+traces_benchmark_STEPS3.append(Trace("t", "s", multi=1))
+
+traces_benchmark_STEPS3.append(
+    Trace(
+        "V_z_min",
+        "V",
+        multi=multi,
+        reduce_ops={
+            "amin": [],
+            "amax": [],
+            **{f"['i_peak_y', {i}]": [] for i in range(9)},
+            **{f"['i_peak_t', {i}]": [] for i in range(9)},
+            "freq": [],
+        },
+    )
+)
+traces_benchmark_STEPS3.append(copy.deepcopy(traces_benchmark_STEPS3[-1]))
+traces_benchmark_STEPS3[-1].name = "V_z_max"
+
+"""Create the benchmark database"""
+benchmark_STEPS3 = TraceDB(
+    "STEPS3",
+    traces_benchmark_STEPS3,
+    "/home/katta/projects/STEPS4Models/Validations/rallpack3/benchmark_STEPS3/results",
+    clear_raw_traces_cache=True,
+    clear_refined_traces_cache=True,
+)
+
+##########################################
+
+"""Create the benchmark NEURON traces """
+multi = 1e-3
+traces_benchmark_NEURON = []
+traces_benchmark_NEURON.append(Trace("t", "s", multi=multi))
+
+traces_benchmark_NEURON.append(
+    Trace(
+        "V_z_min",
+        "V",
+        multi=multi,
+        reduce_ops={
+            "amin": [],
+            "amax": [],
+            **{f"['i_peak_y', {i}]": [] for i in range(9)},
+            **{f"['i_peak_t', {i}]": [] for i in range(9)},
+            "freq": [],
+        },
+    )
+)
+traces_benchmark_NEURON.append(copy.deepcopy(traces_benchmark_NEURON[-1]))
+traces_benchmark_NEURON[-1].name = "V_z_max"
+
+"""Create the benchmark database"""
+benchmark_NEURON = TraceDB(
+    "NEURON",
+    traces_benchmark_NEURON,
+    "rallpack3/benchmark_NEURON",
+    clear_raw_traces_cache=True,
+    clear_refined_traces_cache=True,
+)
+
+##########################################
+
 """Create the comparator for advanced studies"""
-comp = Comparator(benchmark=benchmark, sample=sample)
+comp = Comparator(traceDBs=[sample_STEPS4, benchmark_STEPS3, benchmark_NEURON])
 
 """Perform the ks test"""
-# for k, v in comp.test_ks().items():
-#     print(k,v)
 
+for tDBnames, ks_tests in comp.test_ks().items():
+    print(tDBnames)
+    for k, v in sorted(ks_tests.items(), key=lambda k: k[0]):
+        print(k, v)
+
+# this can take some time. Commented for now
 # """Compute the mse"""
-# for k, v in comp.mse_refactored().items():
-#     print(k, *v.items())
+# for tDBnames, mse_tests in comp.mse_refactored().items():
+#     print(tDBnames)
+#     for k, v in sorted(mse_tests.items(), key=lambda k: k[0]):
+#         print(k, *v.items())
 
 """Plots"""
 
@@ -112,81 +129,54 @@ bindwidth_y = 0.0005
 bindwidth_t = 0.0005
 bindwidth_Hz = 1
 
-
+suffix = "rallpack3_STEPS3_vs_STEPS4"
+savefig_path = "rallpack3/pics"
 comp.distplot(
     "V_z_min",
     f"freq",
     binwidth=bindwidth_Hz,
-    savefig_path="rallpack3/pics",
-    suffix="rallpack3",
+    savefig_path=savefig_path,
+    suffix=suffix,
 )
+
 comp.distplot(
     "V_z_max",
     f"freq",
     binwidth=bindwidth_Hz,
-    savefig_path="rallpack3/pics",
-    suffix="rallpack3",
+    savefig_path=savefig_path,
+    suffix=suffix,
 )
 
-# for i in [0, 1, 9]:
-#     comp.distplot(
-#         "V_z_min",
-#         f"['i_prominence', {i}]",
-#         binwidth=bindwidth_y,
-#         savefig_path="rallpack3/pics",
-#         suffix="rallpack3"
-#     )
-# for i in [0, 1, 9]:
-#     comp.distplot(
-#         "V_z_min",
-#         f"['i_prominence_t', {i}]",
-#         binwidth=bindwidth_t,
-#         savefig_path="rallpack3/pics",
-#         suffix="rallpack3"
-#     )
-# for i in [0, 1, 9]:
-#     comp.distplot(
-#         "V_z_max",
-#         f"['i_prominence', {i}]",
-#         binwidth=bindwidth_y,
-#         savefig_path="rallpack3/pics",
-#         suffix="rallpack3"
-#     )
-# for i in [0, 1, 9]:
-#     comp.distplot(
-#         "V_z_max",
-#         f"['i_prominence_t', {i}]",
-#         binwidth=bindwidth_t,
-#         savefig_path="rallpack3/pics",
-#         suffix="rallpack3"
-#     )
-
-
-#
-# sample_raw_trace_idx = 0
-#
-# comp.plot(
-#     trace_name_b="V_max_on_vertices_z_min",
-#     raw_trace_idx_s=sample_raw_trace_idx,
-#     savefig_path="rallpack3/pics",
-# )
-# comp.plot(
-#     trace_name_b="V_max_on_vertices_z_max",
-#     raw_trace_idx_s=sample_raw_trace_idx,
-#     savefig_path="rallpack3/pics",
-# )
-#
-# comp.plot(
-#     trace_name_b="dVdt_z_min",
-#     raw_trace_idx_s=sample_raw_trace_idx,
-#     time_trace_name_b="V_max_on_vertices_z_min",
-#     time_trace_name_s="V_max_on_vertices_z_min",
-#     savefig_path="rallpack3/pics",
-# )
-# comp.plot(
-#     trace_name_b="dVdt_z_max",
-#     raw_trace_idx_s=sample_raw_trace_idx,
-#     time_trace_name_b="V_max_on_vertices_z_max",
-#     time_trace_name_s="V_max_on_vertices_z_max",
-#     savefig_path="rallpack3/pics",
-# )
+for i in range(9):
+    comp.distplot(
+        "V_z_min",
+        f"['i_peak_y', {i}]",
+        binwidth=bindwidth_y,
+        savefig_path=savefig_path,
+        suffix=suffix,
+        traceDB_names=["STEPS3", "STEPS4"],
+    )
+    comp.distplot(
+        "V_z_min",
+        f"['i_peak_t', {i}]",
+        binwidth=bindwidth_t,
+        savefig_path=savefig_path,
+        suffix=suffix,
+        traceDB_names=["STEPS3", "STEPS4"],
+    )
+    comp.distplot(
+        "V_z_max",
+        f"['i_peak_y', {i}]",
+        binwidth=bindwidth_y,
+        savefig_path=savefig_path,
+        suffix=suffix,
+        traceDB_names=["STEPS3", "STEPS4"],
+    )
+    comp.distplot(
+        "V_z_max",
+        f"['i_peak_t', {i}]",
+        binwidth=bindwidth_t,
+        savefig_path=savefig_path,
+        suffix=suffix,
+        traceDB_names=["STEPS3", "STEPS4"],
+    )

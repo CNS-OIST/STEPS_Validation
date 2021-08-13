@@ -1,3 +1,7 @@
+#########
+# Still a WIP: this test needs to be updated for the new API and the name changed. Please use the other tests
+#########
+
 from postproc.traceDB import TraceDB, Trace
 from postproc.comparator import Comparator
 import copy

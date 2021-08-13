@@ -25,6 +25,7 @@ class Utils:
               - prominence_multi (float): prominence threshold as fraction of the span (max -min) of the trace
         """
         trace = numpy.array(trace)
+
         max = numpy.amax(trace)
         min = numpy.amin(trace)
         prominence = prominence_multi * (max - min)
@@ -80,7 +81,7 @@ class Utils:
             return float("NaN")
 
     @staticmethod
-    def i_prominence_t(
+    def i_peak_t(
         trace: list, time_trace: list, i_peak: int, prominence_multi: float = 0.1
     ):
         """Time stamp of the ith peak"""
@@ -93,7 +94,7 @@ class Utils:
             return float("NaN")
 
     @staticmethod
-    def i_prominence_y(trace: list, i_peak: int, prominence_multi: float = 0.1):
+    def i_peak_y(trace: list, i_peak: int, prominence_multi: float = 0.1):
         """Height of the ith peak"""
         trace = numpy.array(trace)
         peaks = Utils.peaks(trace, prominence_multi)
