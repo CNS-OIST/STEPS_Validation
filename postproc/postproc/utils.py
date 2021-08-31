@@ -9,7 +9,7 @@ class UtilsError(Exception):
 
 
 class Utils:
-    """Class that collects general mathematic methods"""
+    """Class that collects general mathematical methods"""
 
     @staticmethod
     def val(trace: list, time_trace: list, t: float):

@@ -275,16 +275,20 @@ class Comparator:
             print(time_trace_s.__str__(raw_trace_idx_s))
 
         short_name_b = trace_b.short_name(raw_trace_name_b)
+        if short_name_b:
+            short_name_b = "_" + short_name_b
         short_name_s = trace_s.short_name(raw_trace_name_s)
+        if short_name_s:
+            short_name_s = "_" + short_name_s
 
-        title = f"{trace_b.name}_{benchmarkDB_name}_{short_name_b}_vs_{sampleDB_name}_{short_name_s}"
+        title = f"{trace_b.name}_{benchmarkDB_name}{short_name_b}_vs_{sampleDB_name}{short_name_s}"
 
         plt.clf()
 
         plt.plot(
             time_trace_b.raw_traces[raw_trace_name_b],
             trace_b.raw_traces[raw_trace_name_b],
-            label=f"{benchmarkDB_name} {short_name_b}",
+            label=f"{benchmarkDB_name}{short_name_b}",
         )
 
         plt.plot(
