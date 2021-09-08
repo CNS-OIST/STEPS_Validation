@@ -36,8 +36,8 @@ import time
 import numpy
 
 from scipy.constants import Avogadro
-import tol_funcs
-# from . import tol_funcs
+from . import tol_funcs
+from .. import configuration
 
 ########################################################################
 
@@ -75,7 +75,7 @@ def test_kisilevich():
             D_b =     Diffusion.Create(SB, DCSTB)
 
 
-    mesh = DistMesh('meshes/brick_40_4_4_1686tets.msh', 1e-6)
+    mesh = DistMesh(configuration.mesh_path('brick_40_4_4_1686tets.msh'), 1e-6)
 
     with mesh:
         acomptets = TetList(tet for tet in mesh.tets if tet.center.x < 0)
@@ -209,5 +209,3 @@ def test_kisilevich():
 
 ########################################################################
 # END
-
-test_kisilevich()
