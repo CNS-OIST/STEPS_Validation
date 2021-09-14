@@ -100,6 +100,13 @@ class Trace:
                     f"The file {k} presents nan values for the trace {self.name}"
                 )
 
+    def filter_refined_trace(self, op, filter=None):
+        if not filter:
+            return self.refined_traces[op]
+        else:
+            t = self.refined_traces[op]
+            return t.loc[self.refined_traces[filter[0]] == filter[1]].dropna()
+
     def raw_traces_to_parquet(self, path):
         self.raw_traces.to_parquet(os.path.join(path, f"{self.name}.parquet"))
 

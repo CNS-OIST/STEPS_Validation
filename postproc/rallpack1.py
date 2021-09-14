@@ -25,17 +25,18 @@ traces_sample_STEPS4[-1].name = "V_z_max"
 sample_STEPS4 = TraceDB(
     "STEPS4",
     traces_sample_STEPS4,
-    "/home/katta/projects/STEPS4Models/Validations/rallpack1/sample_STEPS4/results",
+    "rallpack1/sample_STEPS4/results",
     clear_raw_traces_cache=True,
     clear_refined_traces_cache=True,
 )
 
-"""Benchmark_NEURON"""
+
+"""Benchmark_analytic"""
 
 multi = 1
-traces_benchmark_NEURON = []
-traces_benchmark_NEURON.append(Trace("t", "s", multi=multi))
-traces_benchmark_NEURON.append(
+traces_benchmark_analytic = []
+traces_benchmark_analytic.append(Trace("t", "s", multi=multi))
+traces_benchmark_analytic.append(
     Trace(
         "V_z_min",
         "V",
@@ -46,17 +47,19 @@ traces_benchmark_NEURON.append(
         },
     )
 )
-traces_benchmark_NEURON.append(copy.deepcopy(traces_benchmark_NEURON[-1]))
-traces_benchmark_NEURON[-1].name = "V_z_max"
+traces_benchmark_analytic.append(copy.deepcopy(traces_benchmark_analytic[-1]))
+traces_benchmark_analytic[-1].name = "V_z_max"
+
 
 """Create the sample database"""
-benchmark_NEURON = TraceDB(
-    "NEURON",
-    traces_benchmark_NEURON,
-    "/home/katta/projects/STEPS4Models/Validations/rallpack1/benchmark_NEURON/results",
+benchmark_analytic = TraceDB(
+    "analytic",
+    traces_benchmark_analytic,
+    "rallpack1/benchmark_analytic/results",
     clear_raw_traces_cache=True,
     clear_refined_traces_cache=True,
 )
+
 
 """Benchmark_STEPS3"""
 
@@ -81,7 +84,7 @@ traces_benchmark_STEPS3[-1].name = "V_z_max"
 benchmark_STEPS3 = TraceDB(
     "STEPS3",
     traces_benchmark_STEPS3,
-    "/home/katta/projects/STEPS4Models/Validations/rallpack1/benchmark_STEPS3/results",
+    "rallpack1/benchmark_STEPS3/results",
     clear_raw_traces_cache=True,
     clear_refined_traces_cache=True,
 )
@@ -89,6 +92,16 @@ benchmark_STEPS3 = TraceDB(
 
 """comparator"""
 
-comp = Comparator(traceDBs=[sample_STEPS4, benchmark_NEURON, benchmark_STEPS3])
-comp.plot(trace_name_b="V_z_min", savefig_path="rallpack1/pics")
-comp.plot(trace_name_b="V_z_max", savefig_path="rallpack1/pics")
+comp = Comparator(traceDBs=[sample_STEPS4, benchmark_STEPS3, benchmark_analytic])
+comp.plot(
+    trace_name_b="V_z_min", savefig_path="rallpack1/pics", isdiff=False, istitle=False
+)
+comp.plot(
+    trace_name_b="V_z_max", savefig_path="rallpack1/pics", isdiff=False, istitle=False
+)
+
+"""Compute the mse"""
+for tDBnames, mse_tests in comp.mse_refactored(normalized=False).items():
+    print(tDBnames)
+    for k, v in sorted(mse_tests.items(), key=lambda k: k[0]):
+        print(k, *v.items())

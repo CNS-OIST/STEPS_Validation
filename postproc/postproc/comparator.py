@@ -50,7 +50,7 @@ class Comparator:
         """ combinatory wrapper"""
         return self._combinatory_map(self._test_ks, *argv, **kwargs)
 
-    def _test_ks(self, benchmarkDB_name, sampleDB_name):
+    def _test_ks(self, benchmarkDB_name, sampleDB_name, filter=None):
         """Kolmogorov–Smirnov test """
         benchmark, sample = (
             self.traceDBs[benchmarkDB_name],
@@ -72,8 +72,9 @@ class Comparator:
             )
 
             for op in ops:
-                refined_trace_b = trace_b.refined_traces[op]
-                refined_trace_s = trace_s.refined_traces[op]
+                refined_trace_b = trace_b.filter_refined_trace(op, filter)
+                refined_trace_s = trace_s.filter_refined_trace(op, filter)
+
                 out[trace_name + "_" + op] = stats.ks_2samp(
                     refined_trace_s, refined_trace_b
                 )
@@ -134,7 +135,7 @@ class Comparator:
     def _mse_refactored(self, benchmarkDB_name, sampleDB_name, normalized=True):
         """Refactored mean square error
 
-        This is the square root of the mean square error refactored based on a parameter that should be
+        This is the mean square error refactored based on a parameter that should be
         representative of the signal as a whole (it is 0 only if the signal is flat)
         """
         benchmark, sample = (
@@ -168,7 +169,7 @@ class Comparator:
                 raw_time_trace_b = time_trace_b.raw_traces[file_b]
                 for file_s, raw_trace_s in trace_s.raw_traces.items():
                     raw_time_trace_s = time_trace_s.raw_traces[file_s]
-                    mse, _, _ = Utils.sqrtmse(
+                    mse, _, _ = Utils.mse(
                         sample_time_trace=raw_time_trace_s,
                         sample=raw_trace_s,
                         benchmark_time_trace=raw_time_trace_b,
@@ -219,6 +220,8 @@ class Comparator:
         time_trace_name_s=None,
         savefig_path=None,
         suffix="",
+        isdiff=True,
+        istitle=True,
     ):
         """Compare traces:
 
@@ -294,17 +297,19 @@ class Comparator:
         plt.plot(
             time_trace_s.raw_traces[raw_trace_name_s],
             trace_s.raw_traces[raw_trace_name_s],
+            "--",
             label=f"{sampleDB_name} {short_name_s}",
         )
-        if not time_trace_name_s and not time_trace_name_b:
-            _, interp_time, interp_diff = Utils.sqrtmse(
+        if not time_trace_name_s and not time_trace_name_b and isdiff:
+            _, interp_time, interp_diff = Utils.mse(
                 sample_time_trace=time_trace_s.raw_traces[raw_trace_name_s],
                 sample=trace_s.raw_traces[raw_trace_name_s],
                 benchmark_time_trace=time_trace_b.raw_traces[raw_trace_name_b],
                 benchmark=trace_b.raw_traces[raw_trace_name_b],
             )
             plt.plot(interp_time, interp_diff, label="diff")
-        plt.title(title)
+        if istitle:
+            plt.title(title)
         plt.xlabel(f"{time_trace_b.name} [{time_trace_b.unit}]")
         plt.ylabel(f"{trace_b.name} [{trace_b.unit}]")
         plt.legend()
@@ -358,7 +363,7 @@ class Comparator:
         plt.ylabel(f"{trace_b.name} [{trace_b.unit}]")
         for raw_trace_name_b in trace_b.raw_traces.keys():
             for raw_trace_name_s in trace_s.raw_traces.keys():
-                _, interp_time, interp_diff = Utils.sqrtmse(
+                _, interp_time, interp_diff = Utils.mse(
                     sample_time_trace=time_trace_s.raw_traces[raw_trace_name_s],
                     sample=trace_s.raw_traces[raw_trace_name_s],
                     benchmark_time_trace=time_trace_b.raw_traces[raw_trace_name_b],
@@ -376,7 +381,14 @@ class Comparator:
         plt.show()
 
     def distplot(
-        self, trace, op, binwidth=0.005, savefig_path=None, suffix="", traceDB_names=[]
+        self,
+        trace,
+        op,
+        binwidth=None,
+        savefig_path=None,
+        suffix="",
+        traceDB_names=[],
+        filter=None,
     ):
         """Distribution plot
 
@@ -390,11 +402,19 @@ class Comparator:
         """
         if len(traceDB_names) == 0:
             traceDB_names = self.traceDBs.keys()
+
+        if not any(x in traceDB_names for x in self.traceDBs.keys()):
+            logging.warning(
+                f"{traceDB_names} are not present in {self.traceDBs.keys()}. Results are empty"
+            )
+
         newdf = pandas.DataFrame(
             {
-                f"{k} ({len(v.traces[trace].refined_traces[op])})": v.traces[
+                f"{k} ({len(v.traces[trace].filter_refined_trace(op, filter))})": v.traces[
                     trace
-                ].refined_traces[op]
+                ].filter_refined_trace(
+                    op, filter
+                )
                 for k, v in self.traceDBs.items()
                 if k in traceDB_names
             }
@@ -406,12 +426,15 @@ class Comparator:
 
         title = f"{trace}_{op}"
         p.set_title(title)
+        plt.xticks(rotation=-30)
+
         if savefig_path:
             file_name = re.sub(" ", "_", title)
             if suffix:
                 file_name += "_" + suffix
             file_name += ".png"
             plt.savefig(os.path.join(savefig_path, file_name))
+
         plt.show()
 
     def avgplot(
