@@ -3,6 +3,7 @@ from scipy import interpolate, stats
 from scipy.signal import find_peaks
 from scipy.fft import fft, fftfreq
 import matplotlib.pyplot as plt
+import re
 
 
 class UtilsError(Exception):
@@ -10,7 +11,7 @@ class UtilsError(Exception):
 
 
 class Utils:
-    """Class that collects general mathematical methods"""
+    """Class that collects general methods"""
 
     @staticmethod
     def val(trace: list, time_trace: list, t: float):
@@ -204,3 +205,16 @@ class Utils:
             confidence, len(a) - 1, loc=numpy.mean(a), scale=stats.sem(a)
         )
         return r
+
+    @staticmethod
+    def atoi(text):
+        return int(text) if text.isdigit() else text
+
+    @staticmethod
+    def natural_keys(text):
+        """
+        alist.sort(key=natural_keys) sorts in human order
+        http://nedbatchelder.com/blog/200712/human_sorting.html
+        (See Toothy's implementation in the comments)
+        """
+        return [Utils.atoi(c) for c in re.split(r"(\d+)", text)]

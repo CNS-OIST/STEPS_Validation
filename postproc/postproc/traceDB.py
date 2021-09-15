@@ -305,6 +305,7 @@ class TraceDB:
         time_trace="t",
         clear_raw_traces_cache=False,
         clear_refined_traces_cache=False,
+        is_refine=True,
     ):
         """Init
 
@@ -318,7 +319,14 @@ class TraceDB:
         self.name = name
         self.time_trace = time_trace
         self.root_traces = [i.name for i in traces if not i.derivation_params]
-        self.traces = {i.name: i for i in traces}
+
+        if isinstance(traces, list):
+            self.traces = {i.name: i for i in traces}
+        elif isinstance(traces, dict):
+            self.traces = traces
+        else:
+            raise TraceDBError(f"{traces} is neither a list nor a dict")
+
         if len(traces) != len(self.traces):
             raise TraceDBError(
                 "Some traces have the same name. Please make them unique"
@@ -330,7 +338,8 @@ class TraceDB:
 
         self._check_for_nans()
 
-        self._refine(clear_refined_traces_cache)
+        if is_refine:
+            self._refine(clear_refined_traces_cache)
 
         for i in self.traces:
             self.traces[i]._update_raw_traces_common_prefix_and_suffix()

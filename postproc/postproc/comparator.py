@@ -71,13 +71,19 @@ class Comparator:
                 trace_s.refined_traces.keys()
             )
 
+            if len(ops):
+                out[trace_name] = {}
+
             for op in ops:
+                out[trace_name][op] = "no data"
+
                 refined_trace_b = trace_b.filter_refined_trace(op, filter)
                 refined_trace_s = trace_s.filter_refined_trace(op, filter)
 
-                out[trace_name + "_" + op] = stats.ks_2samp(
-                    refined_trace_s, refined_trace_b
-                )
+                if len(refined_trace_b) and len(refined_trace_s):
+                    out[trace_name][op] = stats.ks_2samp(
+                        refined_trace_s, refined_trace_b
+                    )
         return out
 
     def refined_traces_diff(self, *argv, **kwargs):
