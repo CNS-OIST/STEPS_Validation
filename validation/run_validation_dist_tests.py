@@ -12,6 +12,7 @@ DEFAULT_TEST_SUITE = [
     'validation_rd_dist/kisilevich.py',
     'validation_rd_dist/masteq_diff.py',
     'validation_rd_dist/unbdiff.py',
+    'validation_rd_dist/bounddiff.py',
 ]
 
 
