@@ -28,5 +28,7 @@ compared. Refined data provides already meaningful traces that can be used for c
 sample/benchmark data go in their respective folders (or use other folders where the data are stored). For raw data we 
 also need to provide what refined data must be extracted. 
 
-TL;DR: Check rallpack3.py and caburst.py for hints on how to use the module. If folders are missing that is the 
+Do not clear cache if you only have refined data! 
+
+TL;DR: Check rallpack3.py for hints on how to use the module. If folders are missing that is the 
 place to add the raw traces

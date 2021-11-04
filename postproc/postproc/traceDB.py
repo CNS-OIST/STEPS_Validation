@@ -240,6 +240,7 @@ class Trace:
                         raise TraceDBError(
                             f"The derived trace {self.name} presents an unknown operation {op}."
                         )
+
                     tr.append(val)
 
             self.refined_traces[op_key] = tr
@@ -446,6 +447,9 @@ class TraceDB:
         except:
             root, _, files = next(os.walk(self.folder_path))
             files.sort()
+
+            print(self.folder_path)
+
             for f in files:
                 file_path = os.path.join(root, f)
                 self._extract_raw_data(file_path)

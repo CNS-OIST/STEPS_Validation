@@ -77,8 +77,9 @@ class Comparator:
             for op in ops:
                 out[trace_name][op] = "no data"
 
-                refined_trace_b = trace_b.filter_refined_trace(op, filter)
-                refined_trace_s = trace_s.filter_refined_trace(op, filter)
+                refined_trace_b = trace_b.filter_refined_trace(op, filter).explode()
+                refined_trace_s = trace_s.filter_refined_trace(op, filter).explode()
+
 
                 if len(refined_trace_b) and len(refined_trace_s):
                     out[trace_name][op] = stats.ks_2samp(
@@ -425,6 +426,9 @@ class Comparator:
                 if k in traceDB_names
             }
         )
+
+        newdf = Utils.flatten_data_frame_if_necessary(newdf)
+
 
         p = seaborn.histplot(
             data=newdf, binwidth=binwidth, stat="probability", common_norm=False

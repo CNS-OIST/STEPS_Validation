@@ -1,4 +1,4 @@
-import numpy
+import numpy, pandas
 from scipy import interpolate, stats
 from scipy.signal import find_peaks
 from scipy.fft import fft, fftfreq
@@ -82,6 +82,22 @@ class Utils:
             return prominences[i_peak]
         else:
             return float("NaN")
+
+    @staticmethod
+    def peaks_t(trace: list, time_trace: list):
+        """Time stamp of the peaks"""
+        trace = numpy.array(trace)
+        peaks = Utils.peaks(trace)
+
+        return [time_trace[i] for i in peaks[0]]
+
+    @staticmethod
+    def peaks_y(trace: list):
+        """Height of the peaks"""
+        trace = numpy.array(trace)
+        peaks = Utils.peaks(trace)
+
+        return [trace[i] for i in peaks[0]]
 
     @staticmethod
     def i_peak_t(trace: list, time_trace: list, i_peak: int):
@@ -218,3 +234,8 @@ class Utils:
         (See Toothy's implementation in the comments)
         """
         return [Utils.atoi(c) for c in re.split(r"(\d+)", text)]
+
+    @staticmethod
+    def flatten_data_frame_if_necessary(df):
+        return pandas.DataFrame({k: pandas.Series(v.explode().to_numpy()) for k, v in df.items()})
+

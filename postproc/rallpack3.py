@@ -2,20 +2,14 @@ from postproc.traceDB import TraceDB, Trace
 from postproc.comparator import Comparator
 from postproc.utils import Utils
 import copy
-import numpy
-
 
 npeaks = 17
 
-"""Create the sample traces
-
-Tell the program what is inside the raw data and what aliases you want to perform for each trace
-"""
+"""Create the sample traces. How do you want to refine the data?"""
 multi = 1
-traces_sample_STEPS4 = []
-traces_sample_STEPS4.append(Trace("t", "s", multi=multi))
-
-traces_sample_STEPS4.append(
+trace_sample = []
+trace_sample.append(Trace("t", "s", multi=multi))
+trace_sample.append(
     Trace(
         "V_z_min",
         "V",
@@ -27,30 +21,35 @@ traces_sample_STEPS4.append(
             **{f"['i_peak_t', {i}]": [] for i in range(npeaks)},
             "freq": [],
             "n_peaks": [],
+            "peaks_y": [],
+            "peaks_t": [],
         },
     )
 )
-traces_sample_STEPS4.append(copy.deepcopy(traces_sample_STEPS4[-1]))
-traces_sample_STEPS4[-1].name = "V_z_max"
+trace_sample.append(copy.deepcopy(trace_sample[-1]))
+trace_sample[-1].name = "V_z_max"
 
 """Create the sample database"""
-sample_STEPS4 = TraceDB(
+sampleDB = TraceDB(
     "STEPS4",
-    traces_sample_STEPS4,
+    trace_sample,
     # "rallpack3/sample_STEPS4/results",
-    "rallpack3/sample_STEPS4/results/ef_dt_1e-6_rtol_1e-8_1000",
+    # "rallpack3/sample_STEPS4/results/precond_norm_rtol_1e-5_1000",
+    # "rallpack3/sample_STEPS4/results/uniform_molecule_distribution_rtol_1e-16_1000",
+    # "rallpack3/sample_STEPS4/results/with_ef_occupancy_rtol_1e-16_1000",
+    "rallpack3/sample_STEPS4/results/test",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
 
 # ##########################################
 
-"""Create the benchmark STEPS 3 traces """
+"""Create the benchmark traces. How do you want to refine the data? Usually exactly like the sample traces"""
 multi = 1
-traces_benchmark_STEPS3 = []
-traces_benchmark_STEPS3.append(Trace("t", "s", multi=1))
+traces_benchmark = []
+traces_benchmark.append(Trace("t", "s", multi=1))
 
-traces_benchmark_STEPS3.append(
+traces_benchmark.append(
     Trace(
         "V_z_min",
         "V",
@@ -62,78 +61,45 @@ traces_benchmark_STEPS3.append(
             **{f"['i_peak_t', {i}]": [] for i in range(npeaks)},
             "freq": [],
             "n_peaks": [],
+            "peaks_y": [],
+            "peaks_t": [],
         },
     )
 )
-traces_benchmark_STEPS3.append(copy.deepcopy(traces_benchmark_STEPS3[-1]))
-traces_benchmark_STEPS3[-1].name = "V_z_max"
+traces_benchmark.append(copy.deepcopy(traces_benchmark[-1]))
+traces_benchmark[-1].name = "V_z_max"
 
 """Create the benchmark database"""
-benchmark_STEPS3 = TraceDB(
-    "STEPS3",
-    traces_benchmark_STEPS3,
+benchmarkDB = TraceDB(
+    "STEPS3_currInjAsSTEPS4",
+    traces_benchmark,
+    "rallpack3/benchmark_STEPS3/results/currInjAsSTEPS4_rtol_1e-5_1000",
     # "rallpack3/benchmark_STEPS3/results",
-    "rallpack3/benchmark_STEPS3/results/1000",
+    # "rallpack3/benchmark_STEPS3/results/1000",
+    # "rallpack3/sample_STEPS4/results/uniform_molecule_distribution_rtol_1e-16_1000",
+    # "rallpack3/sample_STEPS4/results/rtol_1e-16_1000",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
 
+# This is for plotting raw data
+# benchmark_STEPS3.plot(savefig_path="rallpack3/pics")
 
-##########################################
+"""Create the comparator for advanced studies
 
-# """Create the benchmark NEURON traces """
-# multi = 1e-3
-# traces_benchmark_NEURON = []
-# traces_benchmark_NEURON.append(Trace("t", "s", multi=multi))
-#
-# traces_benchmark_NEURON.append(
-#     Trace(
-#         "V_z_min",
-#         "V",
-#         multi=multi,
-#         reduce_ops={
-#             "amin": [],
-#             "amax": [],
-#             **{f"['i_peak_y', {i}]": [] for i in range(npeaks)},
-#             **{f"['i_peak_t', {i}]": [] for i in range(npeaks)},
-#             "freq": [],
-#             "n_peaks": [],
-#         },
-#     )
-# )
-# traces_benchmark_NEURON.append(copy.deepcopy(traces_benchmark_NEURON[-1]))
-# traces_benchmark_NEURON[-1].name = "V_z_max"
-#
-# """Create the benchmark database"""
-# benchmark_NEURON = TraceDB(
-#     "NEURON",
-#     traces_benchmark_NEURON,
-#     "rallpack3/benchmark_NEURON/results",
-#     clear_raw_traces_cache=True,
-#     clear_refined_traces_cache=True,
-# )
+Note: anywhere is relevant, the first traceDB is considered the benchmark. The others are samples
+"""
+comp = Comparator(traceDBs=[benchmarkDB, sampleDB])
 
-##########################################
-
-
-"""Create the comparator for advanced studies"""
-comp = Comparator(traceDBs=[benchmark_STEPS3, sample_STEPS4])
-
+# filter data out
+filter = []#["n_peaks", 17]
 
 """Perform the ks test"""
-for tDBnames, ks_tests in comp.test_ks(filter=["n_peaks", 17]).items():
+for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
     print(tDBnames)
     for t, d in sorted(ks_tests.items(), key=lambda t: Utils.natural_keys(t[0])):
         for k, v in sorted(d.items(), key=lambda k: Utils.natural_keys(k[0])):
             print(t, k, v)
-
-for tDBnames, ks_tests in comp.test_ks(filter=["n_peaks", 17]).items():
-    print(f"{tDBnames}, not passing the KS test")
-    for t, d in sorted(ks_tests.items(), key=lambda t: Utils.natural_keys(t[0])):
-        for k, v in sorted(d.items(), key=lambda k: Utils.natural_keys(k[0])):
-            if v.pvalue < 0.05:
-                print(t, k, v)
-
 
 # this can take some time. Commented for now
 # """Compute the mse"""
@@ -142,92 +108,42 @@ for tDBnames, ks_tests in comp.test_ks(filter=["n_peaks", 17]).items():
 #     for k, v in sorted(mse_tests.items(), key=lambda k: k[0]):
 #         print(k, *v.items())
 
-
 """Plots"""
 
 bindwidth_y = 0.0005
 bindwidth_t = 0.001
 # bindwidth_t = 0.00001
 bindwidth_Hz = 1
-
-suffix = "STEPS3_vs_STEPS4_ef_dt_1e-6_rtol_1e-8"
+#
+suffix = "STEPS3_vs_STEPS3_currInjAsSTEPS4"
 savefig_path = "rallpack3/pics"
-comp.distplot(
-    "V_z_min",
-    f"freq",
-    binwidth=bindwidth_Hz,
-    savefig_path=savefig_path,
-    suffix=suffix,
-    filter=["n_peaks", 17],
-)
 
 
-comp.distplot(
-    "V_z_max",
-    f"freq",
-    binwidth=bindwidth_Hz,
-    savefig_path=savefig_path,
-    suffix=suffix,
-    filter=["n_peaks", 17],
-)
-
-comp.distplot(
-    "V_z_min",
-    f"n_peaks",
-    binwidth=1,
-    savefig_path=savefig_path,
-    suffix=suffix,
-)
-
-comp.distplot(
-    "V_z_max",
-    f"n_peaks",
-    binwidth=1,
-    savefig_path=savefig_path,
-    suffix=suffix,
-)
-
-
-for i in range(npeaks):
+for tracename in ["V_z_min", "V_z_max"]:
+    for op in ["peaks_t", "peaks_y"]:
+        comp.distplot(
+            tracename,
+            op,
+            binwidth=bindwidth_t,
+            savefig_path=savefig_path,
+            suffix=suffix,
+            filter=filter,
+        )
     comp.distplot(
-        "V_z_min",
-        f"['i_peak_y', {i}]",
-        binwidth=bindwidth_y,
+        tracename,
+        f"freq",
+        binwidth=bindwidth_Hz,
         savefig_path=savefig_path,
         suffix=suffix,
-        # traceDB_names=["STEPS3", "STEPS4"],
-        filter=["n_peaks", 17],
-    )
-    comp.distplot(
-        "V_z_min",
-        f"['i_peak_t', {i}]",
-        binwidth=bindwidth_t,
-        savefig_path=savefig_path,
-        suffix=suffix,
-        # traceDB_names=["STEPS3", "STEPS4"],
-        filter=["n_peaks", 17],
-    )
-    comp.distplot(
-        "V_z_max",
-        f"['i_peak_y', {i}]",
-        binwidth=bindwidth_y,
-        savefig_path=savefig_path,
-        suffix=suffix,
-        # traceDB_names=["STEPS3", "STEPS4"],
-        filter=["n_peaks", 17],
-    )
-    comp.distplot(
-        "V_z_max",
-        f"['i_peak_t', {i}]",
-        binwidth=bindwidth_t,
-        savefig_path=savefig_path,
-        suffix=suffix,
-        # traceDB_names=["STEPS3", "STEPS4"],
-        filter=["n_peaks", 17],
+        filter=filter,
     )
 
 ########################
-"""p value statistics and graphs"""
+
+"""p value statistics and graphs
+
+create a database using the refined data produced before as raw data for the new database
+"""
 pvalues = {
     "V_z_min": {
         "i_peak_y": [],
@@ -238,7 +154,8 @@ pvalues = {
         "i_peak_t": [],
     },
 }
-for tDBnames, ks_tests in comp.test_ks(filter=["n_peaks", 17]).items():
+# the ks tests are our new raw data
+for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
     for t, d in ks_tests.items():
         for k, v in d.items():
             if t in pvalues:

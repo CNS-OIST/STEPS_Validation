@@ -1,9 +1,7 @@
-validation/validation_rd_mpi/.logs/
-validation/validation_rd/.logs/
-validation/validation_cp/.logs/
-validation/validation_efield/.logs/
+**.logs**
 *.pyc
 *debug_log*
-postproc/*/
 .idea/
-!postproc/postproc/
+**.txt
+**raw_traces_cache**
+**pics**
