@@ -73,7 +73,7 @@ traces_benchmark[-1].name = "V_z_max"
 benchmarkDB = TraceDB(
     "STEPS3_currInjAsSTEPS4",
     traces_benchmark,
-    "rallpack3/benchmark_STEPS3/results/currInjAsSTEPS4_rtol_1e-5_1000",
+    "rallpack3/benchmark_STEPS3/results/currInjAsSTEPS4_rtol_1e-5_1000_20211105",
     # "rallpack3/benchmark_STEPS3/results",
     # "rallpack3/benchmark_STEPS3/results/1000",
     # "rallpack3/sample_STEPS4/results/uniform_molecule_distribution_rtol_1e-16_1000",
