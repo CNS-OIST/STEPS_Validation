@@ -33,14 +33,12 @@ trace_sample[-1].name = "V_z_max"
 sampleDB = TraceDB(
     "STEPS4",
     trace_sample,
-    "rallpack3/sample_STEPS4/results/master_20211109",
-    # "rallpack3/sample_STEPS4/results",
+    # "rallpack3/benchmark_STEPS3/results/currInjAsSTEPS4_rtol_1e-5_1000_20211105",
+    "rallpack3/sample_STEPS4/results/dv_Av_petsc_1000_20211123",
+    # "rallpack3/benchmark_STEPS3/results",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
-
-# sampleDB.plot()
-# exit()
 
 # ##########################################
 
@@ -71,12 +69,9 @@ traces_benchmark[-1].name = "V_z_max"
 
 """Create the benchmark database"""
 benchmarkDB = TraceDB(
-    "STEPS4_old",
+    "STEPS3",
     traces_benchmark,
-    "rallpack3/benchmark_STEPS3/results/currInjAsSTEPS4_rtol_1e-5_1000_20211105",
-    # "rallpack3/sample_STEPS4/results/old",
-    # "rallpack3/sample_STEPS4/results/with_ef_occupancy_rtol_1e-16_1000_20211104",
-    # "rallpack3/sample_STEPS4/results/master_20211109",
+    "rallpack3/benchmark_STEPS3/results/dv_1000_20211123",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
@@ -114,7 +109,7 @@ bindwidth_t = 0.001
 # bindwidth_t = 0.00001
 bindwidth_Hz = 1
 #
-suffix = "STEPS4_ohm_curr_avgv_vs_STEPS4_master"
+suffix = "STEPS4_dv_vs_STEPS3_dv"
 savefig_path = "rallpack3/pics"
 
 
