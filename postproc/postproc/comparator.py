@@ -46,6 +46,21 @@ class Comparator:
                 )
         return out
 
+
+    def _auto_pic_suffix(self, suffix=""):
+        """ Suggest prefix for picture """
+        if len(self.traceDBs) == 0 or len(suffix) != 0:
+            return suffix
+
+        folders = [os.path.basename(db.folder_path) for db in self.traceDBs.values()]
+        names = self.traceDBs.keys()
+        if all(x==folders[0] for x in folders):
+            return f"{folders[0]}_{'_vs_'.join(names)}"
+            return f"{folders[0]}_{'_vs_'.join(names)}"
+        else:
+            tags = [f"{os.path.basename(v.folder_path)}_{k}" for k, v in self.traceDBs.items()]
+            return "_vs_".join(tags)
+
     def test_ks(self, *argv, **kwargs):
         """ combinatory wrapper"""
         return self._combinatory_map(self._test_ks, *argv, **kwargs)
@@ -245,6 +260,9 @@ class Comparator:
               - time_trace_name_s (str, optional): name of the time trace of the sample
               - savefig_path (str, optional): path to save the file
         """
+
+        suffix = self._auto_pic_suffix(suffix)
+
         benchmark, sample = (
             self.traceDBs[benchmarkDB_name],
             self.traceDBs[sampleDB_name],
@@ -407,6 +425,9 @@ class Comparator:
               - bins=(int, optional): bin number for the distplot
               - savefig_path (str): path to save the figure
         """
+
+        suffix = self._auto_pic_suffix(suffix)
+
         if len(traceDB_names) == 0:
             traceDB_names = self.traceDBs.keys()
 
@@ -458,6 +479,9 @@ class Comparator:
         ylim=None,
     ):
         """Average plot with std deviations and confidence bands"""
+
+        suffix = self._auto_pic_suffix(suffix)
+
         plt.clf()
         for traceDB_name, traceDB in self.traceDBs.items():
 

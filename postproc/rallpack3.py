@@ -2,6 +2,7 @@ from postproc.traceDB import TraceDB, Trace
 from postproc.comparator import Comparator
 from postproc.utils import Utils
 import copy
+import os
 
 npeaks = 17
 
@@ -33,12 +34,14 @@ trace_sample[-1].name = "V_z_max"
 sampleDB = TraceDB(
     "STEPS4",
     trace_sample,
-    # "rallpack3/benchmark_STEPS3/results/currInjAsSTEPS4_rtol_1e-5_1000_20211105",
-    "rallpack3/sample_STEPS4/results/dv_Av_petsc_1000_20211123",
-    # "rallpack3/benchmark_STEPS3/results",
+    "rallpack3/sample_STEPS4/results/ohm_curr_avgv_1000_20211118",
+    # "rallpack3/sample_STEPS4/results/dv_Av_petsc_1000_20211123",
+    # "rallpack3/sample_STEPS4/results",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
+
+
 
 # ##########################################
 
@@ -71,10 +74,14 @@ traces_benchmark[-1].name = "V_z_max"
 benchmarkDB = TraceDB(
     "STEPS3",
     traces_benchmark,
-    "rallpack3/benchmark_STEPS3/results/dv_1000_20211123",
+    # "rallpack3/benchmark_STEPS3/results/dv_1000_20211123",
+    "rallpack3/benchmark_STEPS3/results/currInjAsSTEPS4_rtol_1e-5_1000_20211105",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
+
+
+
 
 # This is for plotting raw data
 # benchmark_STEPS3.plot(savefig_path="rallpack3/pics")
@@ -109,7 +116,8 @@ bindwidth_t = 0.001
 # bindwidth_t = 0.00001
 bindwidth_Hz = 1
 #
-suffix = "STEPS4_dv_vs_STEPS3_dv"
+
+
 savefig_path = "rallpack3/pics"
 
 
@@ -120,7 +128,6 @@ for tracename in ["V_z_min", "V_z_max"]:
             op,
             binwidth=bindwidth_t,
             savefig_path=savefig_path,
-            suffix=suffix,
             filter=filter,
         )
     comp.distplot(
@@ -128,7 +135,6 @@ for tracename in ["V_z_min", "V_z_max"]:
         f"freq",
         binwidth=bindwidth_Hz,
         savefig_path=savefig_path,
-        suffix=suffix,
         filter=filter,
     )
 
@@ -171,5 +177,4 @@ for tname in ["V_z_max", "V_z_min"]:
             op,
             binwidth=0.1,
             savefig_path=savefig_path,
-            suffix=suffix,
         )
