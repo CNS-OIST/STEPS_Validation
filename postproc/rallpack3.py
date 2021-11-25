@@ -34,14 +34,13 @@ trace_sample[-1].name = "V_z_max"
 sampleDB = TraceDB(
     "STEPS4",
     trace_sample,
-    "rallpack3/sample_STEPS4/results/ohm_curr_avgv_1000_20211118",
-    # "rallpack3/sample_STEPS4/results/dv_Av_petsc_1000_20211123",
+# "rallpack3/sample_STEPS4/results/with_ef_occupancy_rtol_1e-16_1000_20211104",
+    # "rallpack3/sample_STEPS4/results/ohm_curr_avgv_1000_20211118",
+    "rallpack3/sample_STEPS4/results/dv_Av_petsc_1000_20211123",
     # "rallpack3/sample_STEPS4/results",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
-
-
 
 # ##########################################
 
@@ -74,8 +73,8 @@ traces_benchmark[-1].name = "V_z_max"
 benchmarkDB = TraceDB(
     "STEPS3",
     traces_benchmark,
-    # "rallpack3/benchmark_STEPS3/results/dv_1000_20211123",
-    "rallpack3/benchmark_STEPS3/results/currInjAsSTEPS4_rtol_1e-5_1000_20211105",
+    "rallpack3/benchmark_STEPS3/results/dv_1000_20211123",
+    # "rallpack3/benchmark_STEPS3/results",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
@@ -83,14 +82,24 @@ benchmarkDB = TraceDB(
 
 
 
-# This is for plotting raw data
-# benchmark_STEPS3.plot(savefig_path="rallpack3/pics")
+
 
 """Create the comparator for advanced studies
 
 Note: anywhere is relevant, the first traceDB is considered the benchmark. The others are samples
 """
 comp = Comparator(traceDBs=[benchmarkDB, sampleDB])
+
+savefig_path = "rallpack3/pics"
+comp.avgplot_refined_traces("V_z_min", [f"['i_peak_t', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
+comp.avgplot_refined_traces("V_z_max", [f"['i_peak_t', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
+comp.avgplot_refined_traces("V_z_min", [f"['i_peak_y', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
+comp.avgplot_refined_traces("V_z_max", [f"['i_peak_y', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
+
+
+
+
+exit()
 
 # filter data out
 filter = []#["n_peaks", 17]
@@ -164,6 +173,8 @@ for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
                         pvalues[t][k_slim].append(v.pvalue)
 
 pvalues_traces = [Trace(k, "V", reduce_ops=v) for k, v in pvalues.items()]
+
+
 
 """Create a database"""
 pvalues_traceDB = TraceDB("pvalues", pvalues_traces, is_refine=False)

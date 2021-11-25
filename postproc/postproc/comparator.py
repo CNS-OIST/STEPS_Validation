@@ -1,6 +1,7 @@
 from scipy import stats
 import numpy
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import cm
 import os
 import pandas
 import seaborn
@@ -468,7 +469,7 @@ class Comparator:
 
         plt.show()
 
-    def avgplot(
+    def avgplot_raw_traces(
         self,
         trace_name,
         std=True,
@@ -478,7 +479,7 @@ class Comparator:
         xlim=None,
         ylim=None,
     ):
-        """Average plot with std deviations and confidence bands"""
+        """Average plot with std deviations and confidence bands of the raw traces"""
 
         suffix = self._auto_pic_suffix(suffix)
 
@@ -543,5 +544,47 @@ class Comparator:
                 file_name += "_" + suffix
             file_name += ".png"
             plt.savefig(os.path.join(savefig_path, file_name))
+
+        plt.show()
+
+    def avgplot_refined_traces(
+        self,
+        trace_name,
+        reduce_ops=[],
+        savefig_path = "",
+        suffix = ""
+    ):
+        suffix = self._auto_pic_suffix(suffix)
+        plt.clf()
+        plt.figure()
+        xx = [*range(len(reduce_ops))]
+        shift = 0.2*numpy.array([*range(len(self.traceDBs))])
+        shift -= shift.mean()
+
+        common_prefix = os.path.commonprefix(reduce_ops)
+
+        ticknames = [i[len(common_prefix):] for i in reduce_ops]
+        for idx, (db_name, db) in enumerate(self.traceDBs.items()):
+            if trace_name not in db.traces:
+                continue
+
+            rt = db.traces[trace_name].refined_traces
+            avgs = numpy.array([rt[op].mean() if op in rt else numpy.NaN for op in reduce_ops])
+            std = numpy.array([rt[op].std() if op in rt else numpy.NaN for op in reduce_ops])
+            plt.errorbar(xx-shift[idx], avgs, yerr=std, fmt='o', capsize=2, elinewidth=1, label=db_name)
+
+        plt.xticks(xx, ticknames, rotation='30')
+        title = f"{trace_name} avg std {common_prefix}"
+
+        plt.legend()
+        plt.title(title)
+
+        if savefig_path:
+            file_name = re.sub(" ", "_", title)
+            if suffix:
+                file_name += "_" + suffix
+            file_name += ".png"
+            plt.savefig(os.path.join(savefig_path, file_name))
+
 
         plt.show()
