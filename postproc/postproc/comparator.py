@@ -411,6 +411,7 @@ class Comparator:
         trace,
         op,
         binwidth=None,
+        binrange=None,
         savefig_path=None,
         suffix="",
         traceDB_names=[],
@@ -453,12 +454,12 @@ class Comparator:
 
 
         p = seaborn.histplot(
-            data=newdf, binwidth=binwidth, stat="probability", common_norm=False
+            data=newdf, binwidth=binwidth, binrange=binrange, stat="probability", common_norm=False
         )  # , palette=["grey", "black"]
 
         title = f"{trace}_{op}"
         p.set_title(title)
-        plt.xticks(rotation=-30)
+        # plt.xticks(rotation=-30)
 
         if savefig_path:
             file_name = re.sub(" ", "_", title)

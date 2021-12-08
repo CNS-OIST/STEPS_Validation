@@ -102,6 +102,19 @@ comp.plot(
 
 """Compute the mse"""
 for tDBnames, mse_tests in comp.mse_refactored(normalized=False).items():
+    # if tDBnames == "STEPS4_vs_analytic":
     print(tDBnames)
     for k, v in sorted(mse_tests.items(), key=lambda k: k[0]):
         print(k, *v.items())
+
+
+# """Mesh scaling"""
+# import matplotlib.pyplot as plt
+# dofs = [42, 267, 2595, 12180]
+# V_z_max_mse = [4.90431547267612e-07, 4.3761326885036406e-11, 1.0878045760284713e-12, 3.6528686422550846e-13]
+# plt.loglog(dofs, V_z_max_mse,marker='o')
+# plt.ylabel("mse")
+# plt.xlabel("DoFs")
+# plt.savefig("rallpack1/pics/mesh_scaling")
+# plt.show()
+

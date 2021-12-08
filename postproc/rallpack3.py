@@ -5,6 +5,7 @@ import copy
 import os
 
 npeaks = 17
+savefig_path = "rallpack3/pics"
 
 """Create the sample traces. How do you want to refine the data?"""
 multi = 1
@@ -35,9 +36,11 @@ sampleDB = TraceDB(
     "STEPS4",
     trace_sample,
 # "rallpack3/sample_STEPS4/results/with_ef_occupancy_rtol_1e-16_1000_20211104",
-    # "rallpack3/sample_STEPS4/results/ohm_curr_avgv_1000_20211118",
-    "rallpack3/sample_STEPS4/results/dv_Av_petsc_1000_20211123",
+#     "rallpack3/sample_STEPS4/results/ohm_curr_avgv_1000_20211118",
+    # "rallpack3/sample_STEPS4/results/dv_Av_petsc_1000_20211123",
+    # "rallpack3/sample_STEPS4/results/master_after_efield_dv_1000_20211203",
     # "rallpack3/sample_STEPS4/results",
+    "rallpack3/sample_STEPS4/results/master_spaced_seed_direct_20211208",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
@@ -73,11 +76,13 @@ traces_benchmark[-1].name = "V_z_max"
 benchmarkDB = TraceDB(
     "STEPS3",
     traces_benchmark,
-    "rallpack3/benchmark_STEPS3/results/dv_1000_20211123",
+    "rallpack3/benchmark_STEPS3/results/master_after_efield_dv_1000_20211203",
     # "rallpack3/benchmark_STEPS3/results",
+    # "rallpack3/benchmark_STEPS3/results/dv_1000_20211123",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
+
 
 
 
@@ -90,16 +95,6 @@ Note: anywhere is relevant, the first traceDB is considered the benchmark. The o
 """
 comp = Comparator(traceDBs=[benchmarkDB, sampleDB])
 
-savefig_path = "rallpack3/pics"
-comp.avgplot_refined_traces("V_z_min", [f"['i_peak_t', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
-comp.avgplot_refined_traces("V_z_max", [f"['i_peak_t', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
-comp.avgplot_refined_traces("V_z_min", [f"['i_peak_y', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
-comp.avgplot_refined_traces("V_z_max", [f"['i_peak_y', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
-
-
-
-
-exit()
 
 # filter data out
 filter = []#["n_peaks", 17]
@@ -127,7 +122,7 @@ bindwidth_Hz = 1
 #
 
 
-savefig_path = "rallpack3/pics"
+
 
 
 for tracename in ["V_z_min", "V_z_max"]:
@@ -143,6 +138,14 @@ for tracename in ["V_z_min", "V_z_max"]:
         tracename,
         f"freq",
         binwidth=bindwidth_Hz,
+        savefig_path=savefig_path,
+        filter=filter,
+    )
+    comp.distplot(
+        tracename,
+        f"n_peaks",
+        binwidth=1,
+        binrange=[0, 20],
         savefig_path=savefig_path,
         filter=filter,
     )
@@ -187,5 +190,13 @@ for tname in ["V_z_max", "V_z_min"]:
             tname,
             op,
             binwidth=0.1,
+            binrange=[0, 1],
             savefig_path=savefig_path,
         )
+
+
+comp.avgplot_refined_traces("V_z_min", [f"['i_peak_t', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
+comp.avgplot_refined_traces("V_z_max", [f"['i_peak_t', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
+comp.avgplot_refined_traces("V_z_min", [f"['i_peak_y', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
+comp.avgplot_refined_traces("V_z_max", [f"['i_peak_y', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
+
