@@ -117,4 +117,3 @@ for tDBnames, mse_tests in comp.mse_refactored(normalized=False).items():
 # plt.xlabel("DoFs")
 # plt.savefig("rallpack1/pics/mesh_scaling")
 # plt.show()
-

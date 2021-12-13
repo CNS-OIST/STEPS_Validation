@@ -47,7 +47,6 @@ class Comparator:
                 )
         return out
 
-
     def _auto_pic_suffix(self, suffix=""):
         """ Suggest prefix for picture """
         if len(self.traceDBs) == 0 or len(suffix) != 0:
@@ -55,11 +54,14 @@ class Comparator:
 
         folders = [os.path.basename(db.folder_path) for db in self.traceDBs.values()]
         names = self.traceDBs.keys()
-        if all(x==folders[0] for x in folders):
+        if all(x == folders[0] for x in folders):
             return f"{folders[0]}_{'_vs_'.join(names)}"
             return f"{folders[0]}_{'_vs_'.join(names)}"
         else:
-            tags = [f"{os.path.basename(v.folder_path)}_{k}" for k, v in self.traceDBs.items()]
+            tags = [
+                f"{os.path.basename(v.folder_path)}_{k}"
+                for k, v in self.traceDBs.items()
+            ]
             return "_vs_".join(tags)
 
     def test_ks(self, *argv, **kwargs):
@@ -95,7 +97,6 @@ class Comparator:
 
                 refined_trace_b = trace_b.filter_refined_trace(op, filter).explode()
                 refined_trace_s = trace_s.filter_refined_trace(op, filter).explode()
-
 
                 if len(refined_trace_b) and len(refined_trace_s):
                     out[trace_name][op] = stats.ks_2samp(
@@ -412,6 +413,7 @@ class Comparator:
         op,
         binwidth=None,
         binrange=None,
+        xlabel=None,
         savefig_path=None,
         suffix="",
         traceDB_names=[],
@@ -431,7 +433,7 @@ class Comparator:
         suffix = self._auto_pic_suffix(suffix)
 
         if len(traceDB_names) == 0:
-            traceDB_names = self.traceDBs.keys()
+            traceDB_names = list(self.traceDBs.keys())
 
         if not any(x in traceDB_names for x in self.traceDBs.keys()):
             logging.warning(
@@ -452,14 +454,20 @@ class Comparator:
 
         newdf = Utils.flatten_data_frame_if_necessary(newdf)
 
-
         p = seaborn.histplot(
-            data=newdf, binwidth=binwidth, binrange=binrange, stat="probability", common_norm=False
+            data=newdf,
+            binwidth=binwidth,
+            binrange=binrange,
+            stat="frequency",
+            common_norm=False,
         )  # , palette=["grey", "black"]
 
         title = f"{trace}_{op}"
         p.set_title(title)
-        # plt.xticks(rotation=-30)
+        if xlabel is None:
+            plt.xlabel(self.traceDBs[traceDB_names[0]].traces[trace].unit)
+        else:
+            plt.xlabel(xlabel)
 
         if savefig_path:
             file_name = re.sub(" ", "_", title)
@@ -475,6 +483,8 @@ class Comparator:
         trace_name,
         std=True,
         conf_lvl=0.95,
+        xlabel=None,
+        ylabel=None,
         savefig_path=None,
         suffix="",
         xlim=None,
@@ -534,6 +544,15 @@ class Comparator:
         if conf_lvl:
             title += f" conf_int {conf_lvl}"
 
+        if xlabel is None:
+            plt.xlabel(time_trace.unit)
+        else:
+            plt.xlabel(xlabel)
+        if xlabel is None:
+            plt.ylabel(trace.unit)
+        else:
+            plt.ylabel(ylabel)
+
         plt.legend()
         plt.title(title)
         plt.xlim(xlim)
@@ -552,33 +571,50 @@ class Comparator:
         self,
         trace_name,
         reduce_ops=[],
-        savefig_path = "",
-        suffix = ""
+        xlabel=None,
+        ylabel=None,
+        savefig_path="",
+        suffix="",
     ):
         suffix = self._auto_pic_suffix(suffix)
         plt.clf()
         plt.figure()
         xx = [*range(len(reduce_ops))]
-        shift = 0.2*numpy.array([*range(len(self.traceDBs))])
+        shift = 0.2 * numpy.array([*range(len(self.traceDBs))])
         shift -= shift.mean()
 
-        common_prefix = os.path.commonprefix(reduce_ops)
+        common_prefix = Utils.common_prefix(reduce_ops)
+        common_suffix = Utils.common_suffix(reduce_ops)
 
-        ticknames = [i[len(common_prefix):] for i in reduce_ops]
+        ticknames = [i[len(common_prefix) : -len(common_suffix)] for i in reduce_ops]
         for idx, (db_name, db) in enumerate(self.traceDBs.items()):
             if trace_name not in db.traces:
                 continue
 
             rt = db.traces[trace_name].refined_traces
-            avgs = numpy.array([rt[op].mean() if op in rt else numpy.NaN for op in reduce_ops])
-            std = numpy.array([rt[op].std() if op in rt else numpy.NaN for op in reduce_ops])
-            plt.errorbar(xx-shift[idx], avgs, yerr=std, fmt='o', capsize=2, elinewidth=1, label=db_name)
+            avgs = numpy.array(
+                [rt[op].mean() if op in rt else numpy.NaN for op in reduce_ops]
+            )
+            std = numpy.array(
+                [rt[op].std() if op in rt else numpy.NaN for op in reduce_ops]
+            )
+            plt.errorbar(
+                xx - shift[idx],
+                avgs,
+                yerr=std,
+                fmt="o",
+                capsize=2,
+                elinewidth=1,
+                label=db_name,
+            )
 
-        plt.xticks(xx, ticknames, rotation='30')
+        plt.xticks(xx, ticknames)
         title = f"{trace_name} avg std {common_prefix}"
 
         plt.legend()
         plt.title(title)
+        plt.ylabel(ylabel)
+        plt.xlabel(xlabel)
 
         if savefig_path:
             file_name = re.sub(" ", "_", title)
@@ -586,6 +622,5 @@ class Comparator:
                 file_name += "_" + suffix
             file_name += ".png"
             plt.savefig(os.path.join(savefig_path, file_name))
-
 
         plt.show()

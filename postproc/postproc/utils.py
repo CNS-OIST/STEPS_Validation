@@ -4,6 +4,7 @@ from scipy.signal import find_peaks
 from scipy.fft import fft, fftfreq
 import matplotlib.pyplot as plt
 import re
+import os
 
 
 class UtilsError(Exception):
@@ -218,7 +219,10 @@ class Utils:
     @staticmethod
     def conf_int(a, confidence=0.95):
         r = stats.t.interval(
-            confidence, len(a) - 1, loc=numpy.mean(a), scale=stats.sem(a)
+            confidence,
+            len(a) - 1,
+            loc=numpy.mean(a),
+            scale=stats.sem(a),  # scale=numpy.std(a)
         )
         return r
 
@@ -237,5 +241,16 @@ class Utils:
 
     @staticmethod
     def flatten_data_frame_if_necessary(df):
-        return pandas.DataFrame({k: pandas.Series(v.explode().to_numpy()) for k, v in df.items()})
+        return pandas.DataFrame(
+            {k: pandas.Series(v.explode().to_numpy()) for k, v in df.items()}
+        )
 
+    @staticmethod
+    def common_prefix(v):
+        """Return common prefix for a list of strings"""
+        return os.path.commonprefix(v)
+
+    @staticmethod
+    def common_suffix(v):
+        """Return common suffix for a list of strings"""
+        return Utils.common_prefix([i[::-1] for i in v])[::-1]

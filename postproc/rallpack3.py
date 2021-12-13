@@ -14,7 +14,7 @@ trace_sample.append(Trace("t", "s", multi=multi))
 trace_sample.append(
     Trace(
         "V_z_min",
-        "V",
+        "mV",
         multi=multi,
         reduce_ops={
             "amin": [],
@@ -35,12 +35,9 @@ trace_sample[-1].name = "V_z_max"
 sampleDB = TraceDB(
     "STEPS4",
     trace_sample,
-# "rallpack3/sample_STEPS4/results/with_ef_occupancy_rtol_1e-16_1000_20211104",
-#     "rallpack3/sample_STEPS4/results/ohm_curr_avgv_1000_20211118",
-    # "rallpack3/sample_STEPS4/results/dv_Av_petsc_1000_20211123",
-    # "rallpack3/sample_STEPS4/results/master_after_efield_dv_1000_20211203",
-    # "rallpack3/sample_STEPS4/results",
     "rallpack3/sample_STEPS4/results/master_spaced_seed_direct_20211208",
+    # "rallpack3/sample_STEPS4/results/fix_GB_1000_20211209",
+    # "rallpack3/sample_STEPS4/results/master_not_spaced_seed_direct_20211209",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
@@ -48,14 +45,13 @@ sampleDB = TraceDB(
 # ##########################################
 
 """Create the benchmark traces. How do you want to refine the data? Usually exactly like the sample traces"""
-multi = 1
 traces_benchmark = []
-traces_benchmark.append(Trace("t", "s", multi=1))
+traces_benchmark.append(Trace("t", "s", multi=multi))
 
 traces_benchmark.append(
     Trace(
         "V_z_min",
-        "V",
+        "mV",
         multi=multi,
         reduce_ops={
             "amin": [],
@@ -77,16 +73,10 @@ benchmarkDB = TraceDB(
     "STEPS3",
     traces_benchmark,
     "rallpack3/benchmark_STEPS3/results/master_after_efield_dv_1000_20211203",
-    # "rallpack3/benchmark_STEPS3/results",
-    # "rallpack3/benchmark_STEPS3/results/dv_1000_20211123",
+    # "rallpack3/benchmark_STEPS3/results/master_1000_20211210",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
-
-
-
-
-
 
 
 """Create the comparator for advanced studies
@@ -97,7 +87,7 @@ comp = Comparator(traceDBs=[benchmarkDB, sampleDB])
 
 
 # filter data out
-filter = []#["n_peaks", 17]
+filter = []  # ["n_peaks", 17]
 
 """Perform the ks test"""
 for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
@@ -115,14 +105,10 @@ for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
 
 """Plots"""
 
-bindwidth_y = 0.0005
-bindwidth_t = 0.001
-# bindwidth_t = 0.00001
+bindwidth_y = 0.0005 * multi
+bindwidth_t = 0.001 * multi
 bindwidth_Hz = 1
 #
-
-
-
 
 
 for tracename in ["V_z_min", "V_z_max"]:
@@ -139,13 +125,14 @@ for tracename in ["V_z_min", "V_z_max"]:
         f"freq",
         binwidth=bindwidth_Hz,
         savefig_path=savefig_path,
+        xlabel="Hz",
         filter=filter,
     )
     comp.distplot(
         tracename,
         f"n_peaks",
         binwidth=1,
-        binrange=[0, 20],
+        binrange=[12.5, 19.5],
         savefig_path=savefig_path,
         filter=filter,
     )
@@ -178,7 +165,6 @@ for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
 pvalues_traces = [Trace(k, "V", reduce_ops=v) for k, v in pvalues.items()]
 
 
-
 """Create a database"""
 pvalues_traceDB = TraceDB("pvalues", pvalues_traces, is_refine=False)
 
@@ -191,12 +177,36 @@ for tname in ["V_z_max", "V_z_min"]:
             op,
             binwidth=0.1,
             binrange=[0, 1],
+            xlabel="p-values",
             savefig_path=savefig_path,
         )
 
 
-comp.avgplot_refined_traces("V_z_min", [f"['i_peak_t', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
-comp.avgplot_refined_traces("V_z_max", [f"['i_peak_t', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
-comp.avgplot_refined_traces("V_z_min", [f"['i_peak_y', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
-comp.avgplot_refined_traces("V_z_max", [f"['i_peak_y', {i}]" for i in range(npeaks)], savefig_path=savefig_path)
-
+comp.avgplot_refined_traces(
+    "V_z_min",
+    [f"['i_peak_t', {i}]" for i in range(npeaks)],
+    xlabel="peak n",
+    ylabel="ms",
+    savefig_path=savefig_path,
+)
+comp.avgplot_refined_traces(
+    "V_z_max",
+    [f"['i_peak_t', {i}]" for i in range(npeaks)],
+    xlabel="peak n",
+    ylabel="ms",
+    savefig_path=savefig_path,
+)
+comp.avgplot_refined_traces(
+    "V_z_min",
+    [f"['i_peak_y', {i}]" for i in range(npeaks)],
+    xlabel="peak n",
+    ylabel="mV",
+    savefig_path=savefig_path,
+)
+comp.avgplot_refined_traces(
+    "V_z_max",
+    [f"['i_peak_y', {i}]" for i in range(npeaks)],
+    xlabel="peak n",
+    ylabel="mV",
+    savefig_path=savefig_path,
+)
