@@ -39,7 +39,8 @@ traces_b.append(Trace("t", "s", multi=multi))
 benchmark_STEPS3 = TraceDB(
     "STEPS3",
     traces_b,
-    "caburst/benchmark_STEPS3/results/master_metis_split_1024tasks_20211212",
+    "caburst/benchmark_STEPS3/results/test_master_20211216",
+    # "caburst/benchmark_STEPS3/results/master_metis_split_1024tasks_20211212",
     clear_raw_traces_cache=True,
     clear_refined_traces_cache=True,
 )
@@ -75,8 +76,10 @@ traces_s.append(Trace("t", "s", multi=multi))
 sample_STEPS4 = TraceDB(
     "STEPS4",
     traces_s,
+    "caburst/sample_STEPS4/results/test_master_20211216",
+    # "caburst/sample_STEPS4/results",
     # "caburst/benchmark_STEPS3/results/test",
-    "caburst/sample_STEPS4/results/master_split_1024tasks_20211212",
+    # "caburst/sample_STEPS4/results/master_split_1024tasks_20211212",
     clear_raw_traces_cache=True,
     clear_refined_traces_cache=True,
 )
@@ -109,6 +112,7 @@ for membrane in ["smooth", "spiny"]:
             savefig_path="caburst/pics",
             suffix="",
         )
+
 for membrane in ["smooth", "spiny"]:
     for op in ["max", "min"]:
         comp.avgplot_raw_traces(

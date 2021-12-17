@@ -218,12 +218,19 @@ class Utils:
 
     @staticmethod
     def conf_int(a, confidence=0.95):
+        """ Confidence interval """
+
+        # in case all elements are equal the interval is (NaN, NaN) instead of (a[0], a[0])
+        if all(a[0] == i for i in a):
+            return (a[0], a[0])
+
         r = stats.t.interval(
             confidence,
             len(a) - 1,
             loc=numpy.mean(a),
             scale=stats.sem(a),  # scale=numpy.std(a)
         )
+
         return r
 
     @staticmethod
