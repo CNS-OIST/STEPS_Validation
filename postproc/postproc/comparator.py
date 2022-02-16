@@ -1,15 +1,12 @@
 from scipy import stats
 import numpy
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import cm
 import os
 import pandas
 import seaborn
 import re
 import logging
 
-
-from .traceDB import TraceDB
 from .utils import Utils
 
 
@@ -46,6 +43,36 @@ class Comparator:
                     benchmarkDB_name, sampleDB_name, *argv, **kwargs
                 )
         return out
+
+    def _set_xlabel(self, plt, s, default):
+        """ Set xlabel, latex formula """
+        if s is None:
+            s = default
+
+        if len(s):
+            plt.xlabel(s, fontsize=16)
+        return s
+
+    def _set_ylabel(self, plt, s, default):
+        """ Set ylabel, latex formula """
+        if s is None:
+            s = default
+
+        if len(s):
+            plt.ylabel(s, fontsize=16)
+        return s
+
+    def _set_title(self, plt, s, default):
+        """ Set title, latex formula """
+        if s is None:
+            s = default
+
+        if len(s):
+            try:
+                plt.title(s, fontsize=16)
+            except TypeError:
+                plt.set_title(s, fontsize=16)
+        return s
 
     def _auto_pic_suffix(self, suffix=""):
         """ Suggest prefix for picture """
@@ -245,7 +272,9 @@ class Comparator:
         savefig_path=None,
         suffix="",
         isdiff=True,
-        istitle=True,
+        title=None,
+        xlabel=None,
+        ylabel=None,
     ):
         """Compare traces:
 
@@ -311,8 +340,6 @@ class Comparator:
         if short_name_s:
             short_name_s = "_" + short_name_s
 
-        title = f"{trace_b.name}_{benchmarkDB_name}{short_name_b}_vs_{sampleDB_name}{short_name_s}"
-
         plt.clf()
 
         plt.plot(
@@ -335,10 +362,17 @@ class Comparator:
                 benchmark=trace_b.raw_traces[raw_trace_name_b],
             )
             plt.plot(interp_time, interp_diff, label="diff")
-        if istitle:
-            plt.title(title)
-        plt.xlabel(f"{time_trace_b.name} [{time_trace_b.unit}]")
-        plt.ylabel(f"{trace_b.name} [{trace_b.unit}]")
+
+        title = self._set_title(
+            plt,
+            title,
+            f"{trace_b.name} {benchmarkDB_name}{short_name_b} vs {sampleDB_name}{short_name_s}",
+        )
+
+        print(f"{time_trace_b.name} [{time_trace_b.unit}]")
+        xlabel = self._set_xlabel(plt, xlabel, time_trace_b.unit)
+        ylabel = self._set_ylabel(plt, ylabel, trace_b.unit)
+
         plt.legend()
         if savefig_path:
             file_name = re.sub(" ", "_", title)
@@ -360,6 +394,9 @@ class Comparator:
         savefig_path=None,
         percent=False,
         suffix="",
+        title=None,
+        xlabel=None,
+        ylabel=None,
     ):
         """Compare traces:
 
@@ -382,12 +419,15 @@ class Comparator:
         trace_b = benchmark.traces[trace_name]
         trace_s = sample.traces[trace_name]
 
-        title = f"{trace_name} ({benchmarkDB_name}-{sampleDB_name})"
-
         plt.clf()
-        plt.title(title)
-        plt.xlabel(f"{time_trace_b.name} [{time_trace_b.unit}]")
-        plt.ylabel(f"{trace_b.name} [{trace_b.unit}]")
+        title = self._set_title(
+            plt, title, f"{trace_name} ({benchmarkDB_name}-{sampleDB_name})"
+        )
+
+        xlabel = self._set_xlabel(
+            plt, xlabel, f"{time_trace_b.name} [{time_trace_b.unit}]"
+        )
+        ylabel = self._set_ylabel(plt, ylabel, f"{trace_b.name} [{trace_b.unit}]")
         for raw_trace_name_b in trace_b.raw_traces.keys():
             for raw_trace_name_s in trace_s.raw_traces.keys():
                 _, interp_time, interp_diff = Utils.mse(
@@ -413,11 +453,13 @@ class Comparator:
         op,
         binwidth=None,
         binrange=None,
-        xlabel=None,
         savefig_path=None,
         suffix="",
         traceDB_names=[],
         filter=None,
+        title=None,
+        xlabel=None,
+        ylabel=None,
     ):
         """Distribution plot
 
@@ -460,14 +502,16 @@ class Comparator:
             binrange=binrange,
             stat="frequency",
             common_norm=False,
+            legend=len(newdf.keys()) > 1,
         )  # , palette=["grey", "black"]
 
-        title = f"{trace}_{op}"
-        p.set_title(title)
-        if xlabel is None:
-            plt.xlabel(self.traceDBs[traceDB_names[0]].traces[trace].unit)
-        else:
-            plt.xlabel(xlabel)
+        title = self._set_title(
+            p, title, f"{re.sub('_', ' ', trace)} {re.sub('_', ' ', op)}"
+        )
+        xlabel = self._set_xlabel(
+            plt, xlabel, self.traceDBs[traceDB_names[0]].traces[trace].unit
+        )
+        ylabel = self._set_ylabel(plt, ylabel, "Frequency")
 
         if savefig_path:
             file_name = re.sub(" ", "_", title)
@@ -483,12 +527,13 @@ class Comparator:
         trace_name,
         std=True,
         conf_lvl=0.95,
-        xlabel=None,
-        ylabel=None,
         savefig_path=None,
         suffix="",
         xlim=None,
         ylim=None,
+        title=None,
+        xlabel=None,
+        ylabel=None,
     ):
         """Average plot with std deviations and confidence bands of the raw traces"""
 
@@ -506,7 +551,7 @@ class Comparator:
             plt.plot(
                 time_trace.raw_traces.iloc[:, 0],
                 avg0,
-                label=f"avg_{traceDB_name}_(nt: {nt})",
+                label=f"avg. {traceDB_name} (nt: {nt})",
             )
 
             if std:
@@ -515,7 +560,7 @@ class Comparator:
                     time_trace.raw_traces.iloc[:, 0],
                     avg0 + std0,
                     avg0 - std0,
-                    label=f"std_{traceDB_name}",
+                    label=f"std. {traceDB_name}",
                     alpha=0.5,
                 )
 
@@ -534,27 +579,20 @@ class Comparator:
                     time_trace.raw_traces.iloc[:, 0],
                     conf_int[0],
                     conf_int[1],
-                    label=f"conf_int_{traceDB_name}",
+                    label=f"conf. int. {traceDB_name}",
                     alpha=0.3,
                 )
 
-        title = f"{trace_name} avg"
-        if std:
-            title += " std"
-        if conf_lvl:
-            title += f" conf_int {conf_lvl}"
+        title_opt = (" std.", f" conf. int. {conf_lvl}")
+        title = self._set_title(
+            plt, title, f"{trace_name} avg. {title_opt[conf_lvl==True]}"
+        )
 
-        if xlabel is None:
-            plt.xlabel(time_trace.unit)
-        else:
-            plt.xlabel(xlabel)
-        if xlabel is None:
-            plt.ylabel(trace.unit)
-        else:
-            plt.ylabel(ylabel)
+        xlabel = self._set_xlabel(plt, xlabel, time_trace.unit)
+        ylabel = self._set_ylabel(plt, ylabel, trace.unit)
 
         plt.legend()
-        plt.title(title)
+
         plt.xlim(xlim)
         plt.ylim(ylim)
 
@@ -571,10 +609,11 @@ class Comparator:
         self,
         trace_name,
         reduce_ops=[],
-        xlabel=None,
-        ylabel=None,
         savefig_path="",
         suffix="",
+        title=None,
+        xlabel=None,
+        ylabel=None,
     ):
         suffix = self._auto_pic_suffix(suffix)
         plt.clf()
@@ -609,12 +648,11 @@ class Comparator:
             )
 
         plt.xticks(xx, ticknames)
-        title = f"{trace_name} avg std {common_prefix}"
+        title = self._set_title(plt, title, f"{trace_name} avg. std. {common_prefix}")
+        self._set_ylabel(plt, ylabel, "")
+        self._set_xlabel(plt, xlabel, "")
 
         plt.legend()
-        plt.title(title)
-        plt.ylabel(ylabel)
-        plt.xlabel(xlabel)
 
         if savefig_path:
             file_name = re.sub(" ", "_", title)

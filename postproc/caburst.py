@@ -11,15 +11,15 @@ savefig_path = "caburst/pics"
 
 
 """Create the benchmark traces"""
-multi = 1
+multi = 1000
 traces_b = []
 
 for membrane in ["smooth", "spiny"]:
     for op in ["max", "min"]:
         traces_b.append(
             Trace(
-                f"{membrane}_{op}_V",
-                "V",
+                f"{membrane} {op} V",
+                "mV",
                 multi=multi,
                 reduce_ops={
                     "amin": [],
@@ -32,16 +32,14 @@ for membrane in ["smooth", "spiny"]:
                 },
             )
         )
-traces_b.append(Trace("t", "s", multi=multi))
+traces_b.append(Trace("t", "ms", multi=multi))
 
 
 """ create the benchmark database"""
 benchmark_STEPS3 = TraceDB(
     "STEPS3",
     traces_b,
-    "caburst/benchmark_STEPS3/results/test_master_20220110",
-    # "caburst/benchmark_STEPS3/results/test_master_20211216",
-    # "caburst/benchmark_STEPS3/results/master_metis_split_1024tasks_20211212",
+    "caburst/benchmark_STEPS3/results/spack_downgrade_20220124",
     clear_raw_traces_cache=True,
     clear_refined_traces_cache=True,
 )
@@ -49,15 +47,15 @@ benchmark_STEPS3 = TraceDB(
 
 """Create the sample traces"""
 """Create the benchmark traces"""
-multi = 1
+multi = 1000
 traces_s = []
 
 for membrane in ["smooth", "spiny"]:
     for op in ["max", "min"]:
         traces_s.append(
             Trace(
-                f"{membrane}_{op}_V",
-                "V",
+                f"{membrane} {op} V",
+                "mV",
                 multi=multi,
                 reduce_ops={
                     "amin": [],
@@ -70,18 +68,14 @@ for membrane in ["smooth", "spiny"]:
                 },
             )
         )
-traces_s.append(Trace("t", "s", multi=multi))
+traces_s.append(Trace("t", "ms", multi=multi))
 
 
 """Create the sample database"""
 sample_STEPS4 = TraceDB(
     "STEPS4",
     traces_s,
-    "caburst/sample_STEPS4/results/test_master_20220110",
-    # "caburst/sample_STEPS4/results/test_master_20211216",
-    # "caburst/sample_STEPS4/results",
-    # "caburst/benchmark_STEPS3/results/test",
-    # "caburst/sample_STEPS4/results/master_split_1024tasks_20211212",
+    "caburst/sample_STEPS4/results/pr709_oldspack_20220215",
     clear_raw_traces_cache=True,
     clear_refined_traces_cache=True,
 )
@@ -106,28 +100,31 @@ for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
 
 """Plots"""
 
-for membrane in ["smooth", "spiny"]:
-    for op in ["max", "min"]:
-        comp.avgplot_raw_traces(
-            trace_name=f"{membrane}_{op}_V",
-            conf_lvl=0,
-            savefig_path="caburst/pics",
-            suffix="",
-        )
+# for membrane in ["smooth", "spiny"]:
+#     for op in ["max", "min"]:
+#         comp.avgplot_raw_traces(
+#             trace_name=f"{membrane} {op} V",
+#             conf_lvl=0,
+#             savefig_path="caburst/pics",
+#             suffix="",
+#         )
 
 for membrane in ["smooth", "spiny"]:
     for op in ["max", "min"]:
         comp.avgplot_raw_traces(
-            trace_name=f"{membrane}_{op}_V",
+            trace_name=f"{membrane} {op} V",
             std=False,
             savefig_path="caburst/pics",
             suffix="",
+            # xlim=[24, 26],
+            # ylim=[-30, -20],
+            # title=title
         )
 
 # membrane = "smooth"
 # op = "max"
 # comp.distplot(
-#     f"{membrane}_{op}_V",
+#     f"{membrane} {op} V",
 #     f"['val', 0.038]",
 #     binwidth=0.0002,
 #     savefig_path=savefig_path,
