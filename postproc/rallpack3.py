@@ -11,10 +11,10 @@ multi = 1000
 # ##########################################
 
 """Create the benchmark traces. How do you want to refine the data? Usually exactly like the sample traces"""
-traces_benchmark = []
-traces_benchmark.append(Trace("t", "ms", multi=multi))
+traces_STEPS3 = []
+traces_STEPS3.append(Trace("t", "ms", multi=multi))
 
-traces_benchmark.append(
+traces_STEPS3.append(
     Trace(
         "V zmin",
         "mV",
@@ -31,22 +31,23 @@ traces_benchmark.append(
         },
     )
 )
-traces_benchmark.append(copy.deepcopy(traces_benchmark[-1]))
-traces_benchmark[-1].name = "V zmax"
+traces_STEPS3.append(copy.deepcopy(traces_STEPS3[-1]))
+traces_STEPS3[-1].name = "V zmax"
 
 """Create the benchmark database"""
-benchmarkDB = TraceDB(
+STEPS3_DB = TraceDB(
     "STEPS3",
-    traces_benchmark,
-    "rallpack3/benchmark_STEPS3/results/pr708_oldspack_20220131",
+    traces_STEPS3,
+    "rallpack3/raw_traces/STEPS3",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
 
+
 """Create the sample traces. How do you want to refine the data?"""
-trace_sample = []
-trace_sample.append(Trace("t", "ms", multi=multi))
-trace_sample.append(
+traces_STEPS4 = []
+traces_STEPS4.append(Trace("t", "ms", multi=multi))
+traces_STEPS4.append(
     Trace(
         "V zmin",
         "mV",
@@ -63,14 +64,14 @@ trace_sample.append(
         },
     )
 )
-trace_sample.append(copy.deepcopy(trace_sample[-1]))
-trace_sample[-1].name = "V zmax"
+traces_STEPS4.append(copy.deepcopy(traces_STEPS4[-1]))
+traces_STEPS4[-1].name = "V zmax"
 
 """Create the sample database"""
-sampleDB = TraceDB(
+STEPS4_DB = TraceDB(
     "STEPS4",
-    trace_sample,
-    "rallpack3/sample_STEPS4/results/pr709_oldspack_20220215",
+    traces_STEPS4,
+    "rallpack3/raw_traces/STEPS4",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
@@ -79,7 +80,7 @@ sampleDB = TraceDB(
 
 Note: anywhere is relevant, the first traceDB is considered the benchmark. The others are samples
 """
-comp = Comparator(traceDBs=[benchmarkDB, sampleDB])
+comp = Comparator(traceDBs=[STEPS3_DB, STEPS4_DB])
 
 
 # filter data out
@@ -91,13 +92,6 @@ for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
     for t, d in sorted(ks_tests.items(), key=lambda t: Utils.natural_keys(t[0])):
         for k, v in sorted(d.items(), key=lambda k: Utils.natural_keys(k[0])):
             print(t, k, v)
-
-# this can take some time. Commented for now
-# """Compute the mse"""
-# for tDBnames, mse_tests in comp.mse_refactored().items():
-#     print(tDBnames)
-#     for k, v in sorted(mse_tests.items(), key=lambda k: k[0]):
-#         print(k, *v.items())
 
 """Plots"""
 
@@ -116,16 +110,20 @@ for tracename in ["V zmin", "V zmax"]:
             savefig_path=savefig_path,
             filter=filter,
             xlabel=xlabel,
+            suffix="",
         )
+
         ### this works only if we use standard units: s, V
-        # comp.distplot(
-        #     tracename,
-        #     f"freq",
-        #     binwidth=bindwidth_Hz,
-        #     savefig_path=savefig_path,
-        #     xlabel="Hz",
-        #     filter=filter,
-        # )
+        if multi == 1:
+            comp.distplot(
+                tracename,
+                f"freq",
+                binwidth=bindwidth_Hz,
+                savefig_path=savefig_path,
+                xlabel="Hz",
+                filter=filter,
+                suffix="",
+            )
         comp.distplot(
             tracename,
             f"n_peaks",
@@ -134,8 +132,8 @@ for tracename in ["V zmin", "V zmax"]:
             savefig_path=savefig_path,
             filter=filter,
             xlabel="n peaks",
+            suffix="",
         )
-
 
 ########################
 
@@ -180,15 +178,17 @@ for tname in ["V zmax", "V zmin"]:
             binrange=[0, 1],
             xlabel="p values",
             savefig_path=savefig_path,
+            suffix="",
         )
 
 comp.avgplot_refined_traces(
     "V zmin",
     [f"['i_peak_t', {i}]" for i in range(npeaks)],
-    xlabel="peak_{n}",
+    xlabel="peak n",
     ylabel="ms",
     savefig_path=savefig_path,
-    title=f"Peaks t avg. and std. deviation",
+    title=f"V zmin peaks t avg. and std.",
+    suffix="",
 )
 comp.avgplot_refined_traces(
     "V zmax",
@@ -196,7 +196,8 @@ comp.avgplot_refined_traces(
     xlabel="peak n",
     ylabel="ms",
     savefig_path=savefig_path,
-    title=f"Peaks t avg. and std. deviation",
+    title=f"V zmax peaks t avg. and std.",
+    suffix="",
 )
 comp.avgplot_refined_traces(
     "V zmin",
@@ -204,7 +205,8 @@ comp.avgplot_refined_traces(
     xlabel="peak n",
     ylabel="mV",
     savefig_path=savefig_path,
-    title=f"Peaks y avg. and std. deviation",
+    title=f"V zmin peaks y avg. and std.",
+    suffix="",
 )
 comp.avgplot_refined_traces(
     "V zmax",
@@ -212,5 +214,6 @@ comp.avgplot_refined_traces(
     xlabel="peak n",
     ylabel="mV",
     savefig_path=savefig_path,
-    title=f"Peaks y avg. and std. deviation",
+    title=f"V zmax peaks y avg. and std.",
+    suffix="",
 )

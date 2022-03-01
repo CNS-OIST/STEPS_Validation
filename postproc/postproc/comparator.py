@@ -44,6 +44,17 @@ class Comparator:
                 )
         return out
 
+    def _savefig(self, savefig_path, file_name, suffix, p):
+        """Routine to decide where and how save the figure"""
+        if savefig_path:
+            if suffix:
+                file_name += "_" + suffix
+            file_name = re.sub(" ", "_", file_name)
+            file_name = re.sub("\.", "", file_name)
+            file_name += ".png"
+
+            p.savefig(os.path.join(savefig_path, file_name))
+
     def _set_xlabel(self, plt, s, default):
         """ Set xlabel, latex formula """
         if s is None:
@@ -74,9 +85,9 @@ class Comparator:
                 plt.set_title(s, fontsize=16)
         return s
 
-    def _auto_pic_suffix(self, suffix=""):
+    def _auto_pic_suffix(self, suffix):
         """ Suggest prefix for picture """
-        if len(self.traceDBs) == 0 or len(suffix) != 0:
+        if len(self.traceDBs) == 0 or suffix is not None:
             return suffix
 
         folders = [os.path.basename(db.folder_path) for db in self.traceDBs.values()]
@@ -270,7 +281,7 @@ class Comparator:
         time_trace_name_b=None,
         time_trace_name_s=None,
         savefig_path=None,
-        suffix="",
+        suffix=None,
         isdiff=True,
         title=None,
         xlabel=None,
@@ -374,12 +385,7 @@ class Comparator:
         ylabel = self._set_ylabel(plt, ylabel, trace_b.unit)
 
         plt.legend()
-        if savefig_path:
-            file_name = re.sub(" ", "_", title)
-            if suffix:
-                file_name += "_" + suffix
-            file_name += ".png"
-            plt.savefig(os.path.join(savefig_path, file_name))
+        self._savefig(savefig_path, title, suffix, plt)
         plt.show()
 
     def diffplot(self, *argv, **kwargs):
@@ -393,7 +399,7 @@ class Comparator:
         trace_name,
         savefig_path=None,
         percent=False,
-        suffix="",
+        suffix=None,
         title=None,
         xlabel=None,
         ylabel=None,
@@ -439,12 +445,7 @@ class Comparator:
                 )
                 plt.plot(interp_time, interp_diff)
 
-        if savefig_path:
-            file_name = re.sub(" ", "_", title)
-            if suffix:
-                file_name += "_" + suffix
-            file_name += ".png"
-            plt.savefig(os.path.join(savefig_path, file_name))
+        self._savefig(savefig_path, title, suffix, plt)
         plt.show()
 
     def distplot(
@@ -454,7 +455,7 @@ class Comparator:
         binwidth=None,
         binrange=None,
         savefig_path=None,
-        suffix="",
+        suffix=None,
         traceDB_names=[],
         filter=None,
         title=None,
@@ -513,13 +514,7 @@ class Comparator:
         )
         ylabel = self._set_ylabel(plt, ylabel, "Frequency")
 
-        if savefig_path:
-            file_name = re.sub(" ", "_", title)
-            if suffix:
-                file_name += "_" + suffix
-            file_name += ".png"
-            plt.savefig(os.path.join(savefig_path, file_name))
-
+        self._savefig(savefig_path, title, suffix, plt)
         plt.show()
 
     def avgplot_raw_traces(
@@ -528,7 +523,7 @@ class Comparator:
         std=True,
         conf_lvl=0.95,
         savefig_path=None,
-        suffix="",
+        suffix=None,
         xlim=None,
         ylim=None,
         title=None,
@@ -583,10 +578,12 @@ class Comparator:
                     alpha=0.3,
                 )
 
-        title_opt = (" std.", f" conf. int. {conf_lvl}")
-        title = self._set_title(
-            plt, title, f"{trace_name} avg. {title_opt[conf_lvl==True]}"
-        )
+        default_title = f"{trace_name} avg."
+        if std:
+            default_title += " and std."
+        if conf_lvl > 0:
+            default_title += " and conf. lvl."
+        title = self._set_title(plt, title, default_title)
 
         xlabel = self._set_xlabel(plt, xlabel, time_trace.unit)
         ylabel = self._set_ylabel(plt, ylabel, trace.unit)
@@ -596,13 +593,7 @@ class Comparator:
         plt.xlim(xlim)
         plt.ylim(ylim)
 
-        if savefig_path:
-            file_name = re.sub(" ", "_", title)
-            if suffix:
-                file_name += "_" + suffix
-            file_name += ".png"
-            plt.savefig(os.path.join(savefig_path, file_name))
-
+        self._savefig(savefig_path, title, suffix, plt)
         plt.show()
 
     def avgplot_refined_traces(
@@ -610,7 +601,7 @@ class Comparator:
         trace_name,
         reduce_ops=[],
         savefig_path="",
-        suffix="",
+        suffix=None,
         title=None,
         xlabel=None,
         ylabel=None,
@@ -641,7 +632,7 @@ class Comparator:
                 xx - shift[idx],
                 avgs,
                 yerr=std,
-                fmt="o",
+                fmt=("o", "s", "v", "^")[idx % 4],
                 capsize=2,
                 elinewidth=1,
                 label=db_name,
@@ -654,11 +645,5 @@ class Comparator:
 
         plt.legend()
 
-        if savefig_path:
-            file_name = re.sub(" ", "_", title)
-            if suffix:
-                file_name += "_" + suffix
-            file_name += ".png"
-            plt.savefig(os.path.join(savefig_path, file_name))
-
+        self._savefig(savefig_path, title, suffix, plt)
         plt.show()

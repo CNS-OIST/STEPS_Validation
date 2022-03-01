@@ -1,7 +1,7 @@
 **.logs**
 *.pyc
 *debug_log*
-.idea/
+**.idea**
 **.txt
 **raw_traces_cache**
 **pics**

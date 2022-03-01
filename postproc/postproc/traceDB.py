@@ -261,13 +261,13 @@ class Trace:
         else:
             trace_files = numpy.array(self.raw_traces.keys())[trace_files]
 
-        title = title_prefix + "_" + self.name
+        title = title_prefix + " " + self.name
 
         plt.clf()
         for file in trace_files:
             trace = self.raw_traces[file]
             t = time_trace.raw_traces[file]
-            plt.plot(t, trace, label=f"trace_{self.short_name(file)}")
+            plt.plot(t, trace, label=f"trace {self.short_name(file)}")
 
         plt.title(title)
         plt.xlabel(time_trace.unit)
