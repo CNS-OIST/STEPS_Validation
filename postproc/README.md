@@ -24,7 +24,7 @@ Do not clear cache if you only have refined data!
 
 ## Examples
 
-We provide also some examples to illustrate postproc functionalities:
+The best way to illustrate postproc functionalities is through examples:
 
 - rallpack 1
 - rallpack 3
