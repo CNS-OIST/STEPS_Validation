@@ -1,14 +1,14 @@
 import os
+import inspect
+import logging
+import re
+import shutil
+
 import numpy
 import scipy
 import seaborn
 import matplotlib.pyplot as plt
 import pandas
-import shutil
-import inspect
-import logging
-
-import re
 
 from .utils import Utils
 
@@ -133,7 +133,7 @@ class Trace:
 
         if set(self.refined_traces.columns) != set(data.columns):
             raise TraceError(
-                f"The refined traces requested have changed, the cache is invalid"
+                "The refined traces requested have changed, the cache is invalid"
             )
 
         self.refined_traces = data
@@ -424,7 +424,7 @@ class TraceDB:
                 self.traces[trace_name].refined_traces_to_parquet(cache_path)
 
     def _extract_all_raw_data(self, clear_cache=False):
-        """Extract all raw data from the files in self.folder_path (not recursive) """
+        """Extract all raw data from the files in self.folder_path (not recursive)"""
 
         if not self.folder_path:
             return

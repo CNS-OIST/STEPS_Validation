@@ -56,7 +56,7 @@ class Comparator:
             p.savefig(os.path.join(savefig_path, file_name))
 
     def _set_xlabel(self, plt, s, default):
-        """ Set xlabel, latex formula """
+        """Set xlabel, latex formula"""
         if s is None:
             s = default
 
@@ -65,7 +65,7 @@ class Comparator:
         return s
 
     def _set_ylabel(self, plt, s, default):
-        """ Set ylabel, latex formula """
+        """Set ylabel, latex formula"""
         if s is None:
             s = default
 
@@ -74,7 +74,7 @@ class Comparator:
         return s
 
     def _set_title(self, plt, s, default):
-        """ Set title, latex formula """
+        """Set title, latex formula"""
         if s is None:
             s = default
 
@@ -86,7 +86,7 @@ class Comparator:
         return s
 
     def _auto_pic_suffix(self, suffix):
-        """ Suggest prefix for picture """
+        """Suggest prefix for picture"""
         if len(self.traceDBs) == 0 or suffix is not None:
             return suffix
 
@@ -103,11 +103,11 @@ class Comparator:
             return "_vs_".join(tags)
 
     def test_ks(self, *argv, **kwargs):
-        """ combinatory wrapper"""
+        """combinatory wrapper"""
         return self._combinatory_map(self._test_ks, *argv, **kwargs)
 
     def _test_ks(self, benchmarkDB_name, sampleDB_name, filter=None):
-        """Kolmogorov–Smirnov test """
+        """Kolmogorov–Smirnov test"""
         benchmark, sample = (
             self.traceDBs[benchmarkDB_name],
             self.traceDBs[sampleDB_name],
@@ -143,11 +143,11 @@ class Comparator:
         return out
 
     def refined_traces_diff(self, *argv, **kwargs):
-        """ combinatory wrapper"""
+        """combinatory wrapper"""
         return self._combinatory_map(self._refined_traces_diff, *argv, **kwargs)
 
     def _refined_traces_diff(self, benchmarkDB_name, sampleDB_name, normalized=True):
-        """ Compute difference of refined traces """
+        """Compute difference of refined traces"""
         benchmark, sample = (
             self.traceDBs[benchmarkDB_name],
             self.traceDBs[sampleDB_name],
@@ -191,7 +191,7 @@ class Comparator:
         return out
 
     def mse_refactored(self, *argv, **kwargs):
-        """ combinatory wrapper"""
+        """combinatory wrapper"""
         return self._combinatory_map(self._mse_refactored, *argv, **kwargs)
 
     def _mse_refactored(self, benchmarkDB_name, sampleDB_name, normalized=True):
@@ -267,7 +267,7 @@ class Comparator:
         return out
 
     def plot(self, *argv, **kwargs):
-        """ combinatory wrapper"""
+        """combinatory wrapper"""
         return self._combinatory_map(self._plot, *argv, **kwargs)
 
     def _plot(
@@ -389,7 +389,7 @@ class Comparator:
         plt.show()
 
     def diffplot(self, *argv, **kwargs):
-        """ combinatory wrapper"""
+        """combinatory wrapper"""
         return self._combinatory_map(self._diffplot, *argv, **kwargs)
 
     def _diffplot(

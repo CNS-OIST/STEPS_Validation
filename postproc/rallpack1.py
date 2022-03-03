@@ -1,6 +1,7 @@
+import copy
+
 from postproc.traceDB import TraceDB, Trace
 from postproc.comparator import Comparator
-import copy
 
 """Benchmark_analytic"""
 

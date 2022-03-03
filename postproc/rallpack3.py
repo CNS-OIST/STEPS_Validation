@@ -1,8 +1,10 @@
+import copy
+import os
+
 from postproc.traceDB import TraceDB, Trace
 from postproc.comparator import Comparator
 from postproc.utils import Utils
-import copy
-import os
+
 
 npeaks = 17
 savefig_path = "rallpack3/pics"

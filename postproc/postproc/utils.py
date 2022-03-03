@@ -218,7 +218,7 @@ class Utils:
 
     @staticmethod
     def conf_int(a, confidence=0.95):
-        """ Confidence interval """
+        """Confidence interval"""
 
         # in case all elements are equal the interval is (NaN, NaN) instead of (a[0], a[0])
         if all(a[0] == i for i in a):

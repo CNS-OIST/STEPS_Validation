@@ -1,9 +1,9 @@
+import logging
+
 from postproc.traceDB import TraceDB, Trace
 from postproc.comparator import Comparator
 from postproc.utils import Utils
 
-
-import logging
 
 logging.basicConfig(level=logging.WARNING)
 
