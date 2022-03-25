@@ -277,6 +277,7 @@ class Trace:
             plt.legend()
 
         if savefig_path:
+            os.makedirs(savefig_path, exist_ok=True)
             file_name = "".join([c for c in title if re.match(r"\w", c)])
             if suffix:
                 file_name += "_" + suffix
@@ -307,6 +308,8 @@ class TraceDB:
         clear_raw_traces_cache=False,
         clear_refined_traces_cache=False,
         is_refine=True,
+        save_raw_traces_cache=True,
+        save_refined_traces_cache=True,
     ):
         """Init
 
@@ -320,6 +323,8 @@ class TraceDB:
         self.name = name
         self.time_trace = time_trace
         self.root_traces = [i.name for i in traces if not i.derivation_params]
+        self.save_raw_traces_cache = save_raw_traces_cache
+        self.save_refined_traces_cache = save_refined_traces_cache
 
         if isinstance(traces, list):
             self.traces = {i.name: i for i in traces}
@@ -413,15 +418,16 @@ class TraceDB:
             except OSError:
                 pass
 
-        if not os.path.exists(cache_path):
-            os.makedirs(cache_path)
+        if self.save_refined_traces_cache:
+            os.makedirs(cache_path, exist_ok=True)
 
         for trace_name in self.traces:
             try:
                 self.traces[trace_name].refined_traces_from_parquet(cache_path)
             except:
                 self.traces[trace_name].refine(self.get_time_trace())
-                self.traces[trace_name].refined_traces_to_parquet(cache_path)
+                if self.save_refined_traces_cache:
+                    self.traces[trace_name].refined_traces_to_parquet(cache_path)
 
     def _extract_all_raw_data(self, clear_cache=False):
         """Extract all raw data from the files in self.folder_path (not recursive)"""
@@ -456,6 +462,7 @@ class TraceDB:
 
             self._derive_raw_data()
 
+        if self.save_raw_traces_cache:
             for v in self.traces.values():
                 v.raw_traces_to_parquet(cache_path)
 

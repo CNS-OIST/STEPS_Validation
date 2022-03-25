@@ -52,6 +52,7 @@ class Comparator:
             file_name = re.sub(" ", "_", file_name)
             file_name = re.sub("\.", "", file_name)
             file_name += ".png"
+            os.makedirs(savefig_path, exist_ok=True)
 
             p.savefig(os.path.join(savefig_path, file_name))
 
@@ -286,6 +287,7 @@ class Comparator:
         title=None,
         xlabel=None,
         ylabel=None,
+        interactive=True,
     ):
         """Compare traces:
 
@@ -301,6 +303,7 @@ class Comparator:
               - time_trace_name_b (str, optional): name of the time trace of the benchmark
               - time_trace_name_s (str, optional): name of the time trace of the sample
               - savefig_path (str, optional): path to save the file
+              - interactive (bool, optional): do I call plot.show()?
         """
 
         suffix = self._auto_pic_suffix(suffix)
@@ -335,14 +338,15 @@ class Comparator:
 
         trace_b = benchmark.traces[trace_name_b]
         trace_s = sample.traces[trace_name_s]
-        print(f"{benchmarkDB_name}:")
-        print(trace_b.__str__(raw_trace_idx_b))
-        if time_trace_name_b:
-            print(time_trace_b.__str__(raw_trace_idx_b))
-        print(f"{sampleDB_name}:")
-        print(trace_s.__str__(raw_trace_idx_s))
-        if time_trace_name_s:
-            print(time_trace_s.__str__(raw_trace_idx_s))
+        if interactive:
+            print(f"{benchmarkDB_name}:")
+            print(trace_b.__str__(raw_trace_idx_b))
+            if time_trace_name_b:
+                print(time_trace_b.__str__(raw_trace_idx_b))
+            print(f"{sampleDB_name}:")
+            print(trace_s.__str__(raw_trace_idx_s))
+            if time_trace_name_s:
+                print(time_trace_s.__str__(raw_trace_idx_s))
 
         short_name_b = trace_b.short_name(raw_trace_name_b)
         if short_name_b:
@@ -380,13 +384,15 @@ class Comparator:
             f"{trace_b.name} {benchmarkDB_name}{short_name_b} vs {sampleDB_name}{short_name_s}",
         )
 
-        print(f"{time_trace_b.name} [{time_trace_b.unit}]")
+        if interactive:
+            print(f"{time_trace_b.name} [{time_trace_b.unit}]")
         xlabel = self._set_xlabel(plt, xlabel, time_trace_b.unit)
         ylabel = self._set_ylabel(plt, ylabel, trace_b.unit)
 
         plt.legend()
         self._savefig(savefig_path, title, suffix, plt)
-        plt.show()
+        if interactive:
+            plt.show()
 
     def diffplot(self, *argv, **kwargs):
         """combinatory wrapper"""
