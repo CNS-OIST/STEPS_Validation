@@ -30,7 +30,8 @@ sys.path.append(postproc_path)
 from postproc.traceDB import TraceDB, Trace
 from postproc.comparator import Comparator
 
-from .. import configuration
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import configuration
 
 
 def run_sim(USE_STEPS_4):
