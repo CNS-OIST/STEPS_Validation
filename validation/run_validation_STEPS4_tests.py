@@ -14,7 +14,6 @@ DEFAULT_TEST_SUITE = [
 
 
 if __name__ == "__main__":
-    test_dir = osp.dirname(osp.abspath(__file__))
     test_suite = sys.argv[1:] or DEFAULT_TEST_SUITE
     configuration.suffix = "_STEPS4"
     for suite in test_suite:
