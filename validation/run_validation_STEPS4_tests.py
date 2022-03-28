@@ -18,4 +18,4 @@ if __name__ == "__main__":
     test_suite = sys.argv[1:] or DEFAULT_TEST_SUITE
     configuration.suffix = "_STEPS4"
     for suite in test_suite:
-        nose.run(argv=["-s", "-v", osp.join(test_dir, suite)])
+        unittest.main(module=suite)
