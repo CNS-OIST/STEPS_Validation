@@ -9,7 +9,7 @@ from config import configuration
 
 
 DEFAULT_TEST_SUITE = [
-    "validation_efield_STEPS4/rallpack1.py",
+    "validation_efield_STEPS4.rallpack1",
 ]
 
 
