@@ -1,9 +1,7 @@
 from __future__ import absolute_import
 
-import os.path as osp
 import sys
-
-import nose
+import unittest
 
 from config import configuration
 
