@@ -318,7 +318,8 @@ def check_results(db_STEPS3=None, db_STEPS4=None):
             assert v["amax"] < err
 
 
-def test_rallpack1():
-    db_STEPS3 = run_sim(USE_STEPS_4=False)
-    db_STEPS4 = run_sim(USE_STEPS_4=True)
-    check_results(db_STEPS3, db_STEPS4)
+class Rallpack1(unittest.TestCase):
+    def test_rallpack1():
+        db_STEPS3 = run_sim(USE_STEPS_4=False)
+        db_STEPS4 = run_sim(USE_STEPS_4=True)
+        check_results(db_STEPS3, db_STEPS4)
