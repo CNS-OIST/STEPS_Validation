@@ -1,15 +1,14 @@
-import os
 import inspect
 import logging
-import re
+import os
 import shutil
 
 import numpy
+import pandas
 import scipy
 import seaborn
-import matplotlib.pyplot as plt
-import pandas
 
+from .figure import Figure
 from .utils import Utils
 
 
@@ -246,15 +245,11 @@ class Trace:
             self.refined_traces[op_key] = tr
 
     def plot(
-        self,
-        time_trace,
-        trace_files=[],
-        savefig_path=None,
-        title_prefix="",
-        legend=False,
-        suffix="",
+        self, time_trace, trace_files=[], title_prefix="", legend=False, *argv, **kwargs
     ):
         """Plot all raw_traces"""
+
+        ff = Figure(*argv, **kwargs)
 
         if not trace_files:
             trace_files = self.raw_traces.keys()
@@ -263,30 +258,21 @@ class Trace:
 
         title = title_prefix + " " + self.name
 
-        plt.clf()
         for file in trace_files:
             trace = self.raw_traces[file]
             t = time_trace.raw_traces[file]
-            plt.plot(t, trace, label=f"trace {self.short_name(file)}")
+            ff.pplot.plot(t, trace, label=f"trace {self.short_name(file)}")
 
-        plt.title(title)
-        plt.xlabel(time_trace.unit)
-        plt.ylabel(self.unit)
+        ff.set_title(title)
+        ff.set_xlabel(time_trace.unit)
+        ff.set_ylabel(self.unit)
 
-        if legend:
-            plt.legend()
+        ff.finalize(with_legend=legend)
 
-        if savefig_path:
-            os.makedirs(savefig_path, exist_ok=True)
-            file_name = "".join([c for c in title if re.match(r"\w", c)])
-            if suffix:
-                file_name += "_" + suffix
-            plt.savefig(os.path.join(savefig_path, file_name))
-        plt.show()
-
-    def distplot(self, op):
-        seaborn.histplot(data=self.refined_traces, x=op)
-        plt.show()
+    def distplot(self, op, *argv, **kwargs):
+        ff = Figure(*argv, **kwargs)
+        seaborn.histplot(data=self.refined_traces, x=op, ax=ff.pplot)
+        ff.finalize()
 
 
 class TraceDBError(Exception):
@@ -527,6 +513,7 @@ class TraceDB:
               Otherwise we plot everything
               - savefig_path (str, optional): if speficied we also save the file in the specified folder.
         """
+
         time_trace = self.get_time_trace()
 
         if not trace_names:

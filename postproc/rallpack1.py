@@ -1,7 +1,10 @@
 import copy
 
-from postproc.traceDB import TraceDB, Trace
+import matplotlib.pyplot as plt
+
 from postproc.comparator import Comparator
+from postproc.figure import Figure
+from postproc.traceDB import TraceDB, Trace
 
 """Benchmark_analytic"""
 
@@ -63,8 +66,20 @@ sample_STEPS4 = TraceDB(
 """comparator"""
 
 comp = Comparator(traceDBs=[benchmark_analytic, sample_STEPS4])
-comp.plot(trace_name_b="V zmin", savefig_path="rallpack1/pics", isdiff=False, suffix="")
-comp.plot(trace_name_b="V zmax", savefig_path="rallpack1/pics", isdiff=False, suffix="")
+
+
+fig, ax = plt.subplots(1, 2, figsize=(8, 4))
+comp.plot(
+    trace_name_b="V zmin", savefig_path="rallpack1/pics", isdiff=False, pplot=ax[0]
+)
+ax[0].set_title("A\n", loc="left", fontweight="bold")
+comp.plot(
+    trace_name_b="V zmax", savefig_path="rallpack1/pics", isdiff=False, pplot=ax[1]
+)
+ax[1].set_title("B\n", loc="left", fontweight="bold")
+fig.tight_layout()
+Figure.savefig(savefig_path="rallpack1/pics", file_name="traces", fig=fig)
+fig.show()
 
 """Compute the mse"""
 for tDBnames, mse_tests in comp.mse_refactored(normalized=False).items():

@@ -1,12 +1,13 @@
-from scipy import stats
-import numpy
-import matplotlib.pyplot as plt
+import logging
 import os
+import re
+
+import numpy
 import pandas
 import seaborn
-import re
-import logging
+from scipy import stats
 
+from .figure import Figure
 from .utils import Utils
 
 
@@ -43,48 +44,6 @@ class Comparator:
                     benchmarkDB_name, sampleDB_name, *argv, **kwargs
                 )
         return out
-
-    def _savefig(self, savefig_path, file_name, suffix, p):
-        """Routine to decide where and how save the figure"""
-        if savefig_path:
-            if suffix:
-                file_name += "_" + suffix
-            file_name = re.sub(" ", "_", file_name)
-            file_name = re.sub("\.", "", file_name)
-            file_name += ".png"
-            os.makedirs(savefig_path, exist_ok=True)
-
-            p.savefig(os.path.join(savefig_path, file_name))
-
-    def _set_xlabel(self, plt, s, default):
-        """Set xlabel, latex formula"""
-        if s is None:
-            s = default
-
-        if len(s):
-            plt.xlabel(s, fontsize=16)
-        return s
-
-    def _set_ylabel(self, plt, s, default):
-        """Set ylabel, latex formula"""
-        if s is None:
-            s = default
-
-        if len(s):
-            plt.ylabel(s, fontsize=16)
-        return s
-
-    def _set_title(self, plt, s, default):
-        """Set title, latex formula"""
-        if s is None:
-            s = default
-
-        if len(s):
-            try:
-                plt.title(s, fontsize=16)
-            except TypeError:
-                plt.set_title(s, fontsize=16)
-        return s
 
     def _auto_pic_suffix(self, suffix):
         """Suggest prefix for picture"""
@@ -281,13 +240,9 @@ class Comparator:
         raw_trace_idx_s=0,
         time_trace_name_b=None,
         time_trace_name_s=None,
-        savefig_path=None,
-        suffix=None,
         isdiff=True,
-        title=None,
-        xlabel=None,
-        ylabel=None,
-        interactive=True,
+        *argv,
+        **kwargs,
     ):
         """Compare traces:
 
@@ -302,11 +257,9 @@ class Comparator:
               - raw_trace_idx_s (int, optional): idx of the particular sample realization
               - time_trace_name_b (str, optional): name of the time trace of the benchmark
               - time_trace_name_s (str, optional): name of the time trace of the sample
-              - savefig_path (str, optional): path to save the file
-              - interactive (bool, optional): do I call plot.show()?
         """
-
-        suffix = self._auto_pic_suffix(suffix)
+        ff = Figure(*argv, **kwargs)
+        ff.suffix = self._auto_pic_suffix(ff.suffix)
 
         benchmark, sample = (
             self.traceDBs[benchmarkDB_name],
@@ -338,7 +291,7 @@ class Comparator:
 
         trace_b = benchmark.traces[trace_name_b]
         trace_s = sample.traces[trace_name_s]
-        if interactive:
+        if ff.interactive:
             print(f"{benchmarkDB_name}:")
             print(trace_b.__str__(raw_trace_idx_b))
             if time_trace_name_b:
@@ -355,15 +308,13 @@ class Comparator:
         if short_name_s:
             short_name_s = "_" + short_name_s
 
-        plt.clf()
-
-        plt.plot(
+        ff.pplot.plot(
             time_trace_b.raw_traces[raw_trace_name_b],
             trace_b.raw_traces[raw_trace_name_b],
             label=f"{benchmarkDB_name}{short_name_b}",
         )
 
-        plt.plot(
+        ff.pplot.plot(
             time_trace_s.raw_traces[raw_trace_name_s],
             trace_s.raw_traces[raw_trace_name_s],
             "--",
@@ -376,23 +327,18 @@ class Comparator:
                 benchmark_time_trace=time_trace_b.raw_traces[raw_trace_name_b],
                 benchmark=trace_b.raw_traces[raw_trace_name_b],
             )
-            plt.plot(interp_time, interp_diff, label="diff")
+            ff.pplot.plot(interp_time, interp_diff, label="diff")
 
-        title = self._set_title(
-            plt,
-            title,
+        title = ff.set_title(
             f"{trace_b.name} {benchmarkDB_name}{short_name_b} vs {sampleDB_name}{short_name_s}",
         )
 
-        if interactive:
+        if ff.interactive:
             print(f"{time_trace_b.name} [{time_trace_b.unit}]")
-        xlabel = self._set_xlabel(plt, xlabel, time_trace_b.unit)
-        ylabel = self._set_ylabel(plt, ylabel, trace_b.unit)
+        xlabel = ff.set_xlabel(time_trace_b.unit)
+        ylabel = ff.set_ylabel(trace_b.unit)
 
-        plt.legend()
-        self._savefig(savefig_path, title, suffix, plt)
-        if interactive:
-            plt.show()
+        ff.finalize()
 
     def diffplot(self, *argv, **kwargs):
         """combinatory wrapper"""
@@ -403,12 +349,9 @@ class Comparator:
         benchmarkDB_name,
         sampleDB_name,
         trace_name,
-        savefig_path=None,
         percent=False,
-        suffix=None,
-        title=None,
-        xlabel=None,
-        ylabel=None,
+        *argv,
+        **kwargs,
     ):
         """Compare traces:
 
@@ -419,6 +362,7 @@ class Comparator:
               - trace_name_s (str, optional): name of the sample trace
               - savefig_path (str, optional): path to save the file
         """
+        ff = Figure(*argv, **kwargs)
 
         benchmark, sample = (
             self.traceDBs[benchmarkDB_name],
@@ -431,15 +375,6 @@ class Comparator:
         trace_b = benchmark.traces[trace_name]
         trace_s = sample.traces[trace_name]
 
-        plt.clf()
-        title = self._set_title(
-            plt, title, f"{trace_name} ({benchmarkDB_name}-{sampleDB_name})"
-        )
-
-        xlabel = self._set_xlabel(
-            plt, xlabel, f"{time_trace_b.name} [{time_trace_b.unit}]"
-        )
-        ylabel = self._set_ylabel(plt, ylabel, f"{trace_b.name} [{trace_b.unit}]")
         for raw_trace_name_b in trace_b.raw_traces.keys():
             for raw_trace_name_s in trace_s.raw_traces.keys():
                 _, interp_time, interp_diff = Utils.mse(
@@ -449,10 +384,13 @@ class Comparator:
                     benchmark=trace_b.raw_traces[raw_trace_name_b],
                     percent=percent,
                 )
-                plt.plot(interp_time, interp_diff)
+                ff.pplot.plot(interp_time, interp_diff)
 
-        self._savefig(savefig_path, title, suffix, plt)
-        plt.show()
+        title = ff.set_title(f"{trace_name} ({benchmarkDB_name}-{sampleDB_name})")
+
+        xlabel = ff.set_xlabel(f"{time_trace_b.name} [{time_trace_b.unit}]")
+        ylabel = ff.set_ylabel(f"{trace_b.name} [{trace_b.unit}]")
+        ff.finalize()
 
     def distplot(
         self,
@@ -460,13 +398,11 @@ class Comparator:
         op,
         binwidth=None,
         binrange=None,
-        savefig_path=None,
         suffix=None,
         traceDB_names=[],
         filter=None,
-        title=None,
-        xlabel=None,
-        ylabel=None,
+        *argv,
+        **kwargs,
     ):
         """Distribution plot
 
@@ -478,8 +414,8 @@ class Comparator:
               - bins=(int, optional): bin number for the distplot
               - savefig_path (str): path to save the figure
         """
-
-        suffix = self._auto_pic_suffix(suffix)
+        ff = Figure(*argv, **kwargs)
+        ff.suffix = self._auto_pic_suffix(ff.suffix)
 
         if len(traceDB_names) == 0:
             traceDB_names = list(self.traceDBs.keys())
@@ -503,44 +439,27 @@ class Comparator:
 
         newdf = Utils.flatten_data_frame_if_necessary(newdf)
 
-        p = seaborn.histplot(
+        seaborn.histplot(
             data=newdf,
             binwidth=binwidth,
             binrange=binrange,
             stat="frequency",
             common_norm=False,
             legend=len(newdf.keys()) > 1,
+            ax=ff.pplot,
         )  # , palette=["grey", "black"]
 
-        title = self._set_title(
-            p, title, f"{re.sub('_', ' ', trace)} {re.sub('_', ' ', op)}"
-        )
-        xlabel = self._set_xlabel(
-            plt, xlabel, self.traceDBs[traceDB_names[0]].traces[trace].unit
-        )
-        ylabel = self._set_ylabel(plt, ylabel, "Frequency")
+        title = ff.set_title(f"{re.sub('_', ' ', trace)} {re.sub('_', ' ', op)}")
+        xlabel = ff.set_xlabel(self.traceDBs[traceDB_names[0]].traces[trace].unit)
+        ylabel = ff.set_ylabel("Frequency")
 
-        self._savefig(savefig_path, title, suffix, plt)
-        plt.show()
+        ff.finalize(with_legend=len(newdf.keys()) > 1)
 
-    def avgplot_raw_traces(
-        self,
-        trace_name,
-        std=True,
-        conf_lvl=0.95,
-        savefig_path=None,
-        suffix=None,
-        xlim=None,
-        ylim=None,
-        title=None,
-        xlabel=None,
-        ylabel=None,
-    ):
+    def avgplot_raw_traces(self, trace_name, std=True, conf_lvl=0.95, *argv, **kwargs):
         """Average plot with std deviations and confidence bands of the raw traces"""
+        ff = Figure(*argv, **kwargs)
+        ff.suffix = self._auto_pic_suffix(ff.suffix)
 
-        suffix = self._auto_pic_suffix(suffix)
-
-        plt.clf()
         for traceDB_name, traceDB in self.traceDBs.items():
 
             time_trace = traceDB.get_time_trace()
@@ -549,7 +468,7 @@ class Comparator:
             avg0 = trace.raw_traces.mean(axis=1)
             nt = len(trace.raw_traces.columns)
 
-            plt.plot(
+            ff.pplot.plot(
                 time_trace.raw_traces.iloc[:, 0],
                 avg0,
                 label=f"avg. {traceDB_name} (nt: {nt})",
@@ -557,7 +476,7 @@ class Comparator:
 
             if std:
                 std0 = trace.raw_traces.std(axis=1)
-                plt.fill_between(
+                ff.pplot.fill_between(
                     time_trace.raw_traces.iloc[:, 0],
                     avg0 + std0,
                     avg0 - std0,
@@ -576,7 +495,7 @@ class Comparator:
                     )
                 )
 
-                plt.fill_between(
+                ff.pplot.fill_between(
                     time_trace.raw_traces.iloc[:, 0],
                     conf_int[0],
                     conf_int[1],
@@ -589,32 +508,17 @@ class Comparator:
             default_title += " and std."
         if conf_lvl > 0:
             default_title += " and conf. lvl."
-        title = self._set_title(plt, title, default_title)
+        title = ff.set_title(default_title)
 
-        xlabel = self._set_xlabel(plt, xlabel, time_trace.unit)
-        ylabel = self._set_ylabel(plt, ylabel, trace.unit)
+        xlabel = ff.set_xlabel(time_trace.unit)
+        ylabel = ff.set_ylabel(trace.unit)
 
-        plt.legend()
+        ff.finalize()
 
-        plt.xlim(xlim)
-        plt.ylim(ylim)
+    def avgplot_refined_traces(self, trace_name, reduce_ops=[], *argv, **kwargs):
+        ff = Figure(*argv, **kwargs)
+        ff.suffix = self._auto_pic_suffix(ff.suffix)
 
-        self._savefig(savefig_path, title, suffix, plt)
-        plt.show()
-
-    def avgplot_refined_traces(
-        self,
-        trace_name,
-        reduce_ops=[],
-        savefig_path="",
-        suffix=None,
-        title=None,
-        xlabel=None,
-        ylabel=None,
-    ):
-        suffix = self._auto_pic_suffix(suffix)
-        plt.clf()
-        plt.figure()
         xx = [*range(len(reduce_ops))]
         shift = 0.2 * numpy.array([*range(len(self.traceDBs))])
         shift -= shift.mean()
@@ -634,7 +538,7 @@ class Comparator:
             std = numpy.array(
                 [rt[op].std() if op in rt else numpy.NaN for op in reduce_ops]
             )
-            plt.errorbar(
+            ff.pplot.errorbar(
                 xx - shift[idx],
                 avgs,
                 yerr=std,
@@ -644,12 +548,10 @@ class Comparator:
                 label=db_name,
             )
 
-        plt.xticks(xx, ticknames)
-        title = self._set_title(plt, title, f"{trace_name} avg. std. {common_prefix}")
-        self._set_ylabel(plt, ylabel, "")
-        self._set_xlabel(plt, xlabel, "")
+        ff.set_xticks(xx, ticknames)
 
-        plt.legend()
+        title = ff.set_title(f"{trace_name} avg. std. {common_prefix}")
+        ff.set_ylabel("")
+        ff.set_xlabel("")
 
-        self._savefig(savefig_path, title, suffix, plt)
-        plt.show()
+        ff.finalize()
