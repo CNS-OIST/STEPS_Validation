@@ -97,35 +97,36 @@ for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
 
 """Plots"""
 
-fig, ax = plt.subplots(2, 2)
-subplot_label = "A"
-for i, membrane in enumerate(["smooth", "spiny"]):
-    for j, op in enumerate(["max", "min"]):
-        comp.avgplot_raw_traces(
-            trace_name=f"{membrane} {op} V",
-            conf_lvl=0,
-            savefig_path="caburst/pics",
-            suffix="",
-            pplot=ax[i][j],
-            legendfontsize=5,
-        )
-        ax[i][j].set_title(subplot_label + "\n", loc="left", fontweight="bold")
-        subplot_label = chr(ord(subplot_label) + 1)
-fig.tight_layout()
-Figure.savefig(savefig_path=savefig_path, file_name="avg_and_std", fig=fig)
-fig.show()
+# fig, ax = plt.subplots(2, 2)
+# subplot_label = "A"
+# for i, membrane in enumerate(["smooth", "spiny"]):
+#     for j, op in enumerate(["max", "min"]):
+#         comp.avgplot_raw_traces(
+#             trace_name=f"{membrane} {op} V",
+#             conf_lvl=0,
+#             savefig_path="caburst/pics",
+#             suffix="",
+#             pplot=ax[i][j],
+#             legendfontsize=5,
+#         )
+#         ax[i][j].set_title(subplot_label + "\n", loc="left", fontweight="bold")
+#         subplot_label = chr(ord(subplot_label) + 1)
+# fig.tight_layout()
+# Figure.savefig(savefig_path=savefig_path, file_name="avg_and_std", fig=fig)
+# fig.show()
 
-fig, ax = plt.subplots(3, 2, figsize=(6, 6))
+fig, ax = plt.subplots(3, 2, figsize=(9, 10))
 subplot_label = "A"
+legendfontsize = 8
 for i, membrane in enumerate(["smooth", "spiny"]):
-    for j, op in enumerate(["max", "min"]):
+    for j, op in enumerate(["min", "max"]):
         comp.avgplot_raw_traces(
             trace_name=f"{membrane} {op} V",
             std=False,
             savefig_path="caburst/pics",
             suffix="",
             pplot=ax[i][j],
-            legendfontsize=4,
+            legendfontsize=legendfontsize,
         )
         ax[i][j].set_title(subplot_label + "\n", loc="left", fontweight="bold")
         subplot_label = chr(ord(subplot_label) + 1)
@@ -135,13 +136,14 @@ comp.avgplot_raw_traces(
     std=False,
     savefig_path="caburst/pics",
     suffix="",
-    pplot=ax[2][1],
-    legendfontsize=4,
+    title=r"Focus of panel C",
+    pplot=ax[2][0],
+    legendfontsize=legendfontsize,
     xlim=[35, 37],
     ylim=[-39, -41],
 )
-ax[2][1].set_title(subplot_label + "\n", loc="left", fontweight="bold")
-fig.delaxes(ax[2][0])
+ax[2][0].set_title(subplot_label + "\n", loc="left", fontweight="bold")
+fig.delaxes(ax[2][1])
 subplot_label = chr(ord(subplot_label) + 1)
 fig.tight_layout()
 Figure.savefig(savefig_path=savefig_path, file_name="avg_and_conf_int", fig=fig)

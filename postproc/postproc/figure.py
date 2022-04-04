@@ -102,7 +102,7 @@ class Figure:
             file_name += "_" + suffix
         file_name = re.sub(" ", "_", file_name)
         file_name = re.sub("\.", "", file_name)
-        file_name += ".png"
+        file_name += ".jpg"
         os.makedirs(savefig_path, exist_ok=True)
 
         fig.savefig(os.path.join(savefig_path, file_name), dpi=300)
