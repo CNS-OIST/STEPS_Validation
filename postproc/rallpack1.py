@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 
 from postproc.comparator import Comparator
 from postproc.figure import Figure
-from postproc.traceDB import TraceDB, Trace
+from postproc.traceDB import TraceDB
+from postproc.trace import Trace
 
 """Benchmark_analytic"""
 

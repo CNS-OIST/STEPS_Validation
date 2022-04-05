@@ -27,7 +27,8 @@ postproc_path = os.path.join(
     "postproc",
 )
 sys.path.append(postproc_path)
-from postproc.traceDB import TraceDB, Trace
+from postproc.traceDB import TraceDB
+from postproc.trace import Trace
 from postproc.comparator import Comparator
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -39,7 +40,7 @@ def run_sim(USE_STEPS_4):
     # # # # # # # # # # # # # # # # SIMULATION CONTROLS # # # # # # # # # # # # # #
 
     # Sim end time (seconds)
-    SIM_END = 0.25
+    SIM_END = 0.25*1e-2
 
     # The current injection in amps
     Iinj = 0.1e-9
@@ -200,6 +201,9 @@ def run_sim(USE_STEPS_4):
 
 
 def check_results(db_STEPS3=None, db_STEPS4=None):
+    """ This routine floows quite closesly rallpack1.py in postproc"""
+
+
     """Benchmark_analytic"""
     multi = 1000
     traces_benchmark_analytic = []
@@ -246,14 +250,13 @@ def check_results(db_STEPS3=None, db_STEPS4=None):
     traces_sample_STEPS3.append(copy.deepcopy(traces_sample_STEPS3[-1]))
     traces_sample_STEPS3[-1].name = "V zmax"
     if db_STEPS3 is not None:
-        for i in traces_sample_STEPS3:
-            i.add_raw_trace("", db_STEPS3[i.name])
+        Trace.add_to_raw_trace_list(db_STEPS3, traces_sample_STEPS3)
 
     """Create the sample database"""
     sample_STEPS3 = TraceDB(
         "STEPS3",
         traces_sample_STEPS3,
-        folder_path="",  # configuration.path(os.path.join('validation_efield_STEPS4', 'results', 'STEPS3')),
+        folder_path="",
         clear_raw_traces_cache=True,
         clear_refined_traces_cache=True,
         save_raw_traces_cache=False,
@@ -279,14 +282,13 @@ def check_results(db_STEPS3=None, db_STEPS4=None):
     traces_sample_STEPS4.append(copy.deepcopy(traces_sample_STEPS4[-1]))
     traces_sample_STEPS4[-1].name = "V zmax"
     if db_STEPS4 is not None:
-        for i in traces_sample_STEPS4:
-            i.add_raw_trace("", db_STEPS4[i.name])
+        Trace.add_to_raw_trace_list(db_STEPS4, traces_sample_STEPS4)
 
     """Create the sample database"""
     sample_STEPS4 = TraceDB(
         "STEPS4",
         traces_sample_STEPS4,
-        folder_path="",  # configuration.path(os.path.join('validation_efield_STEPS4', 'results', 'STEPS4')),
+        folder_path="",
         clear_raw_traces_cache=True,
         clear_refined_traces_cache=True,
         save_raw_traces_cache=False,
