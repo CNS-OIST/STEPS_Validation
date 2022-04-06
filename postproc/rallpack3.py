@@ -4,10 +4,11 @@ import matplotlib.pyplot as plt
 
 from postproc.comparator import Comparator
 from postproc.figure import Figure
-from postproc.traceDB import TraceDB, Trace
+from postproc.traceDB import TraceDB
+from postproc.trace import Trace
 from postproc.utils import Utils
 
-npeaks = 17
+npeaks = 100
 savefig_path = "rallpack3/pics"
 multi = 1000
 filter = []  # ["n_peaks", 17]
@@ -42,7 +43,7 @@ traces_STEPS3[-1].name = "V zmax"
 STEPS3_DB = TraceDB(
     "STEPS3",
     traces_STEPS3,
-    "rallpack3/raw_traces/STEPS3/test10_removeme",
+    "rallpack3/raw_traces/STEPS3/master_oldspack_longsim_20220404/subset1",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
@@ -75,7 +76,8 @@ traces_STEPS4[-1].name = "V zmax"
 STEPS4_DB = TraceDB(
     "STEPS4",
     traces_STEPS4,
-    "rallpack3/raw_traces/STEPS4/test10_removeme",
+    "rallpack3/raw_traces/STEPS3/master_oldspack_longsim_20220404/subset2",
+    # "rallpack3/raw_traces/STEPS4/master_oldspack_longsim_20220404/subset",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )

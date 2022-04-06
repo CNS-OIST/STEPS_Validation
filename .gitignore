@@ -3,6 +3,7 @@
 *debug_log*
 **.idea**
 **.txt
-**raw_traces**
+**raw_traces_cache**
+**checkpoints**
 **pics**
 
