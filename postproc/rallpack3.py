@@ -76,8 +76,8 @@ traces_STEPS4[-1].name = "V zmax"
 STEPS4_DB = TraceDB(
     "STEPS4",
     traces_STEPS4,
-    "rallpack3/raw_traces/STEPS3/master_oldspack_longsim_20220404/subset2",
-    # "rallpack3/raw_traces/STEPS4/master_oldspack_longsim_20220404/subset",
+    # "rallpack3/raw_traces/STEPS3/master_oldspack_longsim_20220404/subset2",
+    "rallpack3/raw_traces/STEPS4/master_oldspack_longsim_20220404/subset",
     clear_raw_traces_cache=False,
     clear_refined_traces_cache=False,
 )
