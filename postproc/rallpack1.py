@@ -143,3 +143,6 @@ if __name__ == "__main__":
         STEPS4_raw_traces_folder="rallpack1/raw_traces/STEPS4",
         fig_folder="rallpack1/pics",
     )
+
+def test():
+    print("Did you call me? Wololooo!")
