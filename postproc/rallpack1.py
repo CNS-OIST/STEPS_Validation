@@ -1,4 +1,5 @@
 import copy
+import sys
 
 import matplotlib.pyplot as plt
 
@@ -9,10 +10,10 @@ from postproc.trace import Trace
 
 
 def check(
-    analytical_raw_traces_folder,
-    STEPS3_raw_traces_folder,
-    STEPS4_raw_traces_folder,
-    fig_folder,
+    analytical_raw_traces_folder="rallpack1/raw_traces/analytical",
+    STEPS3_raw_traces_folder="rallpack1/raw_traces/STEPS3",
+    STEPS4_raw_traces_folder="rallpack1/raw_traces/STEPS4",
+    fig_folder="rallpack1/pics",
 ):
 
     """Benchmark_analytic"""
@@ -137,12 +138,4 @@ def check(
 
 
 if __name__ == "__main__":
-    check(
-        analytical_raw_traces_folder="rallpack1/raw_traces/analytical",
-        STEPS3_raw_traces_folder="rallpack1/raw_traces/STEPS3",
-        STEPS4_raw_traces_folder="rallpack1/raw_traces/STEPS4",
-        fig_folder="rallpack1/pics",
-    )
-
-def test():
-    print("Did you call me? Wololooo!")
+    check(sys.argv[1:])
