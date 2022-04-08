@@ -171,9 +171,12 @@ class TraceDB:
             root, _, files = next(os.walk(self.folder_path))
             files.sort()
 
-            print(self.folder_path)
+            logging.info(f"Loading from raw data  from folder{self.folder_path}")
 
             for f in files:
+                if os.path.splitext(f)[1] != ".txt":
+                    continue
+
                 file_path = os.path.join(root, f)
                 self._extract_raw_data(file_path)
 
