@@ -138,4 +138,4 @@ def check(
 
 
 if __name__ == "__main__":
-    check(sys.argv[1:])
+    check(*sys.argv[1:])
