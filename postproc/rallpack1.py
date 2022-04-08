@@ -131,7 +131,7 @@ def check(
         for k, v in sorted(mse_tests.items(), key=lambda k: k[0]):
             # the std. mesh is quite coarse and the error with the analytic solution may be considered still big.
             # However, we are also comparing with STEPS 3 where we can be much more strict.
-            err = 1e-1 if "analytic" in tDBnames else 1e-12
+            err = 1e-1 if "analytic" in tDBnames else 1e-3
             print(k, *v.items(), f" Max accepted err: {err}")
 
             assert v["amax"] < err
