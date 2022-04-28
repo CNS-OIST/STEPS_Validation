@@ -10,8 +10,8 @@ from postproc.trace import Trace
 
 
 def check(
-    STEPS3_raw_traces_folder="rallpack1/raw_traces/STEPS3",
     STEPS4_raw_traces_folder="rallpack1/raw_traces/STEPS4",
+    STEPS3_raw_traces_folder="rallpack1/raw_traces/STEPS3",
     analytical_raw_traces_folder="rallpack1/raw_traces/analytical",
     fig_folder="rallpack1/pics",
 ):
