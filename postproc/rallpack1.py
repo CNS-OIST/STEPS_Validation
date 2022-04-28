@@ -13,7 +13,7 @@ def check(
     STEPS4_raw_traces_folder="rallpack1/raw_traces/STEPS4",
     STEPS3_raw_traces_folder="rallpack1/raw_traces/STEPS3",
     analytical_raw_traces_folder="rallpack1/raw_traces/analytical",
-    fig_folder="rallpack1/pics",
+    savefig_path="rallpack1/pics",
 ):
 
     """Benchmark_analytic"""
@@ -107,7 +107,7 @@ def check(
         benchmarkDB_name="analytic",
         sampleDB_name="STEPS4",
         trace_name_b="V zmin",
-        savefig_path=fig_folder,
+        savefig_path=savefig_path,
         isdiff=False,
         pplot=ax[0],
     )
@@ -116,13 +116,13 @@ def check(
         benchmarkDB_name="analytic",
         sampleDB_name="STEPS4",
         trace_name_b="V zmax",
-        savefig_path=fig_folder,
+        savefig_path=savefig_path,
         isdiff=False,
         pplot=ax[1],
     )
     ax[1].set_title("B\n", loc="left", fontweight="bold")
     fig.tight_layout()
-    Figure.savefig(savefig_path=fig_folder, file_name="traces", fig=fig)
+    Figure.savefig(savefig_path=savefig_path, file_name="traces", fig=fig)
     fig.show()
 
     """Compute the mse"""
