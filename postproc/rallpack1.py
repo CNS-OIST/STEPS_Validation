@@ -66,8 +66,8 @@ def check(
         "STEPS3",
         traces_sample_STEPS3,
         STEPS3_raw_traces_folder,
-        clear_raw_traces_cache=True,
-        clear_refined_traces_cache=True,
+        clear_raw_traces_cache=False,
+        clear_refined_traces_cache=False,
     )
 
     """Sample_STEPS4"""
