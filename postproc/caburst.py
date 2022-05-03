@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.WARNING)
 def check(
     STEPS4_raw_traces_folder="caburst/raw_traces/STEPS4",
     STEPS3_raw_traces_folder="caburst/raw_traces/STEPS3",
-    savefig_path="rallpack1/pics",
+    savefig_path="caburst/pics",
 ):
 
     """Create the benchmark traces"""
