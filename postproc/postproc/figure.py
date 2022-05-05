@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 
 class Figure:
+    """ Generic figure wrapper to automatically set parameters for all the subplots """
     def __init__(
         self,
         title=None,
@@ -52,13 +53,14 @@ class Figure:
             pass
 
     def set_legend(self):
+        """Try to set the legend either to a figure or to a figure with subfigures"""
         try:
             plt.setp(self.pplot.get_legend().get_texts(), fontsize=self.legendfontsize)
         except AttributeError:
             self.pplot.legend(fontsize=self.legendfontsize)
 
     def set_xlabel(self, default):
-        """Set xlabel, latex formula"""
+        """Set xlabel"""
         if self.xlabel is None:
             self.xlabel = default
 
@@ -67,7 +69,7 @@ class Figure:
         return self.xlabel
 
     def set_ylabel(self, default):
-        """Set ylabel, latex formula"""
+        """Set ylabel"""
         if self.ylabel is None:
             self.ylabel = default
 
@@ -76,12 +78,13 @@ class Figure:
         return self.ylabel
 
     def set_xticks(self, xx, labels):
+        """Set xticks"""
         self.pplot.set_xticks(xx)
         self.pplot.set_xticklabels(labels)
         self.pplot.tick_params(labelsize=self.fontsize)
 
     def set_title(self, default):
-        """Set title, latex formula"""
+        """Set title"""
         if self.title is None:
             self.title = default
 

@@ -11,6 +11,7 @@ from postproc.utils import Utils
 
 logging.basicConfig(level=logging.WARNING)
 
+
 def check(
     STEPS4_raw_traces_folder="caburst/raw_traces/STEPS4",
     STEPS3_raw_traces_folder="caburst/raw_traces/STEPS3",
@@ -41,7 +42,6 @@ def check(
             )
     traces_STEPS3.append(Trace("t", "ms", multi=multi))
 
-
     """ create the benchmark database"""
     STEPS3_DB = TraceDB(
         "STEPS3",
@@ -50,7 +50,6 @@ def check(
         clear_raw_traces_cache=False,
         clear_refined_traces_cache=False,
     )
-
 
     """Create the sample traces"""
     multi = 1000
@@ -76,7 +75,6 @@ def check(
             )
     traces_STEPS4.append(Trace("t", "ms", multi=multi))
 
-
     """Create the sample database"""
     STEPS4_DB = TraceDB(
         "STEPS4",
@@ -86,10 +84,8 @@ def check(
         clear_refined_traces_cache=True,
     )
 
-
     """Create the comparator for advanced studies"""
     comp = Comparator(traceDBs=[STEPS3_DB, STEPS4_DB])
-
 
     """Perform the ks test"""
     filter = []
@@ -98,7 +94,6 @@ def check(
         for t, d in sorted(ks_tests.items(), key=lambda t: Utils.natural_keys(t[0])):
             for k, v in sorted(d.items(), key=lambda k: Utils.natural_keys(k[0])):
                 print(t, k, v)
-
 
     """Plots"""
 
@@ -154,6 +149,6 @@ def check(
     Figure.savefig(savefig_path=savefig_path, file_name="avg_and_conf_int", fig=fig)
     fig.show()
 
+
 if __name__ == "__main__":
     check(*sys.argv[1:])
-

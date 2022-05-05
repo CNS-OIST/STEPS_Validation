@@ -92,6 +92,7 @@ class Trace:
         return ss
 
     def _check_for_nans(self):
+        """ Check for nans in the trace """
         for k, v in self.raw_traces.items():
             if v.isnull().values.any():
                 raise TraceError(
@@ -99,6 +100,7 @@ class Trace:
                 )
 
     def filter_refined_trace(self, op, filter=None):
+        """ Apply filter to redined traces """
         if not filter:
             return self.refined_traces[op]
         else:
@@ -106,18 +108,21 @@ class Trace:
             return t.loc[self.refined_traces[filter[0]] == filter[1]].dropna()
 
     def raw_traces_to_parquet(self, path):
+        """ Save raw traces to parquet """
         self.raw_traces.to_parquet(os.path.join(path, f"{self.name}.parquet"))
 
     def raw_traces_from_parquet(self, path):
+        """ Load raw traces from parquet """
         self.raw_traces = pandas.read_parquet(
             os.path.join(path, f"{self.name}.parquet")
         )
 
     def refined_traces_to_parquet(self, path):
+        """ Save refined traces to parquet """
         self.refined_traces.to_parquet(os.path.join(path, f"{self.name}.parquet"))
 
     def refined_traces_from_parquet(self, path):
-
+        """ Load refined traces from parquet """
         if not len(self.refined_traces.columns):
             return
 
@@ -284,6 +289,7 @@ class Trace:
         ff.finalize(with_legend=legend)
 
     def distplot(self, op, *argv, **kwargs):
+        """ Plot refined traces in a histogram """
         ff = Figure(*argv, **kwargs)
         seaborn.histplot(data=self.refined_traces, x=op, ax=ff.pplot)
         ff.finalize()

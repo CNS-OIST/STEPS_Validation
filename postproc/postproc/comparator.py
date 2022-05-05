@@ -516,6 +516,7 @@ class Comparator:
         ff.finalize()
 
     def avgplot_refined_traces(self, trace_name, reduce_ops=[], *argv, **kwargs):
+        """Average plot with std deviations and confidence bands of the refined traces"""
         ff = Figure(*argv, **kwargs)
         ff.suffix = self._auto_pic_suffix(ff.suffix)
 

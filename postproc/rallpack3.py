@@ -55,7 +55,6 @@ def check(
         clear_refined_traces_cache=False,
     )
 
-
     """Create the sample traces. How do you want to refine the data?"""
     traces_STEPS4 = []
     traces_STEPS4.append(Trace("t", "ms", multi=multi))
@@ -78,7 +77,7 @@ def check(
     )
     traces_STEPS4.append(copy.deepcopy(traces_STEPS4[-1]))
     traces_STEPS4[-1].name = "V zmax"
-    
+
     """Create the sample database"""
     STEPS4_DB = TraceDB(
         "STEPS4",
@@ -93,7 +92,7 @@ def check(
     Note: anywhere is relevant, the first traceDB is considered the benchmark. The others are samples
     """
     comp = Comparator(traceDBs=[STEPS3_DB, STEPS4_DB])
-    
+
     """p value statistics and graphs
     
     create a database using the refined data produced before as raw data for the new database
@@ -116,32 +115,29 @@ def check(
                     for k_slim in pvalues[t]:
                         if k_slim in k:
                             pvalues[t][k_slim].append(v.pvalue)
-    
+
     pvalues_traces = [Trace(k, "mV", reduce_ops=v) for k, v in pvalues.items()]
-    
-    
+
     """Create a database"""
     pvalues_traceDB = TraceDB("p values", pvalues_traces, is_refine=False)
-    
+
     comp_pvalues = Comparator(traceDBs=[pvalues_traceDB])
-    
-    
+
     # filter data out
-    
-    
+
     """Perform the ks test"""
     for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
         print(tDBnames)
         for t, d in sorted(ks_tests.items(), key=lambda t: Utils.natural_keys(t[0])):
             for k, v in sorted(d.items(), key=lambda k: Utils.natural_keys(k[0])):
                 print(t, k, v)
-    
+
     """Plots"""
-    
+
     bindwidth_y = 0.0005 * multi
     bindwidth_t = 0.001 * multi
     bindwidth_Hz = 0.1
-    
+
     # freq and peak n
     if multi == 1:
         # ### this works only if we use standard units: s, V
@@ -156,7 +152,9 @@ def check(
                 filter=filter,
                 pplot=ax[0][i],
             )
-            ax[0][i].set_title(f"{'A' if i == 0 else 'B'}\n", loc="left", fontweight="bold")
+            ax[0][i].set_title(
+                f"{'A' if i == 0 else 'B'}\n", loc="left", fontweight="bold"
+            )
             comp.distplot(
                 tracename,
                 f"n_peaks",
@@ -167,12 +165,14 @@ def check(
                 xlabel="n peaks",
                 pplot=ax[1][i],
             )
-            ax[1][i].set_title(f"{'C' if i == 0 else 'D'}\n", loc="left", fontweight="bold")
-    
+            ax[1][i].set_title(
+                f"{'C' if i == 0 else 'D'}\n", loc="left", fontweight="bold"
+            )
+
         fig.tight_layout()
         Figure.savefig(savefig_path=savefig_path, file_name="npeaks_and_freq", fig=fig)
         fig.show()
-    
+
     for op_tuple in [("peaks_t", "ms", bindwidth_t), ("peaks_y", "mV", bindwidth_y)]:
         op, label, binwidth = op_tuple
         fig, ax = plt.subplots(2, 2, figsize=(8, 6))
@@ -185,8 +185,10 @@ def check(
                 xlabel=label,
                 pplot=ax[0][i],
             )
-            ax[0][i].set_title(f"{'A' if i == 0 else 'B'}\n", loc="left", fontweight="bold")
-    
+            ax[0][i].set_title(
+                f"{'A' if i == 0 else 'B'}\n", loc="left", fontweight="bold"
+            )
+
             comp.avgplot_refined_traces(
                 tracename,
                 [f"['i_{op.replace('s', '')}', {q}]" for q in range(npeaks)],
@@ -196,11 +198,13 @@ def check(
                 title=f"{tracename} {op} avg. and std.",
                 pplot=ax[1][i],
             )
-            ax[1][i].set_title(f"{'C' if i == 0 else 'D'}\n", loc="left", fontweight="bold")
+            ax[1][i].set_title(
+                f"{'C' if i == 0 else 'D'}\n", loc="left", fontweight="bold"
+            )
         fig.tight_layout()
         Figure.savefig(savefig_path=savefig_path, file_name=op, fig=fig)
         fig.show()
-    
+
     fig, ax = plt.subplots(2, 2, figsize=(8, 6))
     subplot_label = "A"
     for i, tname in enumerate(["V zmax", "V zmin"]):
@@ -219,6 +223,7 @@ def check(
     fig.tight_layout()
     Figure.savefig(savefig_path=savefig_path, file_name="p_values", fig=fig)
     fig.show()
+
 
 if __name__ == "__main__":
     check(*sys.argv[1:])
