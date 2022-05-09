@@ -243,7 +243,7 @@ class Trace:
                     if hasattr(Utils, op) and callable(func := getattr(Utils, op)):
                         if (
                             "time_trace"
-                            not in inspect.getfullargspec(getattr(Utils, op)).args
+                            not in inspect.getfullargspec(func).args
                         ):
                             val = func(trace, *op_args)
                         else:
