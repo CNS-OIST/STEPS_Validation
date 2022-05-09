@@ -100,7 +100,7 @@ class Trace:
                 )
 
     def filter_refined_trace(self, op, filter=None):
-        """ Apply filter to redined traces """
+        """ Apply filter to refined traces """
         if not filter:
             return self.refined_traces[op]
         else:
