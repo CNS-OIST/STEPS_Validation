@@ -253,7 +253,7 @@ class Trace:
                     elif hasattr(numpy, op) and callable(func := getattr(numpy, op)):
                         val = getattr(numpy, op)(trace, *op_args)
                     elif hasattr(scipy, op) and callable(func := getattr(scipy, op)):
-                        val = getattr(scipy, op)(trace, *op_args)
+                        val = func(trace, *op_args)
                     else:
                         raise TraceError(
                             f"The derived trace {self.name} presents an unknown operation {op}."
