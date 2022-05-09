@@ -247,7 +247,7 @@ class Trace:
                         ):
                             val = getattr(Utils, op)(trace, *op_args)
                         else:
-                            val = getattr(Utils, op)(
+                            val = func(
                                 trace, time_trace.raw_traces[file], *op_args
                             )
                     elif hasattr(numpy, op) and callable(func := getattr(numpy, op)):
