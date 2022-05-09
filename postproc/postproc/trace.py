@@ -245,7 +245,7 @@ class Trace:
                             "time_trace"
                             not in inspect.getfullargspec(getattr(Utils, op)).args
                         ):
-                            val = getattr(Utils, op)(trace, *op_args)
+                            val = func(trace, *op_args)
                         else:
                             val = func(
                                 trace, time_trace.raw_traces[file], *op_args
