@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 class Figure:
     """ Generic figure wrapper to automatically set parameters for all the subplots """
+
     def __init__(
         self,
         title=None,

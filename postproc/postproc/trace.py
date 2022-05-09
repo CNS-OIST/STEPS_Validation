@@ -241,15 +241,10 @@ class Trace:
                         pass
 
                     if hasattr(Utils, op) and callable(func := getattr(Utils, op)):
-                        if (
-                            "time_trace"
-                            not in inspect.getfullargspec(func).args
-                        ):
+                        if "time_trace" not in inspect.getfullargspec(func).args:
                             val = func(trace, *op_args)
                         else:
-                            val = func(
-                                trace, time_trace.raw_traces[file], *op_args
-                            )
+                            val = func(trace, time_trace.raw_traces[file], *op_args)
                     elif hasattr(numpy, op) and callable(func := getattr(numpy, op)):
                         val = func(trace, *op_args)
                     elif hasattr(scipy, op) and callable(func := getattr(scipy, op)):
