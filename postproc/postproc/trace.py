@@ -251,7 +251,7 @@ class Trace:
                                 trace, time_trace.raw_traces[file], *op_args
                             )
                     elif hasattr(numpy, op) and callable(func := getattr(numpy, op)):
-                        val = getattr(numpy, op)(trace, *op_args)
+                        val = func(trace, *op_args)
                     elif hasattr(scipy, op) and callable(func := getattr(scipy, op)):
                         val = func(trace, *op_args)
                     else:
