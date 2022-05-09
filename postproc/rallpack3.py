@@ -11,8 +11,8 @@ from postproc.utils import Utils
 
 
 def check(
-    STEPS4_raw_traces_folder="rallpack3/raw_traces/STEPS4/testing",
-    STEPS3_raw_traces_folder="rallpack3/raw_traces/STEPS3/testing",
+    STEPS4_raw_traces_folder="rallpack3/raw_traces/STEPS4",
+    STEPS3_raw_traces_folder="rallpack3/raw_traces/STEPS3",
     savefig_path="rallpack3/pics",
 ):
 
@@ -52,8 +52,8 @@ def check(
         "STEPS3",
         traces_STEPS3,
         STEPS3_raw_traces_folder,
-        clear_raw_traces_cache=True,
-        clear_refined_traces_cache=True,
+        clear_raw_traces_cache=False,
+        clear_refined_traces_cache=False,
     )
 
     """Create the sample traces. How do you want to refine the data?"""
@@ -84,8 +84,8 @@ def check(
         "STEPS4",
         traces_STEPS4,
         STEPS4_raw_traces_folder,
-        clear_raw_traces_cache=True,
-        clear_refined_traces_cache=True,
+        clear_raw_traces_cache=False,
+        clear_refined_traces_cache=False,
     )
 
     """Create the comparator for advanced studies
