@@ -1,10 +1,11 @@
-import numpy, pandas
-from scipy import interpolate, stats
-from scipy.signal import find_peaks
-from scipy.fft import fft, fftfreq
-import matplotlib.pyplot as plt
-import re
 import os
+import re
+
+import numpy
+import pandas
+from scipy import interpolate, stats
+from scipy.fft import fft, fftfreq
+from scipy.signal import find_peaks
 
 
 class UtilsError(Exception):
@@ -122,13 +123,17 @@ class Utils:
             return float("NaN")
 
     @staticmethod
-    def freq(trace, time_trace):
-        """Frequency computed using the fft"""
-        trace = numpy.array(trace)
-        time_trace = numpy.array(time_trace)
+    def freq(trace, time_trace, multi_y=1, multi_t=1):
+        """Frequency computed using the fft
+
+        multi_y and multi_t are required when the traces are not in SI and you still want Hz in return. They are the
+        correct multipliers for restoring the traces to SI units
+        """
+
+        trace = numpy.array(trace) * multi_y
+        time_trace = numpy.array(time_trace) * multi_t
 
         xf, yf = Utils.fft(trace, time_trace)
-
         xf = xf[1:]
         yf = yf[1:]
 
