@@ -134,10 +134,6 @@ def check(
                 print(t, k, v)
 
     """Plots"""
-
-    # print(STEPS4_DB)
-    # exit()
-
     bindwidth_y = 0.0005 * multi_y
     bindwidth_t = 0.001 * multi_t
     bindwidth_Hz = 0.1
@@ -169,8 +165,6 @@ def check(
     fig.tight_layout()
     Figure.savefig(savefig_path=savefig_path, file_name="npeaks_and_freq", fig=fig)
     fig.show()
-
-    exit()
 
     for op_tuple in [("peaks_t", "ms", bindwidth_t), ("peaks_y", "mV", bindwidth_y)]:
         op, label, binwidth = op_tuple
