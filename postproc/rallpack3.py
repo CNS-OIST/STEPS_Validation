@@ -149,6 +149,7 @@ def check(
             xlabel="Hz",
             filter=filter,
             pplot=ax[0][i],
+            title="freq",
         )
         ax[0][i].set_title(f"{'A' if i == 0 else 'B'}\n", loc="left", fontweight="bold")
         comp.distplot(
