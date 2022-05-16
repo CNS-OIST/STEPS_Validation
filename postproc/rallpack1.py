@@ -71,8 +71,8 @@ def check(
         sample_names[1],
         traces_sample_1,
         sample_1_raw_traces_folder,
-        clear_raw_traces_cache=False,
-        clear_refined_traces_cache=False,
+        clear_raw_traces_cache=True,
+        clear_refined_traces_cache=True,
     )
 
     """sample_0"""
