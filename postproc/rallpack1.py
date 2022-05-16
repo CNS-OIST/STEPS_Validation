@@ -7,14 +7,19 @@ from postproc.comparator import Comparator
 from postproc.figure import Figure
 from postproc.traceDB import TraceDB
 from postproc.trace import Trace
+from postproc.utils import Utils
 
 
 def check(
-    STEPS4_raw_traces_folder="rallpack1/raw_traces/STEPS4",
-    STEPS3_raw_traces_folder="rallpack1/raw_traces/STEPS3",
+    sample_0_raw_traces_folder="rallpack1/raw_traces/STEPS4",
+    sample_1_raw_traces_folder="rallpack1/raw_traces/STEPS3",
     analytical_raw_traces_folder="rallpack1/raw_traces/analytical",
     savefig_path="rallpack1/pics",
 ):
+
+    sample_names = Utils.autonaming_after_folders(
+        sample_0_raw_traces_folder, sample_1_raw_traces_folder
+    )
 
     """Benchmark_analytic"""
     multi = 1000
@@ -43,11 +48,11 @@ def check(
         clear_refined_traces_cache=True,
     )
 
-    """Sample_STEPS3"""
+    """sample_1"""
     multi = 1000
-    traces_sample_STEPS3 = []
-    traces_sample_STEPS3.append(Trace("t", "ms", multi=multi))
-    traces_sample_STEPS3.append(
+    traces_sample_1 = []
+    traces_sample_1.append(Trace("t", "ms", multi=multi))
+    traces_sample_1.append(
         Trace(
             "V zmin",
             "mV",
@@ -58,23 +63,23 @@ def check(
             },
         )
     )
-    traces_sample_STEPS3.append(copy.deepcopy(traces_sample_STEPS3[-1]))
-    traces_sample_STEPS3[-1].name = "V zmax"
+    traces_sample_1.append(copy.deepcopy(traces_sample_1[-1]))
+    traces_sample_1[-1].name = "V zmax"
 
     """Create the sample database"""
-    sample_STEPS3 = TraceDB(
-        "STEPS3",
-        traces_sample_STEPS3,
-        STEPS3_raw_traces_folder,
+    sample_1 = TraceDB(
+        sample_names[1],
+        traces_sample_1,
+        sample_1_raw_traces_folder,
         clear_raw_traces_cache=False,
         clear_refined_traces_cache=False,
     )
 
-    """Sample_STEPS4"""
+    """sample_0"""
     multi = 1000
-    traces_sample_STEPS4 = []
-    traces_sample_STEPS4.append(Trace("t", "ms", multi=multi))
-    traces_sample_STEPS4.append(
+    traces_sample_0 = []
+    traces_sample_0.append(Trace("t", "ms", multi=multi))
+    traces_sample_0.append(
         Trace(
             "V zmin",
             "mV",
@@ -85,27 +90,27 @@ def check(
             },
         )
     )
-    traces_sample_STEPS4.append(copy.deepcopy(traces_sample_STEPS4[-1]))
-    traces_sample_STEPS4[-1].name = "V zmax"
+    traces_sample_0.append(copy.deepcopy(traces_sample_0[-1]))
+    traces_sample_0[-1].name = "V zmax"
 
     """Create the sample database"""
-    sample_STEPS4 = TraceDB(
-        "STEPS4",
-        traces_sample_STEPS4,
-        STEPS4_raw_traces_folder,
+    sample_0 = TraceDB(
+        sample_names[0],
+        traces_sample_0,
+        sample_0_raw_traces_folder,
         clear_raw_traces_cache=True,
         clear_refined_traces_cache=True,
     )
 
     """comparator"""
 
-    comp = Comparator(traceDBs=[benchmark_analytic, sample_STEPS3, sample_STEPS4])
+    comp = Comparator(traceDBs=[benchmark_analytic, sample_1, sample_0])
 
     # We present the pictures only for analytic vs STEPS4 as it is the most relevant
     fig, ax = plt.subplots(1, 2, figsize=(8, 4))
     comp._plot(
         benchmarkDB_name="analytic",
-        sampleDB_name="STEPS4",
+        sampleDB_name=sample_names[0],
         trace_name_b="V zmin",
         savefig_path=savefig_path,
         isdiff=False,
@@ -114,7 +119,7 @@ def check(
     ax[0].set_title("A\n", loc="left", fontweight="bold")
     comp._plot(
         benchmarkDB_name="analytic",
-        sampleDB_name="STEPS4",
+        sampleDB_name=sample_names[0],
         trace_name_b="V zmax",
         savefig_path=savefig_path,
         isdiff=False,

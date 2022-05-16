@@ -16,7 +16,23 @@ class Utils:
     """Class that collects general methods"""
 
     @staticmethod
+    def autonaming_after_folders(path1, path2):
+        """ Extrapolate sample name from folders """
+        res = [os.path.basename(path1), os.path.basename(path2)]
+        while res[0] == res[1] and path1 and path2:
+
+            path1 = os.path.dirname(path1)
+            path2 = os.path.dirname(path2)
+            res = [os.path.basename(path1), os.path.basename(path2)]
+
+        if res[0] == res[1]:
+            res = ["sample_0", "sample_1"]
+
+        return res
+
+    @staticmethod
     def val(trace: list, time_trace: list, t: float):
+        """Get value from trace corresponding a to a certain time t"""
         idx = numpy.argmin(numpy.abs(numpy.array(time_trace) - t))
         return trace[idx]
 

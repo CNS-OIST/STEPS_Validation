@@ -13,18 +13,21 @@ logging.basicConfig(level=logging.WARNING)
 
 
 def check(
-    STEPS4_raw_traces_folder="caburst/raw_traces/STEPS4",
-    STEPS3_raw_traces_folder="caburst/raw_traces/STEPS3",
+    sample_0_raw_traces_folder="caburst/raw_traces/STEPS4",
+    sample_1_raw_traces_folder="caburst/raw_traces/STEPS3",
     savefig_path="caburst/pics",
 ):
+    sample_names = Utils.autonaming_after_folders(
+        sample_0_raw_traces_folder, sample_1_raw_traces_folder
+    )
 
     """Create the benchmark traces"""
     multi = 1000
-    traces_STEPS3 = []
+    traces_sample_1 = []
 
     for membrane in ["smooth", "spiny"]:
         for op in ["max", "min"]:
-            traces_STEPS3.append(
+            traces_sample_1.append(
                 Trace(
                     f"{membrane} {op} V",
                     "mV",
@@ -40,24 +43,24 @@ def check(
                     },
                 )
             )
-    traces_STEPS3.append(Trace("t", "ms", multi=multi))
+    traces_sample_1.append(Trace("t", "ms", multi=multi))
 
     """ create the benchmark database"""
-    STEPS3_DB = TraceDB(
-        "STEPS3",
-        traces_STEPS3,
-        STEPS3_raw_traces_folder,
+    sample_1_DB = TraceDB(
+        sample_names[1],
+        traces_sample_1,
+        sample_1_raw_traces_folder,
         clear_raw_traces_cache=False,
         clear_refined_traces_cache=False,
     )
 
     """Create the sample traces"""
     multi = 1000
-    traces_STEPS4 = []
+    traces_sample_0 = []
 
     for membrane in ["smooth", "spiny"]:
         for op in ["max", "min"]:
-            traces_STEPS4.append(
+            traces_sample_0.append(
                 Trace(
                     f"{membrane} {op} V",
                     "mV",
@@ -73,19 +76,19 @@ def check(
                     },
                 )
             )
-    traces_STEPS4.append(Trace("t", "ms", multi=multi))
+    traces_sample_0.append(Trace("t", "ms", multi=multi))
 
     """Create the sample database"""
-    STEPS4_DB = TraceDB(
-        "STEPS4",
-        traces_STEPS4,
-        STEPS4_raw_traces_folder,
+    sample_0_DB = TraceDB(
+        sample_names[0],
+        traces_sample_0,
+        sample_0_raw_traces_folder,
         clear_raw_traces_cache=True,
         clear_refined_traces_cache=True,
     )
 
     """Create the comparator for advanced studies"""
-    comp = Comparator(traceDBs=[STEPS3_DB, STEPS4_DB])
+    comp = Comparator(traceDBs=[sample_1_DB, sample_0_DB])
 
     """Perform the ks test"""
     filter = []

@@ -11,10 +11,13 @@ from postproc.utils import Utils
 
 
 def check(
-    STEPS4_raw_traces_folder="rallpack3/raw_traces/STEPS4",
-    STEPS3_raw_traces_folder="rallpack3/raw_traces/STEPS3",
+    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS4",
+    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS3",
     savefig_path="rallpack3/pics",
 ):
+    sample_names = Utils.autonaming_after_folders(
+        sample_0_raw_traces_folder, sample_1_raw_traces_folder
+    )
 
     npeaks = 17
     multi_t = 1000
@@ -24,10 +27,10 @@ def check(
     # ##########################################
 
     """Create the benchmark traces. How do you want to refine the data? Usually exactly like the sample traces"""
-    traces_STEPS3 = []
-    traces_STEPS3.append(Trace("t", "ms", multi=multi_t))
+    traces_sample_1 = []
+    traces_sample_1.append(Trace("t", "ms", multi=multi_t))
 
-    traces_STEPS3.append(
+    traces_sample_1.append(
         Trace(
             "V zmin",
             "mV",
@@ -44,22 +47,22 @@ def check(
             },
         )
     )
-    traces_STEPS3.append(copy.deepcopy(traces_STEPS3[-1]))
-    traces_STEPS3[-1].name = "V zmax"
+    traces_sample_1.append(copy.deepcopy(traces_sample_1[-1]))
+    traces_sample_1[-1].name = "V zmax"
 
     """Create the benchmark database"""
-    STEPS3_DB = TraceDB(
-        "STEPS3",
-        traces_STEPS3,
-        STEPS3_raw_traces_folder,
+    sample_1_DB = TraceDB(
+        sample_names[1],
+        traces_sample_1,
+        sample_1_raw_traces_folder,
         clear_raw_traces_cache=False,
         clear_refined_traces_cache=False,
     )
 
     """Create the sample traces. How do you want to refine the data?"""
-    traces_STEPS4 = []
-    traces_STEPS4.append(Trace("t", "ms", multi=multi_t))
-    traces_STEPS4.append(
+    traces_sample_0 = []
+    traces_sample_0.append(Trace("t", "ms", multi=multi_t))
+    traces_sample_0.append(
         Trace(
             "V zmin",
             "mV",
@@ -76,14 +79,14 @@ def check(
             },
         )
     )
-    traces_STEPS4.append(copy.deepcopy(traces_STEPS4[-1]))
-    traces_STEPS4[-1].name = "V zmax"
+    traces_sample_0.append(copy.deepcopy(traces_sample_0[-1]))
+    traces_sample_0[-1].name = "V zmax"
 
     """Create the sample database"""
-    STEPS4_DB = TraceDB(
-        "STEPS4",
-        traces_STEPS4,
-        STEPS4_raw_traces_folder,
+    sample_0_DB = TraceDB(
+        sample_names[0],
+        traces_sample_0,
+        sample_0_raw_traces_folder,
         clear_raw_traces_cache=False,
         clear_refined_traces_cache=False,
     )
@@ -92,7 +95,7 @@ def check(
     
     Note: anywhere is relevant, the first traceDB is considered the benchmark. The others are samples
     """
-    comp = Comparator(traceDBs=[STEPS3_DB, STEPS4_DB])
+    comp = Comparator(traceDBs=[sample_1_DB, sample_0_DB])
 
     """p value statistics and graphs
     
