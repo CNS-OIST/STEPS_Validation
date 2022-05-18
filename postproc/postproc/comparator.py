@@ -4,6 +4,7 @@ import re
 
 import numpy
 import pandas
+import pandas as pd
 import seaborn
 from scipy import stats
 
@@ -43,6 +44,35 @@ class Comparator:
                 out[f"{benchmarkDB_name}_vs_{sampleDB_name}"] = fff(
                     benchmarkDB_name, sampleDB_name, *argv, **kwargs
                 )
+        return out
+
+    def _DB_trace_ops_combinations(self):
+        """Returns a list of all the combinations of DB, trace, and reduce operation that are possible with the
+        current data"""
+        out = []
+        for db_name, db in self.traceDBs.items():
+            for trace_name, trace in db.traces.items():
+                for reduce_ops in trace.refined_traces:
+                    out.append((db_name, trace_name, reduce_ops))
+
+        return out
+
+    @staticmethod
+    def _pretty_print_DB_trace_ops_combinations(comb):
+        """Pretty print summary for plotting all the possibilities expressed in comb"""
+        if len(comb) == 0:
+            return []
+
+        nsteps = len(comb[0])
+
+        out = [""] * len(comb)
+        for j in range(nsteps):
+            if len(set([i[j] for i in comb])) > 1:
+                out = [
+                    comb[idx][j] if not i else i + "\n" + comb[idx][j]
+                    for idx, i in enumerate(out)
+                ]
+
         return out
 
     def _auto_pic_suffix(self, suffix):
@@ -556,3 +586,31 @@ class Comparator:
         ff.set_xlabel("")
 
         ff.finalize()
+
+    def boxplot_refined_traces(self, DB_trace_reduce_ops=None, *argv, **kwargs):
+        """Box plot (scientific candlestick plot)"""
+        ff = Figure(*argv, **kwargs)
+
+        if DB_trace_reduce_ops is None:
+            DB_trace_reduce_ops = self._DB_trace_ops_combinations()
+
+        ticknames = Comparator._pretty_print_DB_trace_ops_combinations(
+            DB_trace_reduce_ops
+        )
+
+        df = {}
+        for idx, (db_name, trace_name, op) in enumerate(DB_trace_reduce_ops):
+            try:
+                trace = self.traceDBs[db_name].traces[trace_name].refined_traces[op]
+            except KeyError:
+                logging.warning(
+                    f"The trace in {(db_name, trace_name, op)} was not found. Skipped"
+                )
+                continue
+
+            df[ticknames[idx]] = trace
+
+        seaborn.boxplot(data=pd.DataFrame(df), ax=ff.pplot, color="skyblue")
+        ff.set_ylabel("")
+
+        ff.finalize(with_legend=False)

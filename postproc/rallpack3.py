@@ -11,8 +11,10 @@ from postproc.utils import Utils
 
 
 def check(
-    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS4",
-    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS3",
+    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-05-13_highChannelDensity",
+    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS4/testing",
+    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-05-13_highChannelDensity",
+    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS3/testing",
     savefig_path="rallpack3/pics",
 ):
     sample_names = Utils.autonaming_after_folders(
@@ -23,6 +25,7 @@ def check(
     multi_t = 1000
     multi_y = 1000
     filter = []  # ["n_peaks", 17]
+    clear_all_caches = False  # True is used for debugging
 
     # ##########################################
 
@@ -55,8 +58,8 @@ def check(
         sample_names[1],
         traces_sample_1,
         sample_1_raw_traces_folder,
-        clear_raw_traces_cache=False,
-        clear_refined_traces_cache=False,
+        clear_raw_traces_cache=clear_all_caches,
+        clear_refined_traces_cache=clear_all_caches,
     )
 
     """Create the sample traces. How do you want to refine the data?"""
@@ -87,8 +90,8 @@ def check(
         sample_names[0],
         traces_sample_0,
         sample_0_raw_traces_folder,
-        clear_raw_traces_cache=False,
-        clear_refined_traces_cache=False,
+        clear_raw_traces_cache=clear_all_caches,
+        clear_refined_traces_cache=clear_all_caches,
     )
 
     """Create the comparator for advanced studies
@@ -124,10 +127,7 @@ def check(
 
     """Create a database"""
     pvalues_traceDB = TraceDB("p values", pvalues_traces, is_refine=False)
-
     comp_pvalues = Comparator(traceDBs=[pvalues_traceDB])
-
-    # filter data out
 
     """Perform the ks test"""
     for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
@@ -220,6 +220,12 @@ def check(
     fig.tight_layout()
     Figure.savefig(savefig_path=savefig_path, file_name="p_values", fig=fig)
     fig.show()
+
+    comp_pvalues.boxplot_refined_traces(
+        ylabel="p values",
+        savefig_path=savefig_path,
+        title="boxplot p values",
+    )
 
 
 if __name__ == "__main__":
