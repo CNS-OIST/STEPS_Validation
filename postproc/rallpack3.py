@@ -13,8 +13,8 @@ from postproc.utils import Utils
 
 
 def check(
-    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-05-13_highChannelDensity",
-    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-05-13_highChannelDensity",
+    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS4",
+    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS3",
 ):
     sample_names = Utils.autonaming_after_folders(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
