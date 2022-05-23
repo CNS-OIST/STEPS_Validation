@@ -2,17 +2,19 @@ import copy
 import sys
 
 import matplotlib.pyplot as plt
+import numpy as np
+import scipy as sp
 
 from postproc.comparator import Comparator
 from postproc.figure import Figure
-from postproc.traceDB import TraceDB
 from postproc.trace import Trace
+from postproc.traceDB import TraceDB
 from postproc.utils import Utils
 
 
 def check(
-    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS4",
-    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS3",
+    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-05-13_highChannelDensity",
+    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-05-13_highChannelDensity",
 ):
     sample_names = Utils.autonaming_after_folders(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
@@ -23,6 +25,7 @@ def check(
     multi_y = 1000
     filter = []  # ["n_peaks", 17]
     clear_all_caches = False  # True is used for debugging
+    savefig_path = "rallpack3/pics"
 
     # ##########################################
 
@@ -138,7 +141,7 @@ def check(
     bindwidth_t = 0.001 * multi_t
     bindwidth_Hz = 0.1
 
-    # ### this works only if we use standard units: s, V
+    ### this works only if we use standard units: s, V
     fig, ax = plt.subplots(2, 2, figsize=(8, 6))
     for i, tracename in enumerate(["V zmin", "V zmax"]):
         comp.distplot(
@@ -218,11 +221,33 @@ def check(
     Figure.savefig(savefig_path=savefig_path, file_name="p_values", fig=fig)
     fig.show()
 
+    """Add pvalue reference and produce the boxplot"""
+    pvalues_traces.append(Trace("ref", "", reduce_ops={"": pvalues_reference()}))
+    pvalues_traceDB = TraceDB("p values", pvalues_traces, is_refine=False)
+    comp_pvalues = Comparator(traceDBs=[pvalues_traceDB])
     comp_pvalues.boxplot_refined_traces(
         ylabel="p values",
         savefig_path=savefig_path,
         title="boxplot p values",
     )
+
+
+def pvalues_reference(npvalues=100, mean=1, sigma=0.1, size=1000):
+    """P values from comparing identical lognormal distributions
+
+    Input:
+    - npvalues: number of pvalues. (output size)
+    - mean, sigma, size: inputs of numpy.random.lognormal
+    """
+
+    pvalues = []
+    for i in range(npvalues):
+        Y = {}
+        Y["Y1"] = np.random.lognormal(mean=mean, sigma=sigma, size=size)
+        Y["Y2"] = np.random.lognormal(mean=mean, sigma=sigma, size=size)
+        pvalue = sp.stats.ks_2samp(Y["Y1"], Y["Y2"])[1]
+        pvalues.append(pvalue)
+    return pvalues
 
 
 if __name__ == "__main__":
