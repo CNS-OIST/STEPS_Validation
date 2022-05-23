@@ -589,6 +589,7 @@ class Comparator:
 
     def boxplot_refined_traces(self, DB_trace_reduce_ops=None, *argv, **kwargs):
         """Box plot (scientific candlestick plot)"""
+
         ff = Figure(*argv, **kwargs)
 
         if DB_trace_reduce_ops is None:
