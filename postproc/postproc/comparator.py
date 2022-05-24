@@ -561,7 +561,9 @@ class Comparator:
 
         ff.finalize()
 
-    def avgplot_refined_traces(self, trace_name, reduce_ops=[], *argv, **kwargs):
+    def avgplot_refined_traces(
+        self, trace_name, reduce_ops=[], means_to_0=False, *argv, **kwargs
+    ):
         """Average plot with std deviations and confidence bands of the refined traces"""
         ff = Figure(*argv, **kwargs)
         ff.suffix = self._auto_pic_suffix(ff.suffix)
@@ -580,7 +582,10 @@ class Comparator:
 
             rt = db.traces[trace_name].refined_traces
             avgs = numpy.array(
-                [rt[op].mean() if op in rt else numpy.NaN for op in reduce_ops]
+                [
+                    0 if means_to_0 else rt[op].mean() if op in rt else numpy.NaN
+                    for op in reduce_ops
+                ]
             )
             std = numpy.array(
                 [rt[op].std() if op in rt else numpy.NaN for op in reduce_ops]

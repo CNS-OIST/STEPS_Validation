@@ -197,6 +197,7 @@ def check(
                 savefig_path=savefig_path,
                 title=f"{tracename} {op} avg. and std.",
                 pplot=ax[1][i],
+                means_to_0=True,
             )
             ax[1][i].set_title(
                 f"{'C' if i == 0 else 'D'}\n", loc="left", fontweight="bold"
