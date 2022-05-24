@@ -266,11 +266,15 @@ class Trace:
         ff = Figure(*argv, **kwargs)
 
         if not trace_files:
-            trace_files = self.raw_traces.keys()
+            trace_files = list(self.raw_traces.keys())
         else:
             trace_files = numpy.array(self.raw_traces.keys())[trace_files]
 
         title = title_prefix + " " + self.name
+        if len(trace_files) == 1:
+            title += " " + os.path.basename(trace_files[0])
+
+        print(title)
 
         for file in trace_files:
             trace = self.raw_traces[file]

@@ -27,6 +27,7 @@ class TraceDB:
         is_refine=True,
         save_raw_traces_cache=True,
         save_refined_traces_cache=True,
+        ban_list=[],
     ):
         """Init
 
@@ -42,6 +43,7 @@ class TraceDB:
         self.root_traces = [i.name for i in traces if not i.derivation_params]
         self.save_raw_traces_cache = save_raw_traces_cache
         self.save_refined_traces_cache = save_refined_traces_cache
+        self.ban_list = set(ban_list)
 
         if isinstance(traces, list):
             self.traces = {i.name: i for i in traces}
@@ -114,6 +116,20 @@ class TraceDB:
             logging.warning(f"rewriting {final_path} ...")
             df.to_csv(final_path, sep=" ", index=False)
 
+    def _save_raw_traces_cache(self, cache_path):
+        """ Save raw traces cache """
+        os.makedirs(cache_path, exist_ok=True)
+
+        for v in self.traces.values():
+            v.raw_traces_to_parquet(cache_path)
+
+    def _save_refined_traces_cache(self, cache_path):
+        """ Save refined traces cache """
+        os.makedirs(cache_path, exist_ok=True)
+
+        for trace_name in self.traces:
+            self.traces[trace_name].refined_traces_to_parquet(cache_path)
+
     def _derive_raw_data(self):
         """Service function to call derive on all traces"""
         for trace_name in self.traces:
@@ -135,16 +151,32 @@ class TraceDB:
             except OSError:
                 pass
 
-        if self.save_refined_traces_cache:
-            os.makedirs(cache_path, exist_ok=True)
-
         for trace_name in self.traces:
             try:
                 self.traces[trace_name].refined_traces_from_parquet(cache_path)
             except:
                 self.traces[trace_name].refine(self.get_time_trace())
-                if self.save_refined_traces_cache:
-                    self.traces[trace_name].refined_traces_to_parquet(cache_path)
+
+        if self.save_refined_traces_cache:
+            self._save_refined_traces_cache(cache_path)
+
+    def _remove_ban_list(self):
+        """Remove from the raw_traces based on the banlist"""
+        for k in self.traces.keys():
+            if len(self.traces[k].raw_traces.columns) == 0:
+                continue
+
+            path = self.traces[k].raw_traces.columns[0]
+            dir = os.path.dirname(path)
+            ext = ".txt"
+
+            ncols = len(self.traces[k].raw_traces.columns)
+            self.traces[k].raw_traces = self.traces[k].raw_traces.drop(
+                [dir + "/" + i + ext for i in self.ban_list], axis=1, errors="ignore"
+            )
+            ncols -= len(self.traces[k].raw_traces.columns)
+            if ncols:
+                logging.warning(f"{ncols} columns were dropped due to the ban_list")
 
     def _extract_all_raw_data(self, clear_cache=False):
         """Extract all raw data from the files in self.folder_path (not recursive)"""
@@ -166,6 +198,7 @@ class TraceDB:
         try:
             for k in self.traces.keys():
                 self.traces[k].raw_traces_from_parquet(cache_path)
+
             logging.info("Successfully loaded from cache")
         except:
             root, _, files = next(os.walk(self.folder_path))
@@ -174,7 +207,8 @@ class TraceDB:
             logging.info(f"Loading from raw data  from folder{self.folder_path}")
 
             for f in files:
-                if os.path.splitext(f)[1] != ".txt":
+                name, ext = os.path.splitext(f)
+                if ext != ".txt" or name in self.ban_list:
                     continue
 
                 file_path = os.path.join(root, f)
@@ -182,9 +216,10 @@ class TraceDB:
 
             self._derive_raw_data()
 
+        self._remove_ban_list()
+
         if self.save_raw_traces_cache:
-            for v in self.traces.values():
-                v.raw_traces_to_parquet(cache_path)
+            self._save_raw_traces_cache(cache_path)
 
     def _extract_raw_data(self, file_path: str):
         """Extract raw data from a file
@@ -238,7 +273,14 @@ class TraceDB:
         return numpy.array([len(trace.raw_traces) for trace in self.traces.values()])
 
     def plot(
-        self, trace_names=[], trace_files=[], savefig_path=None, legend=False, suffix=""
+        self,
+        trace_names=[],
+        trace_files=[],
+        savefig_path=None,
+        legend=False,
+        suffix="",
+        *argv,
+        **kwargs,
     ):
         """Plot
 
@@ -251,7 +293,8 @@ class TraceDB:
         time_trace = self.get_time_trace()
 
         if not trace_names:
-            trace_names = self.traces
+            trace_names = list(self.traces.keys())
+            print(trace_names)
 
         for trace_name in trace_names:
             trace = self.traces[trace_name]
@@ -265,4 +308,6 @@ class TraceDB:
                 title_prefix=self.name,
                 legend=legend,
                 suffix=suffix,
+                *argv,
+                **kwargs,
             )

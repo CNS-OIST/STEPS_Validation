@@ -13,8 +13,8 @@ from postproc.utils import Utils
 
 
 def check(
-    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS4",
-    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS3",
+    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4",
+    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3",
 ):
     sample_names = Utils.autonaming_after_folders(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
@@ -95,13 +95,13 @@ def check(
     )
 
     """Create the comparator for advanced studies
-    
+
     Note: anywhere is relevant, the first traceDB is considered the benchmark. The others are samples
     """
     comp = Comparator(traceDBs=[sample_1_DB, sample_0_DB])
 
     """p value statistics and graphs
-    
+
     create a database using the refined data produced before as raw data for the new database
     """
     pvalues = {
@@ -121,7 +121,10 @@ def check(
                 if t in pvalues:
                     for k_slim in pvalues[t]:
                         if k_slim in k:
-                            pvalues[t][k_slim].append(v.pvalue)
+                            pvalues[t][k_slim] = [
+                                *pvalues[t][k_slim],
+                                *[pp.pvalue for pp in v],
+                            ]
 
     pvalues_traces = [Trace(k, "mV", reduce_ops=v) for k, v in pvalues.items()]
 
@@ -230,6 +233,41 @@ def check(
         savefig_path=savefig_path,
         title="boxplot p values",
     )
+
+    # """Chunked pvalues"""
+    # ip = 0
+    # nsections = 10
+    # chunked_pvalues = {
+    #     "V zmin": {
+    #         **{f"['i_peak_y', {i}]": [] for i in range(npeaks)},
+    #         **{f"['i_peak_t', {i}]": [] for i in range(npeaks)},
+    #     },
+    #     "V zmax": {
+    #         **{f"['i_peak_y', {i}]": [] for i in range(npeaks)},
+    #         **{f"['i_peak_t', {i}]": [] for i in range(npeaks)},
+    #     },
+    # }
+    #
+    # # the ks tests are our new raw data
+    # for tDBnames, ks_tests in comp.test_ks(filter=filter, nsections=nsections).items():
+    #     for t, d in ks_tests.items():
+    #         for k, v in d.items():
+    #             if t in chunked_pvalues:
+    #                 for k_slim in chunked_pvalues[t]:
+    #                     if k_slim in k:
+    #                         chunked_pvalues[t][k_slim] = [*chunked_pvalues[t][k_slim], *[pp.pvalue for pp in v]]
+    #
+    # chunked_pvalues_traces = [Trace(k, "mV", reduce_ops=v) for k, v in chunked_pvalues.items()]
+    #
+    # """Create a database"""
+    # chunked_pvalues_traceDB = TraceDB("p values", chunked_pvalues_traces, is_refine=False)
+    # chunked_comp_pvalues = Comparator(traceDBs=[chunked_pvalues_traceDB])
+    #
+    # chunked_comp_pvalues.boxplot_refined_traces(
+    #     ylabel="p values",
+    #     savefig_path=savefig_path,
+    #     title="boxplot p values",
+    # )
 
 
 def pvalues_reference(npvalues=100, mean=1, sigma=0.1, size=1000):
