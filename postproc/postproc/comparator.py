@@ -489,7 +489,7 @@ class Comparator:
             data=newdf,
             binwidth=binwidth,
             binrange=binrange,
-            stat="frequency",
+            stat="count",
             common_norm=False,
             legend=len(newdf.keys()) > 1,
             ax=ff.pplot,
@@ -497,7 +497,7 @@ class Comparator:
 
         title = ff.set_title(f"{re.sub('_', ' ', trace)} {re.sub('_', ' ', op)}")
         xlabel = ff.set_xlabel(self.traceDBs[traceDB_names[0]].traces[trace].unit)
-        ylabel = ff.set_ylabel("Frequency")
+        ylabel = ff.set_ylabel("Count")
 
         ff.finalize(with_legend=len(newdf.keys()) > 1)
 

@@ -13,14 +13,18 @@ from postproc.utils import Utils
 
 
 def check(
-    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4",
-    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3",
+    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/testing_highChannelDensity_long",
+    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/testing_highChannelDensity_long",
+    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/testing",
+    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/testing",
+    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4",
+    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3",
 ):
     sample_names = Utils.autonaming_after_folders(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
     )
 
-    npeaks = 17
+    npeaks = 100
     multi_t = 1000
     multi_y = 1000
     filter = []  # ["n_peaks", 17]
@@ -162,7 +166,7 @@ def check(
             tracename,
             f"n_peaks",
             binwidth=1,
-            binrange=[12.5, 19.5],
+            # binrange=[npeaks-2.5, npeaks+2.5],
             savefig_path=savefig_path,
             filter=filter,
             xlabel="n peaks",
