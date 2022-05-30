@@ -13,18 +13,20 @@ from postproc.utils import Utils
 
 
 def check(
-    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/testing_highChannelDensity_long",
-    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/testing_highChannelDensity_long",
+    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/testing_highChannelDensity_long",
+    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/testing_highChannelDensity_long",
     # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/testing",
     # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/testing",
     # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4",
     # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3",
+    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-05-13_highChannelDensity",
+    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-05-13_highChannelDensity",
 ):
     sample_names = Utils.autonaming_after_folders(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
     )
 
-    npeaks = 100
+    npeaks = 15
     multi_t = 1000
     multi_y = 1000
     filter = []  # ["n_peaks", 17]
@@ -49,8 +51,8 @@ def check(
                 **{f"['i_peak_t', {i}]": [] for i in range(npeaks)},
                 f"['freq', {1/multi_y}, {1/multi_t}]": [],
                 "n_peaks": [],
-                "peaks_y": [],
-                "peaks_t": [],
+                f"peaks_y": [],
+                f"peaks_t": [],
             },
         )
     )
@@ -62,7 +64,6 @@ def check(
         sample_names[1],
         traces_sample_1,
         sample_1_raw_traces_folder,
-        clear_raw_traces_cache=clear_all_caches,
         clear_refined_traces_cache=clear_all_caches,
     )
 
@@ -81,8 +82,8 @@ def check(
                 **{f"['i_peak_t', {i}]": [] for i in range(npeaks)},
                 f"['freq', {1/multi_y}, {1/multi_t}]": [],
                 "n_peaks": [],
-                "peaks_y": [],
-                "peaks_t": [],
+                f"peaks_y": [],
+                f"peaks_t": [],
             },
         )
     )
@@ -94,7 +95,6 @@ def check(
         sample_names[0],
         traces_sample_0,
         sample_0_raw_traces_folder,
-        clear_raw_traces_cache=clear_all_caches,
         clear_refined_traces_cache=clear_all_caches,
     )
 
@@ -133,7 +133,12 @@ def check(
     pvalues_traces = [Trace(k, "mV", reduce_ops=v) for k, v in pvalues.items()]
 
     """Create a database"""
-    pvalues_traceDB = TraceDB("p values", pvalues_traces, is_refine=False)
+    pvalues_traceDB = TraceDB(
+        "p values",
+        pvalues_traces,
+        clear_refined_traces_cache=True,
+        save_refined_traces_cache=False,
+    )
     comp_pvalues = Comparator(traceDBs=[pvalues_traceDB])
 
     """Perform the ks test"""
@@ -231,7 +236,12 @@ def check(
 
     """Add pvalue reference and produce the boxplot"""
     pvalues_traces.append(Trace("ref", "", reduce_ops={"": pvalues_reference()}))
-    pvalues_traceDB = TraceDB("p values", pvalues_traces, is_refine=False)
+    pvalues_traceDB = TraceDB(
+        "p values",
+        pvalues_traces,
+        clear_refined_traces_cache=True,
+        save_refined_traces_cache=False,
+    )
     comp_pvalues = Comparator(traceDBs=[pvalues_traceDB])
     comp_pvalues.boxplot_refined_traces(
         ylabel="p values",

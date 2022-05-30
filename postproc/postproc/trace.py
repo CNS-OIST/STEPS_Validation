@@ -128,16 +128,12 @@ class Trace:
 
         data = pandas.read_parquet(os.path.join(path, f"{self.name}.parquet"))
 
-        if not self.raw_traces.empty and len(self.raw_traces.columns) != len(data):
-            raise TraceError(
-                f"The number of raw_traces ({len(self.raw_traces.columns)}) does not match the number "
-                f"of loaded refined trace raws ({len(data.index)})"
-            )
-
         if set(self.refined_traces.columns) != set(data.columns):
             raise TraceError(
                 "The refined traces requested have changed, the cache is invalid"
             )
+
+        logging.info(f"Refined traces from cache for trace: {self.name}")
 
         self.refined_traces = data
 
@@ -151,6 +147,9 @@ class Trace:
 
     def add_raw_trace(self, file_path, trace):
         self.raw_traces[file_path] = self.multi * trace
+
+    def remove_raw_traces(self):
+        self.raw_traces = pandas.DataFrame({})
 
     @staticmethod
     def add_to_raw_trace_list(df, trace_list):
@@ -203,7 +202,7 @@ class Trace:
 
             self.raw_traces[file] = self.multi * numpy.array(derived_trace)
 
-    def refine(self, time_trace={}):
+    def refine(self, file, time_trace={}):
         """Fill refined_traces using evaluating the keys as member functions in Utils, numpy or scipy
 
         The refine_traces key can be a str or a list of arguments. In case of a str, it is evaluated as a member
@@ -211,52 +210,40 @@ class Trace:
         are arguments to be fed after the traces.
         """
 
-        logging.info(f"Refining {self.name}")
+        logging.info(f"Refining {self.name}, processing {file}")
 
+        row = {}
         for op_key in self.refined_traces.columns:
-            tr = []
-            if len(self.refined_traces[op_key]) == 1 and isinstance(
-                self.refined_traces[op_key][0], str
-            ):
-                f = open(self.refined_traces[op_key][0])
-                for l in f.readlines():
-                    try:
-                        tr.append(self.multi * float(l))
-                    except:
-                        pass
 
+            trace = self.raw_traces[file]
+
+            op_args = []
+            op = op_key
+            try:
+                l = eval(op_key)
+                op = l[0]
+                op_args = l[1:]
+            except NameError:
+                pass
+
+            if hasattr(Utils, op) and callable(func := getattr(Utils, op)):
+                if "time_trace" not in inspect.getfullargspec(func).args:
+                    val = func(trace, *op_args)
+                else:
+                    val = func(trace, time_trace.raw_traces[file], *op_args)
+            elif hasattr(numpy, op) and callable(func := getattr(numpy, op)):
+                val = func(trace, *op_args)
+            elif hasattr(scipy, op) and callable(func := getattr(scipy, op)):
+                val = func(trace, *op_args)
             else:
+                raise TraceError(
+                    f"The derived trace {self.name} presents an unknown operation {op}."
+                )
 
-                for file, trace in self.raw_traces.items():
+            row[op_key] = val
 
-                    logging.info(f"Processing {file}")
-
-                    op_args = []
-                    op = op_key
-                    try:
-                        l = eval(op_key)
-                        op = l[0]
-                        op_args = l[1:]
-                    except NameError:
-                        pass
-
-                    if hasattr(Utils, op) and callable(func := getattr(Utils, op)):
-                        if "time_trace" not in inspect.getfullargspec(func).args:
-                            val = func(trace, *op_args)
-                        else:
-                            val = func(trace, time_trace.raw_traces[file], *op_args)
-                    elif hasattr(numpy, op) and callable(func := getattr(numpy, op)):
-                        val = func(trace, *op_args)
-                    elif hasattr(scipy, op) and callable(func := getattr(scipy, op)):
-                        val = func(trace, *op_args)
-                    else:
-                        raise TraceError(
-                            f"The derived trace {self.name} presents an unknown operation {op}."
-                        )
-
-                    tr.append(val)
-
-            self.refined_traces[op_key] = tr
+        if row:
+            self.refined_traces.loc[len(self.refined_traces)] = pandas.Series(row)
 
     def plot(
         self, time_trace, trace_files=[], title_prefix="", legend=False, *argv, **kwargs

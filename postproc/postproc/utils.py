@@ -102,20 +102,20 @@ class Utils:
             return float("NaN")
 
     @staticmethod
-    def peaks_t(trace: list, time_trace: list):
+    def peaks_t(trace: list, time_trace: list, npeaks=-1):
         """Time stamp of the peaks"""
         trace = numpy.array(trace)
         peaks = Utils.peaks(trace)
 
-        return [time_trace[i] for i in peaks[0]]
+        return [time_trace[i] for i in peaks[0][:npeaks]]
 
     @staticmethod
-    def peaks_y(trace: list):
+    def peaks_y(trace: list, npeaks=-1):
         """Height of the peaks"""
         trace = numpy.array(trace)
         peaks = Utils.peaks(trace)
 
-        return [trace[i] for i in peaks[0]]
+        return [trace[i] for i in peaks[0][:npeaks]]
 
     @staticmethod
     def i_peak_t(trace: list, time_trace: list, i_peak: int):

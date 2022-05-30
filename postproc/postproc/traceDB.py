@@ -2,7 +2,6 @@ import logging
 import os
 import shutil
 
-import numpy
 import pandas
 
 
@@ -22,11 +21,9 @@ class TraceDB:
         traces,
         folder_path="",
         time_trace="t",
-        clear_raw_traces_cache=False,
         clear_refined_traces_cache=False,
-        is_refine=True,
-        save_raw_traces_cache=True,
         save_refined_traces_cache=True,
+        keep_raw_traces=False,
         ban_list=[],
     ):
         """Init
@@ -41,8 +38,9 @@ class TraceDB:
         self.name = name
         self.time_trace = time_trace
         self.root_traces = [i.name for i in traces if not i.derivation_params]
-        self.save_raw_traces_cache = save_raw_traces_cache
+        self.clear_refined_traces_cache = clear_refined_traces_cache
         self.save_refined_traces_cache = save_refined_traces_cache
+        self.keep_raw_traces = keep_raw_traces
         self.ban_list = set(ban_list)
 
         if isinstance(traces, list):
@@ -54,20 +52,19 @@ class TraceDB:
 
         if len(traces) != len(self.traces):
             raise TraceDBError(
-                "Some traces have the same name. Please make them unique"
+                "Some traces have the same name. Please, make them unique"
             )
 
         self.folder_path = folder_path
+        self.refined_traces_cache_path = os.path.join(
+            folder_path, "refined_traces_cache"
+        )
 
-        self._extract_all_raw_data(clear_raw_traces_cache)
+        if self._load_refined_traces():
+            self._extract_and_refine()
 
-        self._check_for_nans()
-
-        if is_refine:
-            self._refine(clear_refined_traces_cache)
-
-        for i in self.traces:
-            self.traces[i]._update_raw_traces_common_prefix_and_suffix()
+        if self.save_refined_traces_cache:
+            self._save_refined_traces_cache()
 
     def get_time_trace(self):
         return self.traces.get(self.time_trace, None)
@@ -94,6 +91,12 @@ class TraceDB:
         Useful to convert dimensions
         """
 
+        if not self.keep_raw_traces:
+            if not self.keep_raw_traces:
+                raise TraceDBError(
+                    f"Rewriting raw traces is possible only if `keep_raw_traces` is marked as True in TraceDB."
+                )
+
         if len(suffix) == 0:
             cont = input(
                 "I am going to re-write the raw traces. Are you sure you want to proceed? [y/n] (This "
@@ -116,110 +119,73 @@ class TraceDB:
             logging.warning(f"rewriting {final_path} ...")
             df.to_csv(final_path, sep=" ", index=False)
 
-    def _save_raw_traces_cache(self, cache_path):
-        """ Save raw traces cache """
-        os.makedirs(cache_path, exist_ok=True)
-
-        for v in self.traces.values():
-            v.raw_traces_to_parquet(cache_path)
-
-    def _save_refined_traces_cache(self, cache_path):
-        """ Save refined traces cache """
-        os.makedirs(cache_path, exist_ok=True)
-
-        for trace_name in self.traces:
-            self.traces[trace_name].refined_traces_to_parquet(cache_path)
-
-    def _derive_raw_data(self):
-        """Service function to call derive on all traces"""
-        for trace_name in self.traces:
-            self.traces[trace_name].derive_raw_data(self.traces)
-
     def _check_for_nans(self):
         """Check for nans in the raw traces"""
         for i in self.traces.values():
             i._check_for_nans()
 
-    def _refine(self, clear_cache=False):
-        """Service function that calls refine on all the traces"""
+    def _save_refined_traces_cache(self):
+        """ Save refined traces cache """
+        os.makedirs(self.refined_traces_cache_path, exist_ok=True)
 
+        for trace_name in self.traces:
+            self.traces[trace_name].refined_traces_to_parquet(
+                self.refined_traces_cache_path
+            )
+
+    def _derive_raw_data(self):
+        if not self.keep_raw_traces:
+            if not self.keep_raw_traces:
+                raise TraceDBError(
+                    f"Deriving raw traces is possible only if `keep_raw_traces` is marked as True in TraceDB."
+                )
+
+        """Service function to call derive on all traces"""
+        for trace_name in self.traces:
+            self.traces[trace_name].derive_raw_data(self.traces)
+
+    def _load_refined_traces(self):
         cache_path = os.path.join(self.folder_path, "refined_traces_cache/")
-
-        if clear_cache:
+        if self.clear_refined_traces_cache:
             try:
                 shutil.rmtree(cache_path)
             except OSError:
                 pass
 
+        extraction_needed = False
         for trace_name in self.traces:
             try:
                 self.traces[trace_name].refined_traces_from_parquet(cache_path)
-            except:
-                self.traces[trace_name].refine(self.get_time_trace())
+            except:  # catch all the possible errors from refined_traces_from_parquet
+                extraction_needed = True
 
-        if self.save_refined_traces_cache:
-            self._save_refined_traces_cache(cache_path)
+        return extraction_needed
 
-    def _remove_ban_list(self):
-        """Remove from the raw_traces based on the banlist"""
-        for k in self.traces.keys():
-            if len(self.traces[k].raw_traces.columns) == 0:
-                continue
-
-            path = self.traces[k].raw_traces.columns[0]
-            dir = os.path.dirname(path)
-            ext = ".txt"
-
-            ncols = len(self.traces[k].raw_traces.columns)
-            self.traces[k].raw_traces = self.traces[k].raw_traces.drop(
-                [dir + "/" + i + ext for i in self.ban_list], axis=1, errors="ignore"
-            )
-            ncols -= len(self.traces[k].raw_traces.columns)
-            if ncols:
-                logging.warning(f"{ncols} columns were dropped due to the ban_list")
-
-    def _extract_all_raw_data(self, clear_cache=False):
-        """Extract all raw data from the files in self.folder_path (not recursive)"""
+    def _extract_and_refine(self):
 
         if not self.folder_path:
             return
 
-        cache_path = os.path.join(self.folder_path, "raw_traces_cache/")
+        logging.info(f"Extract and refine from folder: {self.folder_path}")
+        root, _, files = next(os.walk(self.folder_path))
+        files.sort()
 
-        if clear_cache:
-            try:
-                shutil.rmtree(cache_path)
-            except OSError:
-                pass
+        for f in files:
+            name, ext = os.path.splitext(f)
+            if ext != ".txt" or name in self.ban_list:
+                continue
 
-        if not os.path.exists(cache_path):
-            os.makedirs(cache_path)
+            file_path = os.path.join(root, f)
+            self._extract_raw_data(file_path)
 
-        try:
-            for k in self.traces.keys():
-                self.traces[k].raw_traces_from_parquet(cache_path)
+            self._check_for_nans()
 
-            logging.info("Successfully loaded from cache")
-        except:
-            root, _, files = next(os.walk(self.folder_path))
-            files.sort()
+            for trace in self.traces.values():
+                trace.refine(file_path, self.get_time_trace())
 
-            logging.info(f"Loading from raw data  from folder{self.folder_path}")
-
-            for f in files:
-                name, ext = os.path.splitext(f)
-                if ext != ".txt" or name in self.ban_list:
-                    continue
-
-                file_path = os.path.join(root, f)
-                self._extract_raw_data(file_path)
-
-            self._derive_raw_data()
-
-        self._remove_ban_list()
-
-        if self.save_raw_traces_cache:
-            self._save_raw_traces_cache(cache_path)
+            if not self.keep_raw_traces:
+                for trace in self.traces.values():
+                    trace.remove_raw_traces()
 
     def _extract_raw_data(self, file_path: str):
         """Extract raw data from a file
@@ -268,10 +234,6 @@ class TraceDB:
         for k, v in data.items():
             self.traces[k].add_raw_trace(file_path, v)
 
-    def raw_rows(self):
-        """Maximum number of rows per raw trace"""
-        return numpy.array([len(trace.raw_traces) for trace in self.traces.values()])
-
     def plot(
         self,
         trace_names=[],
@@ -289,6 +251,11 @@ class TraceDB:
               Otherwise we plot everything
               - savefig_path (str, optional): if speficied we also save the file in the specified folder.
         """
+
+        if not self.keep_raw_traces:
+            raise TraceDBError(
+                f"Plotting raw traces is possible only if `keep_raw_traces` is marked as True in TraceDB."
+            )
 
         time_trace = self.get_time_trace()
 
