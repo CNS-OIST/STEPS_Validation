@@ -1,6 +1,7 @@
 import copy
 import sys
 
+
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
@@ -11,25 +12,30 @@ from postproc.trace import Trace
 from postproc.traceDB import TraceDB
 from postproc.utils import Utils
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 
 def check(
-    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/testing_highChannelDensity_long",
-    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/testing_highChannelDensity_long",
-    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4",
-    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3",
+    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/testing_highChannelDensity_long",
+    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/testing_highChannelDensity_long",
+    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4",
+    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3",
 ):
     sample_names = Utils.autonaming_after_folders(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
     )
 
-    npeaks = 17
+    npeaks = 100
     multi_t = 1000
     multi_y = 1000
     filter = []  # ["n_peaks", 17]
-    clear_all_caches = False  # True is used for debugging
+    clear_all_caches = True  # True is used for debugging
     savefig_path = "rallpack3/pics"
 
     # ##########################################
+
+    logging.info("Process sample 1")
 
     """Create the benchmark traces. How do you want to refine the data? Usually exactly like the sample traces"""
     traces_sample_1 = []
@@ -63,6 +69,8 @@ def check(
         clear_refined_traces_cache=clear_all_caches,
     )
 
+    logging.info("Process sample 0")
+
     """Create the sample traces. How do you want to refine the data?"""
     traces_sample_0 = []
     traces_sample_0.append(Trace("t", "ms", multi=multi_t))
@@ -94,11 +102,15 @@ def check(
         clear_refined_traces_cache=clear_all_caches,
     )
 
+    logging.info("Comparator")
+
     """Create the comparator for advanced studies
 
     Note: anywhere is relevant, the first traceDB is considered the benchmark. The others are samples
     """
     comp = Comparator(traceDBs=[sample_1_DB, sample_0_DB])
+
+    logging.info("P values")
 
     """p value statistics and graphs
 
@@ -128,6 +140,8 @@ def check(
 
     pvalues_traces = [Trace(k, "mV", reduce_ops=v) for k, v in pvalues.items()]
 
+    logging.info("P value comparator")
+
     """Create a database"""
     pvalues_traceDB = TraceDB(
         "p values",
@@ -137,12 +151,16 @@ def check(
     )
     comp_pvalues = Comparator(traceDBs=[pvalues_traceDB])
 
+    logging.info("Ks tests")
+
     """Perform the ks test"""
     for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
         print(tDBnames)
         for t, d in sorted(ks_tests.items(), key=lambda t: Utils.natural_keys(t[0])):
             for k, v in sorted(d.items(), key=lambda k: Utils.natural_keys(k[0])):
                 print(t, k, v)
+
+    logging.info("Plots")
 
     """Plots"""
     bindwidth_y = 0.0005 * multi_y
