@@ -26,11 +26,11 @@ def check(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
     )
 
-    npeaks = 100
+    npeaks = 17
     multi_t = 1000
     multi_y = 1000
     filter = []  # ["n_peaks", 17]
-    clear_all_caches = True  # True is used for debugging
+    clear_all_caches = False  # True is used for debugging
     savefig_path = "rallpack3/pics"
 
     # ##########################################
