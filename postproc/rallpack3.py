@@ -13,6 +13,8 @@ from postproc.utils import Utils
 
 
 def check(
+    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/testing_highChannelDensity_long",
+    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/testing_highChannelDensity_long",
     sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4",
     sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3",
 ):
@@ -20,7 +22,7 @@ def check(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
     )
 
-    npeaks = 15
+    npeaks = 17
     multi_t = 1000
     multi_y = 1000
     filter = []  # ["n_peaks", 17]
@@ -176,7 +178,93 @@ def check(
     Figure.savefig(savefig_path=savefig_path, file_name="npeaks_and_freq", fig=fig)
     fig.show()
 
-    for op_tuple in [("peaks_t", "ms", bindwidth_t), ("peaks_y", "mV", bindwidth_y)]:
+    neuron_results = [
+        [
+            [
+                1.62,
+                16.3,
+                30.83,
+                45.355,
+                59.875,
+                74.395,
+                88.915,
+                103.435,
+                117.96,
+                132.48,
+                147,
+                161.52,
+                176.04,
+                190.565,
+                205.085,
+                219.605,
+                234.125,
+                248.645,
+            ],
+            [
+                4.29,
+                18.895,
+                33.43,
+                47.955,
+                62.475,
+                76.995,
+                91.515,
+                106.035,
+                120.56,
+                135.08,
+                149.6,
+                164.12,
+                178.64,
+                193.165,
+                207.685,
+                222.205,
+                236.725,
+            ],
+        ],
+        [
+            [
+                41.4922,
+                23.2034,
+                22.4812,
+                22.427,
+                22.424,
+                22.4241,
+                22.4241,
+                22.4236,
+                22.423,
+                22.4238,
+                22.4241,
+                22.424,
+                22.4236,
+                22.423,
+                22.4238,
+                22.4241,
+                22.424,
+                22.4236,
+            ],
+            [
+                44.5447,
+                46.2315,
+                46.1529,
+                46.1471,
+                46.1474,
+                46.1474,
+                46.147,
+                46.1463,
+                46.1469,
+                46.1473,
+                46.1474,
+                46.147,
+                46.1462,
+                46.1469,
+                46.1473,
+                46.1474,
+                46.147,
+            ],
+        ],
+    ]
+    for j, op_tuple in enumerate(
+        [("peaks_t", "ms", bindwidth_t), ("peaks_y", "mV", bindwidth_y)]
+    ):
         op, label, binwidth = op_tuple
         fig, ax = plt.subplots(2, 2, figsize=(8, 6))
         for i, tracename in enumerate(["V zmin", "V zmax"]):
@@ -198,9 +286,9 @@ def check(
                 xlabel="peak n",
                 ylabel=label,
                 savefig_path=savefig_path,
-                title=f"{tracename} {op} avg. and std.",
+                title=f"{tracename} {op} avg.-Neuron avg. and std.",
                 pplot=ax[1][i],
-                means_to_0=True,
+                mean_offset=neuron_results[j][i],
             )
             ax[1][i].set_title(
                 f"{'C' if i == 0 else 'D'}\n", loc="left", fontweight="bold"
