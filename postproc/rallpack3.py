@@ -13,6 +13,7 @@ from postproc.traceDB import TraceDB
 from postproc.utils import Utils
 
 import logging
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -26,7 +27,7 @@ def check(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
     )
 
-    npeaks = 17
+    npeaks = 100
     multi_t = 1000
     multi_y = 1000
     filter = []  # ["n_peaks", 17]

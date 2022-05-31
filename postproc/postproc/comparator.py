@@ -568,14 +568,20 @@ class Comparator:
         ff = Figure(*argv, **kwargs)
         ff.suffix = self._auto_pic_suffix(ff.suffix)
 
-        xx = [*range(len(reduce_ops))]
+        ndata = len(reduce_ops)
+        if type(mean_offset) is list:
+            ndata = min(ndata, len(mean_offset))
+
+        xx = [*range(ndata)]
         shift = 0.2 * numpy.array([*range(len(self.traceDBs))])
         shift -= shift.mean()
 
         common_prefix = Utils.common_prefix(reduce_ops)
         common_suffix = Utils.common_suffix(reduce_ops)
 
-        ticknames = [i[len(common_prefix) : -len(common_suffix)] for i in reduce_ops]
+        ticknames = [
+            i[len(common_prefix) : -len(common_suffix)] for i in reduce_ops[:ndata]
+        ]
         for idx, (db_name, db) in enumerate(self.traceDBs.items()):
             if trace_name not in db.traces:
                 continue
@@ -583,17 +589,20 @@ class Comparator:
             rt = db.traces[trace_name].refined_traces
 
             if type(mean_offset) is int or type(mean_offset) is float:
-                avgs = numpy.array([mean_offset] * len(reduce_ops))
+                avgs = numpy.array([mean_offset] * ndata)
             else:
                 avgs = numpy.array(
-                    [rt[op].mean() if op in rt else numpy.NaN for op in reduce_ops]
+                    [
+                        rt[op].mean() if op in rt else numpy.NaN
+                        for op in reduce_ops[:ndata]
+                    ]
                 )
 
                 if type(mean_offset) is list:
                     avgs -= numpy.array(mean_offset[: len(reduce_ops)])
 
             std = numpy.array(
-                [rt[op].std() if op in rt else numpy.NaN for op in reduce_ops]
+                [rt[op].std() if op in rt else numpy.NaN for op in reduce_ops[:ndata]]
             )
 
             ff.pplot.errorbar(
