@@ -347,64 +347,64 @@ def check(
     Figure.savefig(savefig_path=savefig_path, file_name="avg_std", fig=fig)
     fig.show()
 
-    """Chunked pvalues"""
-    nsections = 10
-    chunked_pvalues = {
-        "V zmin": {
-            **{f"['i_peak_y', {i}]": [] for i in range(npeaks_focus)},
-            **{f"['i_peak_t', {i}]": [] for i in range(npeaks_focus)},
-        },
-        "V zmax": {
-            **{f"['i_peak_y', {i}]": [] for i in range(npeaks_focus)},
-            **{f"['i_peak_t', {i}]": [] for i in range(npeaks_focus)},
-        },
-    }
-
-    # the ks tests are our new raw data
-    for tDBnames, ks_tests in comp.test_ks(filter=filter, nsections=nsections).items():
-        for t, d in ks_tests.items():
-            for k, v in d.items():
-                if t in chunked_pvalues:
-                    for k_slim in chunked_pvalues[t]:
-                        if k_slim in k:
-                            chunked_pvalues[t][k_slim] = [
-                                *chunked_pvalues[t][k_slim],
-                                *[pp.pvalue for pp in v],
-                            ]
-
-    chunked_pvalues_traces = [
-        Trace(k, "mV", reduce_ops=v) for k, v in chunked_pvalues.items()
-    ]
-
-    """Create a database"""
-    chunked_pvalues_traceDB = TraceDB(
-        "p values",
-        chunked_pvalues_traces,
-        clear_refined_traces_cache=False,
-        save_refined_traces_cache=False,
-    )
-    chunked_comp_pvalues = Comparator(traceDBs=[chunked_pvalues_traceDB])
-
-    fig, ax = plt.subplots(2, 2, figsize=(8, 6))
-    for j, op in enumerate(["peak_t", "peak_y"]):
-        for i, tracename in enumerate(["V zmin", "V zmax"]):
-            chunked_comp_pvalues.boxplot_refined_traces(
-                ylabel="p values",
-                DB_trace_reduce_ops=[
-                    ("p values", tracename, f"['i_{op}', {ip}]")
-                    for ip in range(npeaks_focus)
-                ],
-                savefig_path=savefig_path,
-                title=f"chunked p values {tracename} {op}",
-                pplot=ax[j][i],
-            )
-            ax[j][i].set_title(
-                f"{chr(ord('A')+2*j+i)}\n", loc="left", fontweight="bold"
-            )
-
-    fig.tight_layout()
-    Figure.savefig(savefig_path=savefig_path, file_name="chunked_boxplots", fig=fig)
-    fig.show()
+    # """Chunked pvalues"""
+    # nsections = 10
+    # chunked_pvalues = {
+    #     "V zmin": {
+    #         **{f"['i_peak_y', {i}]": [] for i in range(npeaks_focus)},
+    #         **{f"['i_peak_t', {i}]": [] for i in range(npeaks_focus)},
+    #     },
+    #     "V zmax": {
+    #         **{f"['i_peak_y', {i}]": [] for i in range(npeaks_focus)},
+    #         **{f"['i_peak_t', {i}]": [] for i in range(npeaks_focus)},
+    #     },
+    # }
+    #
+    # # the ks tests are our new raw data
+    # for tDBnames, ks_tests in comp.test_ks(filter=filter, nsections=nsections).items():
+    #     for t, d in ks_tests.items():
+    #         for k, v in d.items():
+    #             if t in chunked_pvalues:
+    #                 for k_slim in chunked_pvalues[t]:
+    #                     if k_slim in k:
+    #                         chunked_pvalues[t][k_slim] = [
+    #                             *chunked_pvalues[t][k_slim],
+    #                             *[pp.pvalue for pp in v],
+    #                         ]
+    #
+    # chunked_pvalues_traces = [
+    #     Trace(k, "mV", reduce_ops=v) for k, v in chunked_pvalues.items()
+    # ]
+    #
+    # """Create a database"""
+    # chunked_pvalues_traceDB = TraceDB(
+    #     "p values",
+    #     chunked_pvalues_traces,
+    #     clear_refined_traces_cache=False,
+    #     save_refined_traces_cache=False,
+    # )
+    # chunked_comp_pvalues = Comparator(traceDBs=[chunked_pvalues_traceDB])
+    #
+    # fig, ax = plt.subplots(2, 2, figsize=(8, 6))
+    # for j, op in enumerate(["peak_t", "peak_y"]):
+    #     for i, tracename in enumerate(["V zmin", "V zmax"]):
+    #         chunked_comp_pvalues.boxplot_refined_traces(
+    #             ylabel="p values",
+    #             DB_trace_reduce_ops=[
+    #                 ("p values", tracename, f"['i_{op}', {ip}]")
+    #                 for ip in range(npeaks_focus)
+    #             ],
+    #             savefig_path=savefig_path,
+    #             title=f"chunked p values {tracename} {op}",
+    #             pplot=ax[j][i],
+    #         )
+    #         ax[j][i].set_title(
+    #             f"{chr(ord('A')+2*j+i)}\n", loc="left", fontweight="bold"
+    #         )
+    #
+    # fig.tight_layout()
+    # Figure.savefig(savefig_path=savefig_path, file_name="chunked_boxplots", fig=fig)
+    # fig.show()
 
 
 def pvalues_reference(npvalues=100, mean=1, sigma=0.1, size=1000):
