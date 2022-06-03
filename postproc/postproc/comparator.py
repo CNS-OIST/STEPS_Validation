@@ -649,5 +649,6 @@ class Comparator:
 
         seaborn.boxplot(data=pd.DataFrame(df), ax=ff.pplot, color="skyblue")
         ff.set_ylabel("")
+        title = ff.set_title("boxplot")
 
         ff.finalize(with_legend=False)
