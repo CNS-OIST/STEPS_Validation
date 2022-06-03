@@ -22,8 +22,10 @@ def check(
     # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/testing_highChannelDensity_long",
     # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-05-24_highChannelDeinsity_longRun",
     # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-05-24_highChannelDeinsity_longRun",
-    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4",
-    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3",
+    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4",
+    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3",
+    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-06-03_highChannelDensity_smalldt",
+    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-06-03_highChannelDensity_smalldt",
 ):
     sample_names = Utils.autonaming_after_folders(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
