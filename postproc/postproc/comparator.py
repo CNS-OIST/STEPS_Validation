@@ -163,8 +163,8 @@ class Comparator:
                             elif test_type == "cvm":
                                 val = stats.cramervonmises_2samp(is0, ib0)
                             else:
-                                raise ComparatorError(
-                                    f"Unsupported goodness of fit test: {test_type}"
+                                raise ValueError(
+                                    f"Unknown goodness of fit test type: {test_type}"
                                 )
 
                             if type(out[trace_name][op]) is str:

@@ -37,7 +37,7 @@ def check(
     npeaks_focus = min(npeaks, 17)
     multi_t = 1000
     multi_y = 1000
-    goodness_of_fit_test_type = "cvm"
+    goodness_of_fit_test_type = "ks"
     filter = []  # ["n_peaks", 17]
     clear_all_caches = False  # True is used for debugging
     savefig_path = "rallpack3/pics"
@@ -295,7 +295,17 @@ def check(
     ]
 
     """Add pvalue reference and produce the boxplot"""
-    pvalues_traces.append(Trace("ref", "", reduce_ops={"": pvalues_reference()}))
+    pvalues_traces.append(
+        Trace(
+            "ref",
+            "",
+            reduce_ops={
+                "": pvalues_reference(
+                    goodness_of_fit_test_type=goodness_of_fit_test_type
+                )
+            },
+        )
+    )
     pvalues_traceDB = TraceDB(
         "p values",
         pvalues_traces,
@@ -356,67 +366,71 @@ def check(
     Figure.savefig(savefig_path=savefig_path, file_name="avg_std", fig=fig)
     fig.show()
 
-    # """Chunked pvalues"""
-    # nsections = 10
-    # chunked_pvalues = {
-    #     "V zmin": {
-    #         **{f"['i_peak_y', {i}]": [] for i in range(npeaks_focus)},
-    #         **{f"['i_peak_t', {i}]": [] for i in range(npeaks_focus)},
-    #     },
-    #     "V zmax": {
-    #         **{f"['i_peak_y', {i}]": [] for i in range(npeaks_focus)},
-    #         **{f"['i_peak_t', {i}]": [] for i in range(npeaks_focus)},
-    #     },
-    # }
-    #
-    # # the ks tests are our new raw data
-    # for tDBnames, ks_tests in comp.test_ks(filter=filter, nsections=nsections).items():
-    #     for t, d in ks_tests.items():
-    #         for k, v in d.items():
-    #             if t in chunked_pvalues:
-    #                 for k_slim in chunked_pvalues[t]:
-    #                     if k_slim in k:
-    #                         chunked_pvalues[t][k_slim] = [
-    #                             *chunked_pvalues[t][k_slim],
-    #                             *[pp.pvalue for pp in v],
-    #                         ]
-    #
-    # chunked_pvalues_traces = [
-    #     Trace(k, "mV", reduce_ops=v) for k, v in chunked_pvalues.items()
-    # ]
-    #
-    # """Create a database"""
-    # chunked_pvalues_traceDB = TraceDB(
-    #     "p values",
-    #     chunked_pvalues_traces,
-    #     clear_refined_traces_cache=False,
-    #     save_refined_traces_cache=False,
-    # )
-    # chunked_comp_pvalues = Comparator(traceDBs=[chunked_pvalues_traceDB])
-    #
-    # fig, ax = plt.subplots(2, 2, figsize=(8, 6))
-    # for j, op in enumerate(["peak_t", "peak_y"]):
-    #     for i, tracename in enumerate(["V zmin", "V zmax"]):
-    #         chunked_comp_pvalues.boxplot_refined_traces(
-    #             ylabel="p values",
-    #             DB_trace_reduce_ops=[
-    #                 ("p values", tracename, f"['i_{op}', {ip}]")
-    #                 for ip in range(npeaks_focus)
-    #             ],
-    #             savefig_path=savefig_path,
-    #             title=f"chunked p values {tracename} {op}",
-    #             pplot=ax[j][i],
-    #         )
-    #         ax[j][i].set_title(
-    #             f"{chr(ord('A')+2*j+i)}\n", loc="left", fontweight="bold"
-    #         )
-    #
-    # fig.tight_layout()
-    # Figure.savefig(savefig_path=savefig_path, file_name="chunked_boxplots", fig=fig)
-    # fig.show()
+    """Batched pvalues"""
+    nbatches = 10
+    batched_pvalues = {
+        "V zmin": {
+            **{f"['i_peak_y', {i}]": [] for i in range(npeaks_focus)},
+            **{f"['i_peak_t', {i}]": [] for i in range(npeaks_focus)},
+        },
+        "V zmax": {
+            **{f"['i_peak_y', {i}]": [] for i in range(npeaks_focus)},
+            **{f"['i_peak_t', {i}]": [] for i in range(npeaks_focus)},
+        },
+    }
+
+    # the ks tests are our new raw data
+    for tDBnames, ks_tests in comp.test_goodness_of_fit(
+        test_type=goodness_of_fit_test_type, filter=filter, nbatches=nbatches
+    ).items():
+        for t, d in ks_tests.items():
+            for k, v in d.items():
+                if t in batched_pvalues:
+                    for k_slim in batched_pvalues[t]:
+                        if k_slim in k:
+                            batched_pvalues[t][k_slim] = [
+                                *batched_pvalues[t][k_slim],
+                                *[pp.pvalue for pp in v],
+                            ]
+
+    batched_pvalues_traces = [
+        Trace(k, "mV", reduce_ops=v) for k, v in batched_pvalues.items()
+    ]
+
+    """Create a database"""
+    batched_pvalues_traceDB = TraceDB(
+        "p values",
+        batched_pvalues_traces,
+        clear_refined_traces_cache=False,
+        save_refined_traces_cache=False,
+    )
+    batched_comp_pvalues = Comparator(traceDBs=[batched_pvalues_traceDB])
+
+    fig, ax = plt.subplots(2, 2, figsize=(8, 6))
+    for j, op in enumerate(["peak_t", "peak_y"]):
+        for i, tracename in enumerate(["V zmin", "V zmax"]):
+            batched_comp_pvalues.boxplot_refined_traces(
+                ylabel="p values",
+                DB_trace_reduce_ops=[
+                    ("p values", tracename, f"['i_{op}', {ip}]")
+                    for ip in range(npeaks_focus)
+                ],
+                savefig_path=savefig_path,
+                title=f"batched p values {tracename} {op}",
+                pplot=ax[j][i],
+            )
+            ax[j][i].set_title(
+                f"{chr(ord('A')+2*j+i)}\n", loc="left", fontweight="bold"
+            )
+
+    fig.tight_layout()
+    Figure.savefig(savefig_path=savefig_path, file_name="batched_boxplots", fig=fig)
+    fig.show()
 
 
-def pvalues_reference(npvalues=100, mean=1, sigma=0.1, size=1000):
+def pvalues_reference(
+    goodness_of_fit_test_type, npvalues=100, mean=1, sigma=0.1, size=1000
+):
     """P values from comparing identical lognormal distributions
 
     Input:
@@ -429,7 +443,16 @@ def pvalues_reference(npvalues=100, mean=1, sigma=0.1, size=1000):
         Y = {}
         Y["Y1"] = np.random.lognormal(mean=mean, sigma=sigma, size=size)
         Y["Y2"] = np.random.lognormal(mean=mean, sigma=sigma, size=size)
-        pvalue = sp.stats.ks_2samp(Y["Y1"], Y["Y2"])[1]
+        if goodness_of_fit_test_type == "ks":
+            pvalue = sp.stats.ks_2samp(Y["Y1"], Y["Y2"]).pvalue
+        elif goodness_of_fit_test_type == "es":
+            pvalue = sp.stats.epps_singleton_2samp(Y["Y1"], Y["Y2"]).pvalue
+        elif goodness_of_fit_test_type == "cvm":
+            pvalue = sp.stats.cramervonmises_2samp(Y["Y1"], Y["Y2"]).pvalue
+        else:
+            raise ValueError(
+                f"Unknown goodness of fit test type: {goodness_of_fit_test_type}"
+            )
         pvalues.append(pvalue)
     return pvalues
 
