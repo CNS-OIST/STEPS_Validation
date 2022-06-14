@@ -26,6 +26,8 @@ def check(
     # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3",
     sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-06-03_highChannelDensity_smalldt",
     sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-06-03_highChannelDensity_smalldt",
+    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-05-13_highChannelDensity",
+    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-05-13_highChannelDensity",
 ):
     sample_names = Utils.autonaming_after_folders(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
@@ -35,6 +37,7 @@ def check(
     npeaks_focus = min(npeaks, 17)
     multi_t = 1000
     multi_y = 1000
+    goodness_of_fit_test_type = "cvm"
     filter = []  # ["n_peaks", 17]
     clear_all_caches = False  # True is used for debugging
     savefig_path = "rallpack3/pics"
@@ -133,8 +136,10 @@ def check(
         },
     }
     # the ks tests are our new raw data
-    for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
-        for t, d in ks_tests.items():
+    for tDBnames, tests in comp.test_goodness_of_fit(
+        test_type=goodness_of_fit_test_type, filter=filter
+    ).items():
+        for t, d in tests.items():
             for k, v in d.items():
                 if t in pvalues:
                     for k_slim in pvalues[t]:
@@ -160,9 +165,11 @@ def check(
     logging.info("Ks tests")
 
     """Perform the ks test"""
-    for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
+    for tDBnames, tests in comp.test_goodness_of_fit(
+        test_type=goodness_of_fit_test_type, filter=filter
+    ).items():
         print(tDBnames)
-        for t, d in sorted(ks_tests.items(), key=lambda t: Utils.natural_keys(t[0])):
+        for t, d in sorted(tests.items(), key=lambda t: Utils.natural_keys(t[0])):
             for k, v in sorted(d.items(), key=lambda k: Utils.natural_keys(k[0])):
                 print(t, k, v)
 

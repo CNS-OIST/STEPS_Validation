@@ -92,18 +92,24 @@ class Comparator:
             ]
             return "_vs_".join(tags)
 
-    def test_ks(self, *argv, **kwargs):
+    def test_goodness_of_fit(self, *argv, **kwargs):
         """combinatory wrapper"""
-        return self._combinatory_map(self._test_ks, *argv, **kwargs)
+        return self._combinatory_map(self._test_goodness_of_fit, *argv, **kwargs)
 
-    def _test_ks(self, benchmarkDB_name, sampleDB_name, filter=None, nbatches=1):
+    def _test_goodness_of_fit(
+        self, benchmarkDB_name, sampleDB_name, test_type, filter=None, nbatches=1
+    ):
         """Kolmogorov–Smirnov test
 
         Args:
             - benchmarkDB_name: first sample name
             - sampleDB_name: second sample name
+            - test type: the supported test types are:
+                - "ks": Kolmogorov-Smirnov test for goodness of fit
+                - "es": Epps-Singleton test for goodness of fit
+                - "cvm": Cramér-von Mises test for goodness of fit
             - filter: to remove data before computation
-            - nsections: if you want to batch the data in subgroups and compute the pvalues for all the possible
+            - nbatches: if you want to batch the data in subgroups and compute the pvalues for all the possible
             combinations. For example, if you have 100 runs for sample 1 and 100 for sample 2 and you divide with 10
             sections you will get 10*10 = 100 p_values
         """
@@ -138,10 +144,29 @@ class Comparator:
 
                 for ib0 in numpy.array_split(refined_trace_b, nbatches):
                     for is0 in numpy.array_split(refined_trace_s, nbatches):
-
                         if len(ib0) and len(is0):
-                            # val = stats.epps_singleton_2samp(is0, ib0) for testing
-                            val = stats.ks_2samp(is0, ib0)
+
+                            val = -1
+                            if test_type == "ks":
+                                val = stats.ks_2samp(is0, ib0)
+                            elif test_type == "es":
+                                try:
+                                    val = stats.epps_singleton_2samp(
+                                        is0.tolist(), ib0.tolist()
+                                    )  # for testing
+                                except numpy.linalg.LinAlgError:
+                                    logging.warning(
+                                        f"The goodness of fit test Epps-Singleton failed for {trace_name} {op}. Probably "
+                                        f"the "
+                                        f"SVD did not converge."
+                                    )
+                            elif test_type == "cvm":
+                                val = stats.cramervonmises_2samp(is0, ib0)
+                            else:
+                                raise ComparatorError(
+                                    f"Unsupported goodness of fit test: {test_type}"
+                                )
+
                             if type(out[trace_name][op]) is str:
                                 out[trace_name][op] = [val]
                             else:
