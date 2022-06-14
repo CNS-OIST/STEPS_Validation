@@ -96,14 +96,14 @@ class Comparator:
         """combinatory wrapper"""
         return self._combinatory_map(self._test_ks, *argv, **kwargs)
 
-    def _test_ks(self, benchmarkDB_name, sampleDB_name, filter=None, nsections=1):
+    def _test_ks(self, benchmarkDB_name, sampleDB_name, filter=None, nbatches=1):
         """Kolmogorov–Smirnov test
 
         Args:
             - benchmarkDB_name: first sample name
             - sampleDB_name: second sample name
             - filter: to remove data before computation
-            - nsections: if you want to chunk the data in subgroups and compute the pvalues for all the possible
+            - nsections: if you want to batch the data in subgroups and compute the pvalues for all the possible
             combinations. For example, if you have 100 runs for sample 1 and 100 for sample 2 and you divide with 10
             sections you will get 10*10 = 100 p_values
         """
@@ -136,10 +136,11 @@ class Comparator:
                 refined_trace_b = trace_b.filter_refined_trace(op, filter).explode()
                 refined_trace_s = trace_s.filter_refined_trace(op, filter).explode()
 
-                for ib0 in numpy.array_split(refined_trace_b, nsections):
-                    for is0 in numpy.array_split(refined_trace_s, nsections):
+                for ib0 in numpy.array_split(refined_trace_b, nbatches):
+                    for is0 in numpy.array_split(refined_trace_s, nbatches):
 
                         if len(ib0) and len(is0):
+                            # val = stats.epps_singleton_2samp(is0, ib0) for testing
                             val = stats.ks_2samp(is0, ib0)
                             if type(out[trace_name][op]) is str:
                                 out[trace_name][op] = [val]
