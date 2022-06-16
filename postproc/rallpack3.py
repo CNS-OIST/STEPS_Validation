@@ -24,10 +24,12 @@ def check(
     # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-05-24_highChannelDeinsity_longRun",
     # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4",
     # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3",
-    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-06-03_highChannelDensity_smalldt",
-    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-06-03_highChannelDensity_smalldt",
+    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-06-03_highChannelDensity_smalldt",
+    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-06-03_highChannelDensity_smalldt",
     # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-05-13_highChannelDensity",
     # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-05-13_highChannelDensity",
+    sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-06-16_highChannelDensity2",
+    sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-06-16_highChannelDensity2",
 ):
     sample_names = Utils.autonaming_after_folders(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
@@ -37,10 +39,11 @@ def check(
     npeaks_focus = min(npeaks, 17)
     multi_t = 1000
     multi_y = 1000
-    goodness_of_fit_test_type = "ks"
+    goodness_of_fit_test_type = "cvm"  # possibilities: ks, es, cvm
     filter = []  # ["n_peaks", 17]
     clear_all_caches = False  # True is used for debugging
     savefig_path = "rallpack3/pics"
+    notitle = True
 
     # ##########################################
 
@@ -180,192 +183,192 @@ def check(
     bindwidth_t = 0.001 * multi_t
     bindwidth_Hz = 0.1
 
-    ### this works only if we use standard units: s, V
-    fig, ax = plt.subplots(2, 2, figsize=(8, 6))
-    for i, tracename in enumerate(["V zmin", "V zmax"]):
-        comp.distplot(
-            tracename,
-            f"['freq', {1/multi_y}, {1/multi_t}]",
-            binwidth=bindwidth_Hz,
-            savefig_path=savefig_path,
-            xlabel="Hz",
-            filter=filter,
-            pplot=ax[0][i],
-            title="freq",
-        )
-        ax[0][i].set_title(f"{'A' if i == 0 else 'B'}\n", loc="left", fontweight="bold")
-        comp.distplot(
-            tracename,
-            f"n_peaks",
-            binwidth=1,
-            # binrange=[npeaks-2.5, npeaks+2.5],
-            savefig_path=savefig_path,
-            filter=filter,
-            xlabel="n peaks",
-            pplot=ax[1][i],
-        )
-        ax[1][i].set_title(f"{'C' if i == 0 else 'D'}\n", loc="left", fontweight="bold")
-    fig.tight_layout()
-    Figure.savefig(savefig_path=savefig_path, file_name="npeaks_and_freq", fig=fig)
-    fig.show()
-
-    neuron_results = [
-        [
-            [
-                1.62,
-                16.3,
-                30.83,
-                45.355,
-                59.875,
-                74.395,
-                88.915,
-                103.435,
-                117.96,
-                132.48,
-                147,
-                161.52,
-                176.04,
-                190.565,
-                205.085,
-                219.605,
-                234.125,
-                248.645,
-            ],
-            [
-                4.29,
-                18.895,
-                33.43,
-                47.955,
-                62.475,
-                76.995,
-                91.515,
-                106.035,
-                120.56,
-                135.08,
-                149.6,
-                164.12,
-                178.64,
-                193.165,
-                207.685,
-                222.205,
-                236.725,
-            ],
-        ],
-        [
-            [
-                41.4922,
-                23.2034,
-                22.4812,
-                22.427,
-                22.424,
-                22.4241,
-                22.4241,
-                22.4236,
-                22.423,
-                22.4238,
-                22.4241,
-                22.424,
-                22.4236,
-                22.423,
-                22.4238,
-                22.4241,
-                22.424,
-                22.4236,
-            ],
-            [
-                44.5447,
-                46.2315,
-                46.1529,
-                46.1471,
-                46.1474,
-                46.1474,
-                46.147,
-                46.1463,
-                46.1469,
-                46.1473,
-                46.1474,
-                46.147,
-                46.1462,
-                46.1469,
-                46.1473,
-                46.1474,
-                46.147,
-            ],
-        ],
-    ]
-
-    """Add pvalue reference and produce the boxplot"""
-    pvalues_traces.append(
-        Trace(
-            "ref",
-            "",
-            reduce_ops={
-                "": pvalues_reference(
-                    goodness_of_fit_test_type=goodness_of_fit_test_type
-                )
-            },
-        )
-    )
-    pvalues_traceDB = TraceDB(
-        "p values",
-        pvalues_traces,
-        clear_refined_traces_cache=True,
-        save_refined_traces_cache=False,
-    )
-    comp_pvalues = Comparator(traceDBs=[pvalues_traceDB])
-    comp_pvalues.boxplot_refined_traces(
-        ylabel="p values",
-        savefig_path=savefig_path,
-        title="boxplot p values",
-    )
-
-    fig, ax = plt.subplots(2, 2, figsize=(8, 6))
-    for j, op_tuple in enumerate(
-        [("peaks_t", "ms", bindwidth_t), ("peaks_y", "mV", bindwidth_y)]
-    ):
-        op, label, binwidth = op_tuple
-        for i, tracename in enumerate(["V zmin", "V zmax"]):
-            comp.distplot(
-                tracename,
-                op,
-                binwidth=binwidth,
-                filter=filter,
-                xlabel=label,
-                pplot=ax[j][i],
-                xlim=[0, 250] if op == "peaks_t" else None,
-            )
-            ax[j][i].set_title(
-                f"{chr(ord('A')+2*j+i)}\n", loc="left", fontweight="bold"
-            )
-
-    fig.tight_layout()
-    Figure.savefig(savefig_path=savefig_path, file_name="distributions", fig=fig)
-    fig.show()
-
-    fig, ax = plt.subplots(2, 2, figsize=(8, 6))
-    for j, op_tuple in enumerate(
-        [("peaks_t", "ms", bindwidth_t), ("peaks_y", "mV", bindwidth_y)]
-    ):
-        op, label, binwidth = op_tuple
-        for i, tracename in enumerate(["V zmin", "V zmax"]):
-
-            comp.avgplot_refined_traces(
-                tracename,
-                [f"['i_{op.replace('s', '')}', {q}]" for q in range(npeaks)],
-                xlabel="peak n",
-                ylabel=label,
-                savefig_path=savefig_path,
-                title=f"({tracename} {op} - NEURON sol.) avg. and std.",
-                pplot=ax[j][i],
-                mean_offset=neuron_results[j][i],
-            )
-            ax[1][i].set_title(
-                f"{chr(ord('A')+2*j+i)}\n", loc="left", fontweight="bold"
-            )
-    fig.tight_layout()
-    Figure.savefig(savefig_path=savefig_path, file_name="avg_std", fig=fig)
-    fig.show()
-
+    # ### this works only if we use standard units: s, V
+    # fig, ax = plt.subplots(2, 2, figsize=(8, 6))
+    # for i, tracename in enumerate(["V zmin", "V zmax"]):
+    #     comp.distplot(
+    #         tracename,
+    #         f"['freq', {1/multi_y}, {1/multi_t}]",
+    #         binwidth=bindwidth_Hz,
+    #         savefig_path=savefig_path,
+    #         xlabel="Hz",
+    #         filter=filter,
+    #         pplot=ax[0][i],
+    #         title="freq",
+    #     )
+    #     ax[0][i].set_title(f"{'A' if i == 0 else 'B'}\n", loc="left", fontweight="bold")
+    #     comp.distplot(
+    #         tracename,
+    #         f"n_peaks",
+    #         binwidth=1,
+    #         # binrange=[npeaks-2.5, npeaks+2.5],
+    #         savefig_path=savefig_path,
+    #         filter=filter,
+    #         xlabel="n peaks",
+    #         pplot=ax[1][i],
+    #     )
+    #     ax[1][i].set_title(f"{'C' if i == 0 else 'D'}\n", loc="left", fontweight="bold")
+    # fig.tight_layout()
+    # Figure.savefig(savefig_path=savefig_path, file_name="npeaks_and_freq", fig=fig)
+    # fig.show()
+    #
+    # neuron_results = [
+    #     [
+    #         [
+    #             1.62,
+    #             16.3,
+    #             30.83,
+    #             45.355,
+    #             59.875,
+    #             74.395,
+    #             88.915,
+    #             103.435,
+    #             117.96,
+    #             132.48,
+    #             147,
+    #             161.52,
+    #             176.04,
+    #             190.565,
+    #             205.085,
+    #             219.605,
+    #             234.125,
+    #             248.645,
+    #         ],
+    #         [
+    #             4.29,
+    #             18.895,
+    #             33.43,
+    #             47.955,
+    #             62.475,
+    #             76.995,
+    #             91.515,
+    #             106.035,
+    #             120.56,
+    #             135.08,
+    #             149.6,
+    #             164.12,
+    #             178.64,
+    #             193.165,
+    #             207.685,
+    #             222.205,
+    #             236.725,
+    #         ],
+    #     ],
+    #     [
+    #         [
+    #             41.4922,
+    #             23.2034,
+    #             22.4812,
+    #             22.427,
+    #             22.424,
+    #             22.4241,
+    #             22.4241,
+    #             22.4236,
+    #             22.423,
+    #             22.4238,
+    #             22.4241,
+    #             22.424,
+    #             22.4236,
+    #             22.423,
+    #             22.4238,
+    #             22.4241,
+    #             22.424,
+    #             22.4236,
+    #         ],
+    #         [
+    #             44.5447,
+    #             46.2315,
+    #             46.1529,
+    #             46.1471,
+    #             46.1474,
+    #             46.1474,
+    #             46.147,
+    #             46.1463,
+    #             46.1469,
+    #             46.1473,
+    #             46.1474,
+    #             46.147,
+    #             46.1462,
+    #             46.1469,
+    #             46.1473,
+    #             46.1474,
+    #             46.147,
+    #         ],
+    #     ],
+    # ]
+    #
+    # """Add pvalue reference and produce the boxplot"""
+    # pvalues_traces.append(
+    #     Trace(
+    #         "ref",
+    #         "",
+    #         reduce_ops={
+    #             "": pvalues_reference(
+    #                 goodness_of_fit_test_type=goodness_of_fit_test_type
+    #             )
+    #         },
+    #     )
+    # )
+    # pvalues_traceDB = TraceDB(
+    #     "p values",
+    #     pvalues_traces,
+    #     clear_refined_traces_cache=True,
+    #     save_refined_traces_cache=False,
+    # )
+    # comp_pvalues = Comparator(traceDBs=[pvalues_traceDB])
+    # comp_pvalues.boxplot_refined_traces(
+    #     ylabel="p values",
+    #     savefig_path=savefig_path,
+    #     title="boxplot p values",
+    # )
+    #
+    # fig, ax = plt.subplots(2, 2, figsize=(8, 6))
+    # for j, op_tuple in enumerate(
+    #     [("peaks_t", "ms", bindwidth_t), ("peaks_y", "mV", bindwidth_y)]
+    # ):
+    #     op, label, binwidth = op_tuple
+    #     for i, tracename in enumerate(["V zmin", "V zmax"]):
+    #         comp.distplot(
+    #             tracename,
+    #             op,
+    #             binwidth=binwidth,
+    #             filter=filter,
+    #             xlabel=label,
+    #             pplot=ax[j][i],
+    #             xlim=[0, 250] if op == "peaks_t" else None,
+    #         )
+    #         ax[j][i].set_title(
+    #             f"{chr(ord('A')+2*j+i)}\n", loc="left", fontweight="bold"
+    #         )
+    #
+    # fig.tight_layout()
+    # Figure.savefig(savefig_path=savefig_path, file_name="distributions", fig=fig)
+    # fig.show()
+    #
+    # fig, ax = plt.subplots(2, 2, figsize=(8, 6))
+    # for j, op_tuple in enumerate(
+    #     [("peaks_t", "ms", bindwidth_t), ("peaks_y", "mV", bindwidth_y)]
+    # ):
+    #     op, label, binwidth = op_tuple
+    #     for i, tracename in enumerate(["V zmin", "V zmax"]):
+    #
+    #         comp.avgplot_refined_traces(
+    #             tracename,
+    #             [f"['i_{op.replace('s', '')}', {q}]" for q in range(npeaks)],
+    #             xlabel="peak n",
+    #             ylabel=label,
+    #             savefig_path=savefig_path,
+    #             title=f"({tracename} {op} - NEURON sol.) avg. and std.",
+    #             pplot=ax[j][i],
+    #             mean_offset=neuron_results[j][i],
+    #         )
+    #         ax[1][i].set_title(
+    #             f"{chr(ord('A')+2*j+i)}\n", loc="left", fontweight="bold"
+    #         )
+    # fig.tight_layout()
+    # Figure.savefig(savefig_path=savefig_path, file_name="avg_std", fig=fig)
+    # fig.show()
+    #
     """Batched pvalues"""
     nbatches = 10
     batched_pvalues = {
@@ -410,17 +413,19 @@ def check(
     for j, op in enumerate(["peak_t", "peak_y"]):
         for i, tracename in enumerate(["V zmin", "V zmax"]):
             batched_comp_pvalues.boxplot_refined_traces(
+                xlabel="peak n",
                 ylabel="p values",
                 DB_trace_reduce_ops=[
                     ("p values", tracename, f"['i_{op}', {ip}]")
                     for ip in range(npeaks_focus)
                 ],
                 savefig_path=savefig_path,
-                title=f"batched p values {tracename} {op}",
+                title=None if notitle else f"batched p values {tracename} {op}",
                 pplot=ax[j][i],
             )
+            spacefortitle = "" if notitle else "\n"
             ax[j][i].set_title(
-                f"{chr(ord('A')+2*j+i)}\n", loc="left", fontweight="bold"
+                f"{chr(ord('A')+2*j+i)}{spacefortitle}", loc="left", fontweight="bold"
             )
 
     fig.tight_layout()

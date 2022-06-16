@@ -286,3 +286,27 @@ class Utils:
     def common_suffix(v):
         """Return common suffix for a list of strings"""
         return Utils.common_prefix([i[::-1] for i in v])[::-1]
+
+    @staticmethod
+    def pretty_print_combinations(comb):
+        if len(comb) == 0:
+            return []
+
+        p = zip(*comb)
+
+        ans = [""] * len(comb)
+        for i in p:
+            cp = Utils.common_prefix(i)
+            cs = Utils.common_suffix(i)
+
+            if len(cp) == len(i[0]):
+                continue
+
+            ans = [
+                token[len(cp) : len(token) - len(cs)]
+                if not ans[idx]
+                else ans[idx] + "\n" + token[len(cp) : len(token) - len(cs)]
+                for idx, token in enumerate(i)
+            ]
+
+        return ans

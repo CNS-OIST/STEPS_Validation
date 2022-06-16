@@ -57,24 +57,6 @@ class Comparator:
 
         return out
 
-    @staticmethod
-    def _pretty_print_DB_trace_ops_combinations(comb):
-        """Pretty print summary for plotting all the possibilities expressed in comb"""
-        if len(comb) == 0:
-            return []
-
-        nsteps = len(comb[0])
-
-        out = [""] * len(comb)
-        for j in range(nsteps):
-            if len(set([i[j] for i in comb])) > 1:
-                out = [
-                    comb[idx][j] if not i else i + "\n" + comb[idx][j]
-                    for idx, i in enumerate(out)
-                ]
-
-        return out
-
     def _auto_pic_suffix(self, suffix):
         """Suggest prefix for picture"""
         if len(self.traceDBs) == 0 or suffix is not None:
@@ -657,9 +639,7 @@ class Comparator:
         if DB_trace_reduce_ops is None:
             DB_trace_reduce_ops = self._DB_trace_ops_combinations()
 
-        ticknames = Comparator._pretty_print_DB_trace_ops_combinations(
-            DB_trace_reduce_ops
-        )
+        ticknames = Utils.pretty_print_combinations(DB_trace_reduce_ops)
 
         df = {}
         for idx, (db_name, trace_name, op) in enumerate(DB_trace_reduce_ops):
@@ -675,6 +655,8 @@ class Comparator:
 
         seaborn.boxplot(data=pd.DataFrame(df), ax=ff.pplot, color="skyblue")
         ff.set_ylabel("")
-        title = ff.set_title("boxplot")
+        ff.set_xlabel("")
+
+        title = ff.set_title("")
 
         ff.finalize(with_legend=False)
