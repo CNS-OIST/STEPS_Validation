@@ -246,7 +246,15 @@ class Trace:
             self.refined_traces.loc[len(self.refined_traces)] = pandas.Series(row)
 
     def plot(
-        self, time_trace, trace_files=[], title_prefix="", legend=False, *argv, **kwargs
+        self,
+        time_trace,
+        trace_files=[],
+        title_prefix="",
+        with_legend=False,
+        finalize=True,
+        fmt="",
+        *argv,
+        **kwargs,
     ):
         """Plot all raw_traces"""
 
@@ -261,18 +269,19 @@ class Trace:
         if len(trace_files) == 1:
             title += " " + os.path.basename(trace_files[0])
 
-        print(title)
-
         for file in trace_files:
             trace = self.raw_traces[file]
+
             t = time_trace.raw_traces[file]
-            ff.pplot.plot(t, trace, label=f"trace {self.short_name(file)}")
+
+            ff.pplot.plot(t, trace, fmt, label=f"{self.short_name(file)}")
 
         ff.set_title(title)
         ff.set_xlabel(time_trace.unit)
         ff.set_ylabel(self.unit)
 
-        ff.finalize(with_legend=legend)
+        if finalize:
+            ff.finalize(with_legend=with_legend)
 
     def distplot(self, op, *argv, **kwargs):
         """ Plot refined traces in a histogram """

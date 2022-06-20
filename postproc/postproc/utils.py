@@ -205,6 +205,7 @@ class Utils:
 
         We interpolate the longer on the shorter. If the simulation times do not overlap we throw an error.
         """
+
         start = max(x0[0], x1[0])
         stop = min(x0[-1], x1[-1])
         npoints = max(len(x0), len(x1))
@@ -229,7 +230,7 @@ class Utils:
         sample = numpy.array(sample)
         benchmark_time_trace = numpy.array(benchmark_time_trace)
         benchmark = numpy.array(benchmark)
-        [interp_sample, interp_benchmark, iterp_time] = Utils._format_traces(
+        [interp_sample, interp_benchmark, interp_time] = Utils._format_traces(
             sample_time_trace, sample, benchmark_time_trace, benchmark
         )
 
@@ -239,7 +240,7 @@ class Utils:
         if percent:
             diff /= numpy.maximum(abs(interp_benchmark), abs(interp_sample))
 
-        return numpy.square(diff).mean(), iterp_time, diff
+        return numpy.square(diff).mean(), interp_time, diff
 
     @staticmethod
     def conf_int(a, confidence=0.95):
@@ -292,7 +293,7 @@ class Utils:
         if len(comb) == 0:
             return []
 
-        p = zip(*comb)
+        p = zip(*comb) if type(comb[0]) == tuple else [comb]
 
         ans = [""] * len(comb)
         for i in p:

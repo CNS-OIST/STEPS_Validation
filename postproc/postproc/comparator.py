@@ -26,8 +26,9 @@ class Comparator:
     def __init__(self, traceDBs):
         # swich to a dict in case we get a list
         self.traceDBs = {v.name: v for v in traceDBs}
+
         if len(self.traceDBs) != len(traceDBs):
-            raise ComparatorError("Different traces have the same name!")
+            raise ComparatorError("Different trace DBs have the same name!")
 
     def _combinatory_map(self, fff, *argv, **kwargs):
         """Apply the function func to all the possible pair combinations in self.traceDBs
@@ -41,6 +42,7 @@ class Comparator:
         traceDB_names = list(self.traceDBs.keys())
         for idx_b, benchmarkDB_name in enumerate(traceDB_names):
             for sampleDB_name in traceDB_names[idx_b + 1 :]:
+
                 out[f"{benchmarkDB_name}_vs_{sampleDB_name}"] = fff(
                     benchmarkDB_name, sampleDB_name, *argv, **kwargs
                 )
@@ -295,6 +297,7 @@ class Comparator:
         time_trace_name_b=None,
         time_trace_name_s=None,
         isdiff=True,
+        with_legend=True,
         *argv,
         **kwargs,
     ):
@@ -325,12 +328,10 @@ class Comparator:
         if not time_trace_name_s:
             time_trace_name_s = time_trace_name_b
 
-        raw_trace_name_b = list(benchmark.traces[trace_name_b].raw_traces.keys())[
-            raw_trace_idx_b
-        ]
-        raw_trace_name_s = list(sample.traces[trace_name_s].raw_traces.keys())[
-            raw_trace_idx_s
-        ]
+        raw_trace_names_b = list(benchmark.traces[trace_name_b].raw_traces.keys())
+        raw_trace_name_b = raw_trace_names_b[raw_trace_idx_b]
+        raw_trace_names_s = list(sample.traces[trace_name_s].raw_traces.keys())
+        raw_trace_name_s = raw_trace_names_s[raw_trace_idx_s]
 
         time_trace_b = (
             benchmark.get_time_trace()
@@ -355,24 +356,26 @@ class Comparator:
             if time_trace_name_s:
                 print(time_trace_s.__str__(raw_trace_idx_s))
 
-        short_name_b = trace_b.short_name(raw_trace_name_b)
+        short_raw_trace_names_b = Utils.pretty_print_combinations(raw_trace_names_b)
+        short_name_b = short_raw_trace_names_b[raw_trace_idx_b]
         if short_name_b:
             short_name_b = "_" + short_name_b
-        short_name_s = trace_s.short_name(raw_trace_name_s)
+        short_raw_trace_names_s = Utils.pretty_print_combinations(raw_trace_names_s)
+        short_name_s = short_raw_trace_names_s[raw_trace_idx_s]
         if short_name_s:
             short_name_s = "_" + short_name_s
 
         ff.pplot.plot(
             time_trace_b.raw_traces[raw_trace_name_b],
             trace_b.raw_traces[raw_trace_name_b],
-            label=f"{benchmarkDB_name}{short_name_b}",
+            label=f"{benchmarkDB_name}",
         )
 
         ff.pplot.plot(
             time_trace_s.raw_traces[raw_trace_name_s],
             trace_s.raw_traces[raw_trace_name_s],
             "--",
-            label=f"{sampleDB_name} {short_name_s}",
+            label=f"{sampleDB_name}",
         )
         if not time_trace_name_s and not time_trace_name_b and isdiff:
             _, interp_time, interp_diff = Utils.mse(
@@ -392,7 +395,7 @@ class Comparator:
         xlabel = ff.set_xlabel(time_trace_b.unit)
         ylabel = ff.set_ylabel(trace_b.unit)
 
-        ff.finalize()
+        ff.finalize(with_legend)
 
     def diffplot(self, *argv, **kwargs):
         """combinatory wrapper"""

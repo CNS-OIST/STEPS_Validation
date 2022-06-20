@@ -1,8 +1,11 @@
 import logging
 import os
 import shutil
+from itertools import cycle
 
 import pandas
+
+from .figure import Figure
 
 
 class TraceDBError(Exception):
@@ -239,8 +242,11 @@ class TraceDB:
         trace_names=[],
         trace_files=[],
         savefig_path=None,
-        legend=False,
+        with_legend=False,
         suffix="",
+        pplot=None,
+        finalize=True,
+        fmt=0,
         *argv,
         **kwargs,
     ):
@@ -261,7 +267,12 @@ class TraceDB:
 
         if not trace_names:
             trace_names = list(self.traces.keys())
-            print(trace_names)
+
+        ff = Figure(pplot=pplot, *argv, **kwargs)
+
+        linestyle = cycle(["-", "--", "-.", ":"])
+        for i in range(fmt % 4):
+            next(linestyle)
 
         for trace_name in trace_names:
             trace = self.traces[trace_name]
@@ -273,8 +284,17 @@ class TraceDB:
                 time_trace=time_trace,
                 savefig_path=savefig_path,
                 title_prefix=self.name,
-                legend=legend,
+                with_legend=with_legend,
                 suffix=suffix,
+                finalize=False,
+                fmt=next(linestyle),
+                pplot=ff.pplot,
                 *argv,
                 **kwargs,
             )
+            fmt += 1
+
+        if finalize:
+            ff.finalize(with_legend=with_legend)
+
+        return fmt
