@@ -4,9 +4,8 @@ import sys
 import matplotlib.pyplot as plt
 
 from postproc.comparator import Comparator
-from postproc.figure import Figure
-from postproc.traceDB import TraceDB
 from postproc.trace import Trace
+from postproc.traceDB import TraceDB
 from postproc.utils import Utils
 
 logging.basicConfig(level=logging.WARNING)
@@ -17,6 +16,91 @@ def check(
     sample_1_raw_traces_folder="caburst/raw_traces/STEPS3",
     savefig_path="caburst/pics",
 ):
+    filter = []
+    goodness_of_fit_test_type = "ks"
+    with_title = False
+
+    sample_names, sample_0_DB, sample_1_DB = create_base_DBs(
+        sample_0_raw_traces_folder,
+        sample_1_raw_traces_folder,
+    )
+
+    """Create the comparator for advanced studies"""
+    comp = Comparator(traceDBs=[sample_1_DB, sample_0_DB])
+
+    Utils.pretty_print_goodness_of_fit(comp, goodness_of_fit_test_type, filter)
+
+    """Plots"""
+
+    # plot_avg_and_std(comp, savefig_path, with_title)
+
+    fig, axtot = plt.subplots(3, 2, figsize=(9, 10))
+    for i, membrane in enumerate(["smooth", "spiny"]):
+        for j, op in enumerate(["min", "max"]):
+            ax = axtot[i][j]
+            comp.avgplot_raw_traces(
+                trace_name=f"{membrane} {op} V",
+                std=False,
+                ax=ax,
+            )
+            ax.set_xlabel("ms")
+            ax.set_ylabel("mV")
+            Utils.set_subplot_title(
+                i,
+                j,
+                2,
+                ax,
+                f"avg. and conf. int. {membrane}, {op}" if with_title else None,
+            )
+            ax.legend(["avg. and conf. int. STEPS3", "avg. and conf. int. STEPS4"])
+
+    ax = axtot[2][0]
+    comp.avgplot_raw_traces(
+        trace_name=f"spiny min V",
+        std=False,
+        ax=ax,
+        conf_int_fill_between_kwargs={"alpha": 0.3},
+    )
+    ax.set_xlabel("ms")
+    ax.set_ylabel("mV")
+    ax.set_xlim([35, 37])
+    ax.set_ylim([-39, -41])
+    Utils.set_subplot_title(2, 0, 2, ax, f"Focus of panel C" if with_title else None)
+    ax.legend(["avg. and conf. int. STEPS3", "avg. and conf. int. STEPS4"])
+
+    fig.delaxes(axtot[2][1])
+    fig.tight_layout()
+    Utils.savefig(path=savefig_path, name="avg_and_conf_int", fig=fig)
+    fig.show()
+
+
+def plot_avg_and_std(comp, savefig_path, with_title):
+    fig, axtot = plt.subplots(2, 2)
+    for i, membrane in enumerate(["smooth", "spiny"]):
+        for j, op in enumerate(["max", "min"]):
+            ax = axtot[i][j]
+            comp.avgplot_raw_traces(
+                trace_name=f"{membrane} {op} V",
+                conf_lvl=0,
+                ax=ax,
+                std_fill_between_kwargs={"alpha": 0.5},
+            )
+            ax.set_xlabel("ms")
+            ax.set_ylabel("mV")
+            Utils.set_subplot_title(
+                i, j, 2, ax, f"avg. and std. {membrane}, {op}" if with_title else None
+            )
+            ax.legend(["avg. and std. STEPS3", "avg. and std. STEPS4"])
+    fig.tight_layout()
+    Utils.savefig(path=savefig_path, name="avg_and_std", fig=fig)
+    fig.show()
+
+
+def create_base_DBs(
+    sample_0_raw_traces_folder,
+    sample_1_raw_traces_folder,
+):
+
     sample_names = Utils.autonaming_after_folders(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
     )
@@ -50,8 +134,9 @@ def check(
         sample_names[1],
         traces_sample_1,
         sample_1_raw_traces_folder,
-        clear_raw_traces_cache=False,
-        clear_refined_traces_cache=False,
+        clear_refined_traces_cache=True,
+        save_refined_traces_cache=True,
+        keep_raw_traces=True,
     )
 
     """Create the sample traces"""
@@ -83,74 +168,12 @@ def check(
         sample_names[0],
         traces_sample_0,
         sample_0_raw_traces_folder,
-        clear_raw_traces_cache=True,
         clear_refined_traces_cache=True,
+        save_refined_traces_cache=True,
+        keep_raw_traces=True,
     )
 
-    """Create the comparator for advanced studies"""
-    comp = Comparator(traceDBs=[sample_1_DB, sample_0_DB])
-
-    """Perform the ks test"""
-    filter = []
-    for tDBnames, ks_tests in comp.test_ks(filter=filter).items():
-        print(tDBnames)
-        for t, d in sorted(ks_tests.items(), key=lambda t: Utils.natural_keys(t[0])):
-            for k, v in sorted(d.items(), key=lambda k: Utils.natural_keys(k[0])):
-                print(t, k, v)
-
-    """Plots"""
-
-    fig, ax = plt.subplots(2, 2)
-    subplot_label = "A"
-    for i, membrane in enumerate(["smooth", "spiny"]):
-        for j, op in enumerate(["max", "min"]):
-            comp.avgplot_raw_traces(
-                trace_name=f"{membrane} {op} V",
-                conf_lvl=0,
-                savefig_path="caburst/pics",
-                suffix="",
-                pplot=ax[i][j],
-                legendfontsize=5,
-            )
-            ax[i][j].set_title(subplot_label + "\n", loc="left", fontweight="bold")
-            subplot_label = chr(ord(subplot_label) + 1)
-    fig.tight_layout()
-    Figure.savefig(savefig_path=savefig_path, file_name="avg_and_std", fig=fig)
-    fig.show()
-
-    fig, ax = plt.subplots(3, 2, figsize=(9, 10))
-    subplot_label = "A"
-    legendfontsize = 8
-    for i, membrane in enumerate(["smooth", "spiny"]):
-        for j, op in enumerate(["min", "max"]):
-            comp.avgplot_raw_traces(
-                trace_name=f"{membrane} {op} V",
-                std=False,
-                savefig_path="caburst/pics",
-                suffix="",
-                pplot=ax[i][j],
-                legendfontsize=legendfontsize,
-            )
-            ax[i][j].set_title(subplot_label + "\n", loc="left", fontweight="bold")
-            subplot_label = chr(ord(subplot_label) + 1)
-
-    comp.avgplot_raw_traces(
-        trace_name=f"spiny min V",
-        std=False,
-        savefig_path="caburst/pics",
-        suffix="",
-        title=r"Focus of panel C",
-        pplot=ax[2][0],
-        legendfontsize=legendfontsize,
-        xlim=[35, 37],
-        ylim=[-39, -41],
-    )
-    ax[2][0].set_title(subplot_label + "\n", loc="left", fontweight="bold")
-    fig.delaxes(ax[2][1])
-    subplot_label = chr(ord(subplot_label) + 1)
-    fig.tight_layout()
-    Figure.savefig(savefig_path=savefig_path, file_name="avg_and_conf_int", fig=fig)
-    fig.show()
+    return sample_names, sample_0_DB, sample_1_DB
 
 
 if __name__ == "__main__":

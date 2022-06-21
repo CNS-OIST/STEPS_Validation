@@ -1,14 +1,14 @@
 import logging
 import os
-import re
+from itertools import cycle
 
+import matplotlib.pyplot as plt
 import numpy
 import pandas
 import pandas as pd
 import seaborn
 from scipy import stats
 
-from .figure import Figure
 from .utils import Utils
 
 
@@ -297,7 +297,7 @@ class Comparator:
         time_trace_name_b=None,
         time_trace_name_s=None,
         isdiff=True,
-        with_legend=True,
+        ax=plt,
         *argv,
         **kwargs,
     ):
@@ -315,8 +315,6 @@ class Comparator:
               - time_trace_name_b (str, optional): name of the time trace of the benchmark
               - time_trace_name_s (str, optional): name of the time trace of the sample
         """
-        ff = Figure(*argv, **kwargs)
-        ff.suffix = self._auto_pic_suffix(ff.suffix)
 
         benchmark, sample = (
             self.traceDBs[benchmarkDB_name],
@@ -346,15 +344,6 @@ class Comparator:
 
         trace_b = benchmark.traces[trace_name_b]
         trace_s = sample.traces[trace_name_s]
-        if ff.interactive:
-            print(f"{benchmarkDB_name}:")
-            print(trace_b.__str__(raw_trace_idx_b))
-            if time_trace_name_b:
-                print(time_trace_b.__str__(raw_trace_idx_b))
-            print(f"{sampleDB_name}:")
-            print(trace_s.__str__(raw_trace_idx_s))
-            if time_trace_name_s:
-                print(time_trace_s.__str__(raw_trace_idx_s))
 
         short_raw_trace_names_b = Utils.pretty_print_combinations(raw_trace_names_b)
         short_name_b = short_raw_trace_names_b[raw_trace_idx_b]
@@ -365,17 +354,21 @@ class Comparator:
         if short_name_s:
             short_name_s = "_" + short_name_s
 
-        ff.pplot.plot(
+        ax.plot(
             time_trace_b.raw_traces[raw_trace_name_b],
             trace_b.raw_traces[raw_trace_name_b],
             label=f"{benchmarkDB_name}",
+            *argv,
+            **kwargs,
         )
 
-        ff.pplot.plot(
+        ax.plot(
             time_trace_s.raw_traces[raw_trace_name_s],
             trace_s.raw_traces[raw_trace_name_s],
             "--",
             label=f"{sampleDB_name}",
+            *argv,
+            **kwargs,
         )
         if not time_trace_name_s and not time_trace_name_b and isdiff:
             _, interp_time, interp_diff = Utils.mse(
@@ -384,18 +377,7 @@ class Comparator:
                 benchmark_time_trace=time_trace_b.raw_traces[raw_trace_name_b],
                 benchmark=trace_b.raw_traces[raw_trace_name_b],
             )
-            ff.pplot.plot(interp_time, interp_diff, label="diff")
-
-        title = ff.set_title(
-            f"{trace_b.name} {benchmarkDB_name}{short_name_b} vs {sampleDB_name}{short_name_s}",
-        )
-
-        if ff.interactive:
-            print(f"{time_trace_b.name} [{time_trace_b.unit}]")
-        xlabel = ff.set_xlabel(time_trace_b.unit)
-        ylabel = ff.set_ylabel(trace_b.unit)
-
-        ff.finalize(with_legend)
+            ax.plot(interp_time, interp_diff, label="diff")
 
     def diffplot(self, *argv, **kwargs):
         """combinatory wrapper"""
@@ -453,11 +435,9 @@ class Comparator:
         self,
         trace,
         op,
-        binwidth=None,
-        binrange=None,
-        suffix=None,
         traceDB_names=[],
-        filter=None,
+        filter=[],
+        ax=plt,
         *argv,
         **kwargs,
     ):
@@ -468,11 +448,7 @@ class Comparator:
         Args:
               - trace (str): trace name
               - op (str): operation performed to refine the raw traces
-              - bins=(int, optional): bin number for the distplot
-              - savefig_path (str): path to save the figure
         """
-        ff = Figure(*argv, **kwargs)
-        ff.suffix = self._auto_pic_suffix(ff.suffix)
 
         if len(traceDB_names) == 0:
             traceDB_names = list(self.traceDBs.keys())
@@ -498,26 +474,30 @@ class Comparator:
 
         seaborn.histplot(
             data=newdf,
-            binwidth=binwidth,
-            binrange=binrange,
-            stat="count",
-            common_norm=False,
-            legend=len(newdf.keys()) > 1,
-            ax=ff.pplot,
-        )  # , palette=["grey", "black"]
+            ax=ax,
+            *argv,
+            **kwargs,
+        )
 
-        title = ff.set_title(f"{re.sub('_', ' ', trace)} {re.sub('_', ' ', op)}")
-        xlabel = ff.set_xlabel(self.traceDBs[traceDB_names[0]].traces[trace].unit)
-        ylabel = ff.set_ylabel("Count")
-
-        ff.finalize(with_legend=len(newdf.keys()) > 1)
-
-    def avgplot_raw_traces(self, trace_name, std=True, conf_lvl=0.95, *argv, **kwargs):
+    def avgplot_raw_traces(
+        self,
+        trace_name,
+        std=True,
+        conf_lvl=0.95,
+        ax=plt,
+        plot_kwargs={},
+        std_fill_between_kwargs={},
+        conf_int_fill_between_kwargs={},
+    ):
         """Average plot with std deviations and confidence bands of the raw traces"""
-        ff = Figure(*argv, **kwargs)
-        ff.suffix = self._auto_pic_suffix(ff.suffix)
 
         for traceDB_name, traceDB in self.traceDBs.items():
+
+            if not traceDB.keep_raw_traces:
+                raise ComparatorError(
+                    f"The database {traceDB.name} has `keep_raw_traces` set to False. This is "
+                    f"incompatible with `avgplot_raw_traces`. Change that to plot."
+                )
 
             time_trace = traceDB.get_time_trace()
             trace = traceDB.traces[trace_name]
@@ -525,20 +505,21 @@ class Comparator:
             avg0 = trace.raw_traces.mean(axis=1)
             nt = len(trace.raw_traces.columns)
 
-            ff.pplot.plot(
+            ax.plot(
                 time_trace.raw_traces.iloc[:, 0],
                 avg0,
                 label=f"avg. {traceDB_name} (nt: {nt})",
+                **plot_kwargs,
             )
 
             if std:
                 std0 = trace.raw_traces.std(axis=1)
-                ff.pplot.fill_between(
+                ax.fill_between(
                     time_trace.raw_traces.iloc[:, 0],
                     avg0 + std0,
                     avg0 - std0,
                     label=f"std. {traceDB_name}",
-                    alpha=0.5,
+                    **std_fill_between_kwargs,
                 )
 
             if conf_lvl > 0:
@@ -552,32 +533,25 @@ class Comparator:
                     )
                 )
 
-                ff.pplot.fill_between(
+                ax.fill_between(
                     time_trace.raw_traces.iloc[:, 0],
                     conf_int[0],
                     conf_int[1],
                     label=f"conf. int. {traceDB_name}",
-                    alpha=0.3,
+                    **conf_int_fill_between_kwargs,
                 )
 
-        default_title = f"{trace_name} avg."
-        if std:
-            default_title += " and std."
-        if conf_lvl > 0:
-            default_title += " and conf. lvl."
-        title = ff.set_title(default_title)
-
-        xlabel = ff.set_xlabel(time_trace.unit)
-        ylabel = ff.set_ylabel(trace.unit)
-
-        ff.finalize()
-
     def avgplot_refined_traces(
-        self, trace_name, reduce_ops=[], mean_offset=None, *argv, **kwargs
+        self,
+        trace_name,
+        reduce_ops=[],
+        mean_offset=None,
+        fmt=["-"],
+        ax=plt.gca(),
+        *argv,
+        **kwargs,
     ):
         """Average plot with std deviations and confidence bands of the refined traces"""
-        ff = Figure(*argv, **kwargs)
-        ff.suffix = self._auto_pic_suffix(ff.suffix)
 
         ndata = len(reduce_ops)
         if type(mean_offset) is list:
@@ -586,6 +560,9 @@ class Comparator:
         xx = [*range(ndata)]
         shift = 0.2 * numpy.array([*range(len(self.traceDBs))])
         shift -= shift.mean()
+
+        if type(fmt) == list:
+            fmt = cycle(fmt)
 
         common_prefix = Utils.common_prefix(reduce_ops)
         common_suffix = Utils.common_suffix(reduce_ops)
@@ -616,28 +593,22 @@ class Comparator:
                 [rt[op].std() if op in rt else numpy.NaN for op in reduce_ops[:ndata]]
             )
 
-            ff.pplot.errorbar(
+            ax.errorbar(
                 xx - shift[idx],
                 avgs,
                 yerr=std,
-                fmt=("o", "s", "v", "^")[idx % 4],
-                capsize=2,
-                elinewidth=1,
+                fmt=next(fmt),
                 label=db_name,
+                *argv,
+                **kwargs,
             )
+            ax.set_xticks(range(len(ticknames)))
+            ax.set_xticklabels(ticknames)
 
-        ff.set_xticks(xx, ticknames)
-
-        title = ff.set_title(f"{trace_name} avg. std. {common_prefix}")
-        ff.set_ylabel("")
-        ff.set_xlabel("")
-
-        ff.finalize()
-
-    def boxplot_refined_traces(self, DB_trace_reduce_ops=None, *argv, **kwargs):
+    def boxplot_refined_traces(
+        self, DB_trace_reduce_ops=None, ax=plt.gca(), *argv, **kwargs
+    ):
         """Box plot (scientific candlestick plot)"""
-
-        ff = Figure(*argv, **kwargs)
 
         if DB_trace_reduce_ops is None:
             DB_trace_reduce_ops = self._DB_trace_ops_combinations()
@@ -656,10 +627,4 @@ class Comparator:
 
             df[ticknames[idx]] = trace
 
-        seaborn.boxplot(data=pd.DataFrame(df), ax=ff.pplot, color="skyblue")
-        ff.set_ylabel("")
-        ff.set_xlabel("")
-
-        title = ff.set_title("")
-
-        ff.finalize(with_legend=False)
+        seaborn.boxplot(data=pd.DataFrame(df), ax=ax, *argv, **kwargs)

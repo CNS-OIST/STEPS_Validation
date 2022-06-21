@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 
@@ -311,3 +312,47 @@ class Utils:
             ]
 
         return ans
+
+    @staticmethod
+    def sanitize_path(path):
+        """Useful for using path as path for files"""
+        path = re.sub(" ", "_", path)
+        path = re.sub("\.", "", path)
+        return path
+
+    @staticmethod
+    def savefig(path, name, fig):
+        """A few checks and default saving configuration"""
+        path = Utils.sanitize_path(path)
+        name = Utils.sanitize_path(name)
+        if not name.endswith(".jpg"):
+            name += ".jpg"
+
+        os.makedirs(path, exist_ok=True)
+        full_path = os.path.join(path, name)
+
+        fig.savefig(full_path, dpi=300)
+
+    @staticmethod
+    def set_subplot_title(i, j, ncols, ax, title=None):
+        """Set default titles for subplots"""
+        ic = i * ncols + j
+        left_title = chr(ord("A") + ic)
+        if title:
+            left_title += "\n"
+            ax.set_title(title)
+
+        ax.set_title(left_title, loc="left", fontweight="bold")
+
+    @staticmethod
+    def pretty_print_goodness_of_fit(comp, goodness_of_fit_test_type, filter):
+        """Pretty print of the the goodness of fit test"""
+
+        logging.info("Goodness of fit tests")
+        for tDBnames, tests in comp.test_goodness_of_fit(
+            test_type=goodness_of_fit_test_type, filter=filter
+        ).items():
+            print(tDBnames)
+            for t, d in sorted(tests.items(), key=lambda t: Utils.natural_keys(t[0])):
+                for k, v in sorted(d.items(), key=lambda k: Utils.natural_keys(k[0])):
+                    print(t, k, v)

@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import pandas
 
 from postproc.comparator import Comparator
-from postproc.figure import Figure
 from postproc.trace import Trace
 from postproc.traceDB import TraceDB
 from postproc.utils import Utils
@@ -30,26 +29,38 @@ def check(
     renamed_sample_1 = rename_traces(sample_1)
 
     """comparator"""
-
     comp = Comparator(traceDBs=[benchmark_analytic, sample_1, sample_0])
     for comp_name, c in comp.mse_refactored(normalized=False).items():
         print(comp_name)
         for trace, res in c.items():
             print(trace, res)
 
+    """Traces figure"""
     fig, ax = plt.subplots(1, 1)
-    inset_ax = fig.add_axes([0.25, 0.5, 0.5, 0.4])
-    fmt = 0
-    fmt = renamed_analytic.plot(title="", fmt=fmt, pplot=inset_ax, finalize=False)
+    diff_analytic_STEPS4.plot(ax=ax, fmt=[{"linestyle": "-"}, {"linestyle": "--"}])
+    ax.set_ylim([-1, 2])
+    ax.legend(loc=4)
+    ax.set_xlabel("ms")
+    ax.set_ylabel("mV")
 
-    renamed_sample_1.plot(
-        title="", fmt=fmt, pplot=inset_ax, finalize=True, with_legend=True
-    )
-
-    diff_analytic_STEPS4.plot(pplot=ax, ylim=[-1, 3], with_legend=True, title="")
+    inset_ax = fig.add_axes([0.45, 0.55, 0.5, 0.38])
+    default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    fmt = [
+        {"linestyle": "-", "color": default_colors[0]},
+        {"linestyle": "-.", "color": default_colors[2]},
+    ]
+    renamed_analytic.plot(ax=inset_ax, fmt=fmt)
+    fmt = [
+        {"linestyle": "--", "color": default_colors[1]},
+        {"linestyle": ":", "color": default_colors[3]},
+    ]
+    renamed_sample_1.plot(ax=inset_ax, fmt=fmt)
+    inset_ax.set_xlabel("ms")
+    inset_ax.set_ylabel("mV")
+    inset_ax.legend()
 
     fig.tight_layout()
-    Figure.savefig(savefig_path=savefig_path, file_name="traces", fig=fig)
+    Utils.savefig(savefig_path, "traces", fig)
     fig.show()
 
 
@@ -89,6 +100,7 @@ def create_base_DBs(
         analytical_raw_traces_folder,
         clear_refined_traces_cache=True,
         keep_raw_traces=True,
+        save_refined_traces_cache=True,
     )
 
     """sample_1"""
@@ -116,6 +128,7 @@ def create_base_DBs(
         sample_1_raw_traces_folder,
         clear_refined_traces_cache=True,
         keep_raw_traces=True,
+        save_refined_traces_cache=True,
     )
 
     """sample_0"""
@@ -154,30 +167,31 @@ def create_diff_DB(DB0, DB1):
     traces_diff_analytic_STEPS4 = []
     traces_diff_analytic_STEPS4.append(Trace("t", "mS", multi=1))
 
-    trace_name = "diff V zmin"
+    trace_name = f"V zmin, {DB0.name} - {DB1.name}"
     trace_name_old = "V zmin"
     traces_diff_analytic_STEPS4.append(Trace(trace_name, "mV", multi=1))
-    interp_sample, interp_benchmark, interp_time = Utils._format_traces(
-        DB1.traces["t"].raw_traces.iloc[:, 0].to_numpy(),
-        DB1.traces[trace_name_old].raw_traces.iloc[:, 0].to_numpy(),
+    interp0, interp1, interp_time = Utils._format_traces(
         DB0.traces["t"].raw_traces.iloc[:, 0].to_numpy(),
         DB0.traces[trace_name_old].raw_traces.iloc[:, 0].to_numpy(),
+        DB1.traces["t"].raw_traces.iloc[:, 0].to_numpy(),
+        DB1.traces[trace_name_old].raw_traces.iloc[:, 0].to_numpy(),
     )
+
     traces_diff_analytic_STEPS4[-1].raw_traces = pandas.DataFrame(
-        {trace_name: interp_benchmark - interp_sample}
+        {trace_name: interp0 - interp1}
     )
     traces_diff_analytic_STEPS4[0].add_raw_trace(trace_name, interp_time)
-    trace_name = "diff V zmax"
+    trace_name = f"V zmax, {DB0.name} - {DB1.name}"
     trace_name_old = "V zmax"
     traces_diff_analytic_STEPS4.append(Trace(trace_name, "mV", multi=1))
-    interp_sample, interp_benchmark, _ = Utils._format_traces(
-        DB1.traces["t"].raw_traces.iloc[:, 0].to_numpy(),
-        DB1.traces[trace_name_old].raw_traces.iloc[:, 0].to_numpy(),
+    interp0, interp1, _ = Utils._format_traces(
         DB0.traces["t"].raw_traces.iloc[:, 0].to_numpy(),
         DB0.traces[trace_name_old].raw_traces.iloc[:, 0].to_numpy(),
+        DB1.traces["t"].raw_traces.iloc[:, 0].to_numpy(),
+        DB1.traces[trace_name_old].raw_traces.iloc[:, 0].to_numpy(),
     )
     traces_diff_analytic_STEPS4[-1].raw_traces = pandas.DataFrame(
-        {trace_name: interp_benchmark - interp_sample}
+        {trace_name: interp0 - interp1}
     )
     traces_diff_analytic_STEPS4[0].add_raw_trace(trace_name, interp_time)
 

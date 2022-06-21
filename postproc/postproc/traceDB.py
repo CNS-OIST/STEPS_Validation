@@ -3,9 +3,8 @@ import os
 import shutil
 from itertools import cycle
 
+import matplotlib.pyplot as plt
 import pandas
-
-from .figure import Figure
 
 
 class TraceDBError(Exception):
@@ -25,7 +24,7 @@ class TraceDB:
         folder_path="",
         time_trace="t",
         clear_refined_traces_cache=False,
-        save_refined_traces_cache=True,
+        save_refined_traces_cache=False,
         keep_raw_traces=False,
         ban_list=[],
     ):
@@ -241,12 +240,8 @@ class TraceDB:
         self,
         trace_names=[],
         trace_files=[],
-        savefig_path=None,
-        with_legend=False,
-        suffix="",
-        pplot=None,
-        finalize=True,
-        fmt=0,
+        fmt=[{}],
+        ax=plt,
         *argv,
         **kwargs,
     ):
@@ -255,7 +250,6 @@ class TraceDB:
         Args:
               - trace_names (list, optional): if specified it plots all the raw_traces of the traces specified.
               Otherwise we plot everything
-              - savefig_path (str, optional): if speficied we also save the file in the specified folder.
         """
 
         if not self.keep_raw_traces:
@@ -263,16 +257,13 @@ class TraceDB:
                 f"Plotting raw traces is possible only if `keep_raw_traces` is marked as True in TraceDB."
             )
 
+        if type(fmt) == list:
+            fmt = cycle(fmt)
+
         time_trace = self.get_time_trace()
 
         if not trace_names:
             trace_names = list(self.traces.keys())
-
-        ff = Figure(pplot=pplot, *argv, **kwargs)
-
-        linestyle = cycle(["-", "--", "-.", ":"])
-        for i in range(fmt % 4):
-            next(linestyle)
 
         for trace_name in trace_names:
             trace = self.traces[trace_name]
@@ -282,19 +273,8 @@ class TraceDB:
             trace.plot(
                 trace_files=trace_files,
                 time_trace=time_trace,
-                savefig_path=savefig_path,
-                title_prefix=self.name,
-                with_legend=with_legend,
-                suffix=suffix,
-                finalize=False,
-                fmt=next(linestyle),
-                pplot=ff.pplot,
+                fmt=fmt,
+                ax=ax,
                 *argv,
                 **kwargs,
             )
-            fmt += 1
-
-        if finalize:
-            ff.finalize(with_legend=with_legend)
-
-        return fmt

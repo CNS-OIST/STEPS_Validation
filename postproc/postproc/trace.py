@@ -1,13 +1,14 @@
 import inspect
 import logging
 import os
+from itertools import cycle
 
+import matplotlib.pyplot as plt
 import numpy
 import pandas
 import scipy
 import seaborn
 
-from .figure import Figure
 from .utils import Utils
 
 
@@ -105,6 +106,7 @@ class Trace:
             return self.refined_traces[op]
         else:
             t = self.refined_traces[op]
+            print(filter)
             return t.loc[self.refined_traces[filter[0]] == filter[1]].dropna()
 
     def raw_traces_to_parquet(self, path):
@@ -249,40 +251,29 @@ class Trace:
         self,
         time_trace,
         trace_files=[],
-        title_prefix="",
-        with_legend=False,
-        finalize=True,
-        fmt="",
+        ax=plt,
+        fmt=[{}],
         *argv,
         **kwargs,
     ):
         """Plot all raw_traces"""
-
-        ff = Figure(*argv, **kwargs)
 
         if not trace_files:
             trace_files = list(self.raw_traces.keys())
         else:
             trace_files = numpy.array(self.raw_traces.keys())[trace_files]
 
-        title = title_prefix + " " + self.name
-        if len(trace_files) == 1:
-            title += " " + os.path.basename(trace_files[0])
+        if type(fmt) == list:
+            fmt = cycle(fmt)
 
         for file in trace_files:
             trace = self.raw_traces[file]
 
             t = time_trace.raw_traces[file]
 
-            ff.pplot.plot(t, trace, fmt, label=f"{self.short_name(file)}")
+            ax.plot(t, trace, label=file, *argv, **next(fmt), **kwargs)
 
-        ff.set_title(title)
-        ff.set_xlabel(time_trace.unit)
-        ff.set_ylabel(self.unit)
-
-        if finalize:
-            ff.finalize(with_legend=with_legend)
-
+    # TODO
     def distplot(self, op, *argv, **kwargs):
         """ Plot refined traces in a histogram """
         ff = Figure(*argv, **kwargs)
