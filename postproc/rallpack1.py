@@ -1,6 +1,7 @@
 import copy
 import sys
 
+import matplotlib.image as image
 import matplotlib.pyplot as plt
 import pandas
 
@@ -16,6 +17,7 @@ def check(
     analytical_raw_traces_folder="rallpack1/raw_traces/analytical",
     savefig_path="rallpack1/pics",
 ):
+    with_title = False
 
     benchmark_analytic, sample_1, sample_0, sample_names = create_base_DBs(
         sample_0_raw_traces_folder,
@@ -36,28 +38,39 @@ def check(
             print(trace, res)
 
     """Traces figure"""
-    fig, ax = plt.subplots(1, 1)
-    diff_analytic_STEPS4.plot(ax=ax, fmt=[{"linestyle": "-"}, {"linestyle": "--"}])
-    ax.set_ylim([-1, 2])
-    ax.legend(loc=4)
+    fig, axtot = plt.subplots(
+        1, 2, figsize=(8, 5), gridspec_kw={"width_ratios": [2, 4]}
+    )
+    ax = axtot[0]
+    ax.imshow(image.imread("rallpack1/base_pics/rallpack1_setup.jpg"))
+    ax.axis("off")
+    Utils.set_subplot_title(0, 0, 2, ax, f"rallpack1 setup" if with_title else None)
+
+    ax = axtot[1]
+    diff_analytic_STEPS4.plot(ax=ax, fmt=[[{"linestyle": "-"}], [{"linestyle": "--"}]])
+    ax.set_ylim([-0.9, 2.5])
+    ax.legend(["V zmin, analytic - STEPS4", "V zmax, analytic - STEPS4"], loc=4)
     ax.set_xlabel("ms")
     ax.set_ylabel("mV")
+    Utils.set_subplot_title(0, 1, 2, ax, f"analytic - STEPS4" if with_title else None)
 
-    inset_ax = fig.add_axes([0.45, 0.55, 0.5, 0.38])
+    inset_ax = fig.add_axes([0.5, 0.5, 0.46, 0.4])
     default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     fmt = [
-        {"linestyle": "-", "color": default_colors[0]},
-        {"linestyle": "-.", "color": default_colors[2]},
+        [{"linestyle": "-", "color": default_colors[0]}],
+        [{"linestyle": "-.", "color": default_colors[2]}],
     ]
     renamed_analytic.plot(ax=inset_ax, fmt=fmt)
     fmt = [
-        {"linestyle": "--", "color": default_colors[1]},
-        {"linestyle": ":", "color": default_colors[3]},
+        [{"linestyle": "--", "color": default_colors[1]}],
+        [{"linestyle": ":", "color": default_colors[3]}],
     ]
     renamed_sample_1.plot(ax=inset_ax, fmt=fmt)
     inset_ax.set_xlabel("ms")
     inset_ax.set_ylabel("mV")
-    inset_ax.legend()
+    inset_ax.legend(
+        ["V zmin, analytic", "V zmax analytic", "V zmin, STEPS4", "V zmax STEPS4"]
+    )
 
     fig.tight_layout()
     Utils.savefig(savefig_path, "traces", fig)

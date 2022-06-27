@@ -161,6 +161,12 @@ class TraceDB:
             except:  # catch all the possible errors from refined_traces_from_parquet
                 extraction_needed = True
 
+        if (
+            len(self.traces[trace_name].refined_traces.columns) == 0
+            and self.keep_raw_traces
+        ):
+            extraction_needed = True
+
         return extraction_needed
 
     def _extract_and_refine(self):
@@ -273,7 +279,7 @@ class TraceDB:
             trace.plot(
                 trace_files=trace_files,
                 time_trace=time_trace,
-                fmt=fmt,
+                fmt=next(fmt),
                 ax=ax,
                 *argv,
                 **kwargs,

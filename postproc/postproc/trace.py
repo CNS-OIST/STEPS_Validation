@@ -270,12 +270,10 @@ class Trace:
             trace = self.raw_traces[file]
 
             t = time_trace.raw_traces[file]
+            ax.plot(
+                t, trace, label=f"{self.name}, {file}", *argv, **next(fmt), **kwargs
+            )
 
-            ax.plot(t, trace, label=file, *argv, **next(fmt), **kwargs)
-
-    # TODO
-    def distplot(self, op, *argv, **kwargs):
+    def distplot(self, op, ax=plt, *argv, **kwargs):
         """ Plot refined traces in a histogram """
-        ff = Figure(*argv, **kwargs)
-        seaborn.histplot(data=self.refined_traces, x=op, ax=ff.pplot)
-        ff.finalize()
+        seaborn.histplot(data=self.refined_traces, x=op, ax=ax, *argv, **kwargs)

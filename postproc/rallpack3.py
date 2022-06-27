@@ -33,7 +33,7 @@ def check(
     npeaks_focus = min(npeaks, 17)
     multi_t = 1000
     multi_y = 1000
-    goodness_of_fit_test_type = "cvm"  # possibilities: ks, es, cvm
+    goodness_of_fit_test_type = "ks"  # possibilities: ks, es, cvm
     filter = []  # ["n_peaks", 17]
     clear_all_caches = False  # True is used for debugging
     savefig_path = "rallpack3/pics"
@@ -68,19 +68,25 @@ def check(
     logging.info("Plots")
 
     """Plots"""
-    plot_npeaks_and_freq(
-        comp, multi_y, multi_t, binwidth_Hz, npeaks, savefig_path, filter, with_title
-    )
+    # plot_npeaks_and_freq(
+    #     comp, multi_y, multi_t, binwidth_Hz, npeaks, savefig_path, filter, with_title
+    # )
 
     plot_distributions(comp, binwidth_t, binwidth_y, savefig_path, filter, with_title)
 
-    plot_boxplot_summary(
-        pvalues_traces, goodness_of_fit_test_type, savefig_path, with_title
-    )
+    # plot_boxplot_summary(
+    #     pvalues_traces, goodness_of_fit_test_type, savefig_path, with_title
+    # )
 
     plot_avg_and_std(comp, binwidth_t, binwidth_y, npeaks, savefig_path, with_title)
 
+    # plot_missing_spike(multi_t, multi_y, savefig_path)
+    #
     plot_batched_p_values(batched_comp_pvalues, npeaks_focus, savefig_path, with_title)
+
+    plot_missing_spike_and_p_values(
+        multi_t, multi_y, batched_comp_pvalues, npeaks_focus, savefig_path, with_title
+    )
 
 
 def pvalues_reference(
@@ -195,6 +201,34 @@ def create_base_DBs(
     )
 
     return sample_names, sample_0_DB, sample_1_DB
+
+
+def create_missing_spike_DB(multi_t, multi_y):
+    """Create the benchmark traces. How do you want to refine the data? Usually exactly like the sample traces"""
+    traces = []
+    traces.append(Trace("t", "ms", multi=multi_t))
+
+    traces.append(
+        Trace(
+            "V zmin",
+            "mV",
+            reduce_ops={},
+            multi=multi_y,
+        )
+    )
+    traces.append(copy.deepcopy(traces[-1]))
+    traces[-1].name = "V zmax"
+
+    """Create the benchmark database"""
+    DB_STEPS4 = TraceDB(
+        "STEPS4",
+        traces,
+        "rallpack3/raw_traces/STEPS4/missing_spike",
+        clear_refined_traces_cache=True,
+        save_refined_traces_cache=False,
+        keep_raw_traces=True,
+    )
+    return DB_STEPS4
 
 
 def get_neuron_results():
@@ -460,8 +494,10 @@ def plot_distributions(comp, binwidth_t, binwidth_y, savefig_path, filter, with_
                 ax=ax,
             )
             ax.set_xlabel(label)
-            if op == "peaks_t":
-                ax.set_xlim([0, 250])
+            if i == 1 and j == 0:
+                ax.legend(["STEPS3", "STEPS4"])
+            else:
+                ax.get_legend().remove()
             Utils.set_subplot_title(
                 j, i, 2, ax, f"distribution, {tracename}, {op}" if with_title else None
             )
@@ -499,10 +535,14 @@ def plot_boxplot_summary(
 def plot_avg_and_std(comp, binwidth_t, binwidth_y, npeaks, savefig_path, with_title):
     neuron_results = get_neuron_results()
     fig, axtot = plt.subplots(2, 2, figsize=(8, 6))
+
     for j, op_tuple in enumerate(
-        [("peaks_t", "ms", binwidth_t), ("peaks_y", "mV", binwidth_y)]
+        [
+            ("peaks_t", "ms", binwidth_t, "time stamp"),
+            ("peaks_y", "mV", binwidth_y, "height"),
+        ]
     ):
-        op, label, binwidth = op_tuple
+        op, label, binwidth, label2 = op_tuple
         for i, tracename in enumerate(["V zmin", "V zmax"]):
             ax = axtot[j][i]
             comp.avgplot_refined_traces(
@@ -515,7 +555,11 @@ def plot_avg_and_std(comp, binwidth_t, binwidth_y, npeaks, savefig_path, with_ti
                 elinewidth=1,
             )
             ax.set_xlabel("peak n")
-            ax.set_ylabel(label)
+            ax.set_ylabel(
+                f"Peak {label2} differences at {tracename[2:]}\navg. and std. ({label})"
+            )
+            if i == 1 and j == 0:
+                ax.legend()
             Utils.set_subplot_title(
                 j, i, 2, ax, f"avg and std, {tracename}, {op}" if with_title else None
             )
@@ -528,7 +572,12 @@ def plot_batched_p_values(batched_comp_pvalues, npeaks_focus, savefig_path, with
 
     fig, axtot = plt.subplots(2, 2, figsize=(8, 6))
     default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
-    for j, op in enumerate(["peak_t", "peak_y"]):
+    ylabels_what = [
+        "heights",
+        "time stamps",
+    ]
+    ylabels_pos = ["zmin", "zmax"]
+    for j, op in enumerate(["peak_y", "peak_t"]):
         for i, tracename in enumerate(["V zmin", "V zmax"]):
             ax = axtot[j][i]
             batched_comp_pvalues.boxplot_refined_traces(
@@ -540,7 +589,8 @@ def plot_batched_p_values(batched_comp_pvalues, npeaks_focus, savefig_path, with
                 color=default_colors[0],
             )
             ax.set_xlabel("peak n")
-            ax.set_ylabel("p values")
+
+            ax.set_ylabel(f"peak {ylabels_what[j]} p values at {ylabels_pos[i]}")
             Utils.set_subplot_title(
                 j,
                 i,
@@ -551,6 +601,88 @@ def plot_batched_p_values(batched_comp_pvalues, npeaks_focus, savefig_path, with
 
     fig.tight_layout()
     Utils.savefig(path=savefig_path, name="batched_boxplots", fig=fig)
+    fig.show()
+
+
+def plot_missing_spike(multi_t, multi_y, savefig_path):
+    """Create the benchmark database"""
+    DB_STEPS4 = create_missing_spike_DB(multi_t, multi_y)
+    fig, ax = plt.subplots(1, 1)
+    DB_STEPS4.plot(ax=ax, fmt=[[{"linestyle": "-"}], [{"linestyle": "--"}]])
+    ax.set_xlabel("ms")
+    ax.set_ylabel("mV")
+    ax.legend(["V zmin", "V zmax"])
+    fig.tight_layout()
+    Utils.savefig(path=savefig_path, name="missing_spike", fig=fig)
+    fig.show()
+
+
+def plot_missing_spike_and_p_values(
+    multi_t, multi_y, batched_comp_pvalues, npeaks_focus, savefig_path, with_title
+):
+    """plot missing spike and summary of batched boxplots"""
+    fig, axtot = plt.subplots(1, 3, figsize=(10, 3))
+
+    ax = axtot[0]
+    DB_missing_spike_STEPS4 = create_missing_spike_DB(multi_t, multi_y)
+    DB_missing_spike_STEPS4.plot(
+        ax=ax, fmt=[[{"linestyle": "-"}], [{"linestyle": "--"}]]
+    )
+    ax.set_xlabel("ms")
+    ax.set_ylabel("mV")
+    ax.set_ylim([-80, 110])
+    ax.legend(["V zmin", "V zmax"])
+    Utils.set_subplot_title(
+        0,
+        0,
+        3,
+        ax,
+        f"missing spike" if with_title else None,
+    )
+
+    default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    tracename = "V zmax"
+
+    op = "peak_y"
+    ax = axtot[1]
+    batched_comp_pvalues.boxplot_refined_traces(
+        DB_trace_reduce_ops=[
+            ("p values", tracename, f"['i_{op}', {ip}]") for ip in range(npeaks_focus)
+        ],
+        ax=ax,
+        color=default_colors[0],
+    )
+    ax.set_xlabel("peak n")
+    ax.set_ylabel(f"peak heights p values at zmax")
+    Utils.set_subplot_title(
+        0,
+        1,
+        3,
+        ax,
+        f"batched p values, {tracename}, {op}" if with_title else None,
+    )
+
+    op = "peak_t"
+    ax = axtot[2]
+    batched_comp_pvalues.boxplot_refined_traces(
+        DB_trace_reduce_ops=[
+            ("p values", tracename, f"['i_{op}', {ip}]") for ip in range(npeaks_focus)
+        ],
+        ax=ax,
+        color=default_colors[0],
+    )
+    ax.set_xlabel("peak n")
+    ax.set_ylabel(f"peak time stamps p values at zmax")
+    Utils.set_subplot_title(
+        0,
+        2,
+        3,
+        ax,
+        f"batched p values, {tracename}, {op}" if with_title else None,
+    )
+
+    fig.tight_layout()
+    Utils.savefig(path=savefig_path, name="missing_spike_and_batched_boxplots", fig=fig)
     fig.show()
 
 

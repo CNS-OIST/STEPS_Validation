@@ -2,6 +2,7 @@ import logging
 import sys
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
 from postproc.comparator import Comparator
 from postproc.trace import Trace
@@ -32,7 +33,84 @@ def check(
 
     """Plots"""
 
+    plot_raw_traces(sample_0_DB, savefig_path, with_title)
+
+    plot_avg_and_conf_int_and_inset_spiny_min(comp, savefig_path, with_title)
+
     # plot_avg_and_std(comp, savefig_path, with_title)
+
+    # plot_avg_and_conf_int(comp, savefig_path, with_title)
+
+
+def plot_raw_traces(DB, savefig_path, with_title):
+
+    fig, ax = plt.subplots(1, 1)
+
+    default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    styles = [
+        [
+            {
+                "color": default_colors[i],
+                "alpha": 0.035,
+                "linestyle": ["-", "--", "-.", ":"][i],
+            }
+        ]
+        for i in range(4)
+    ]
+    DB.plot(ax=ax, fmt=styles)
+    ax.set_xlabel("ms")
+    ax.set_ylabel("mV")
+    leg = ax.legend(["smooth max V", "smooth min V", "spiny max V", "spiny min V"])
+    for idx, lh in enumerate(leg.legendHandles):
+        lh.set_color(styles[idx][0]["color"])
+        lh.set_linestyle(styles[idx][0]["linestyle"])
+        lh.set_alpha(1)
+
+    if with_title:
+        ax.set_title("Raw traces, STEPS 4")
+
+    fig.tight_layout()
+    Utils.savefig(path=savefig_path, name="raw_traces", fig=fig)
+    fig.show()
+
+
+def plot_avg_and_conf_int_and_inset_spiny_min(comp, savefig_path, with_title):
+
+    fig, ax = plt.subplots(1, 1)
+    membrane = "spiny"
+    op = "min"
+    comp.avgplot_raw_traces(
+        trace_name=f"{membrane} {op} V",
+        std=False,
+        ax=ax,
+        conf_int_fill_between_kwargs={"alpha": 0.3},
+    )
+    ax.set_xlabel("ms")
+    ax.set_ylabel("mV")
+    ax.set_ylim([-63, -5])
+    if with_title:
+        ax.set_title(f"avg. and conf. int. {membrane}, {op}")
+    ax.legend(["STEPS3", "STEPS4"], loc=2)
+
+    axins = ax.inset_axes([0.5, 0.6, 0.47, 0.37])
+    comp.avgplot_raw_traces(
+        trace_name=f"{membrane} {op} V",
+        std=False,
+        ax=axins,
+        conf_int_fill_between_kwargs={"alpha": 0.3},
+    )
+    axins.set_xlim([35, 37])
+    axins.set_ylim([-40.5, -38.5])
+    axins.set_xlabel("ms")
+    axins.set_ylabel("mV")
+    mark_inset(ax, axins, loc1=3, loc2=4, fc="none", ec="0.5")
+
+    fig.tight_layout()
+    Utils.savefig(path=savefig_path, name="avg_and_conf_int_spiny_min", fig=fig)
+    fig.show()
+
+
+def plot_avg_and_conf_int(comp, savefig_path, with_title):
 
     fig, axtot = plt.subplots(3, 2, figsize=(9, 10))
     for i, membrane in enumerate(["smooth", "spiny"]):
@@ -52,7 +130,7 @@ def check(
                 ax,
                 f"avg. and conf. int. {membrane}, {op}" if with_title else None,
             )
-            ax.legend(["avg. and conf. int. STEPS3", "avg. and conf. int. STEPS4"])
+            ax.legend(["STEPS3", "STEPS4"])
 
     ax = axtot[2][0]
     comp.avgplot_raw_traces(
@@ -66,7 +144,7 @@ def check(
     ax.set_xlim([35, 37])
     ax.set_ylim([-39, -41])
     Utils.set_subplot_title(2, 0, 2, ax, f"Focus of panel C" if with_title else None)
-    ax.legend(["avg. and conf. int. STEPS3", "avg. and conf. int. STEPS4"])
+    ax.legend(["STEPS3", "STEPS4"])
 
     fig.delaxes(axtot[2][1])
     fig.tight_layout()
@@ -121,7 +199,6 @@ def create_base_DBs(
                         "amax": [],
                         "['i_peak_t', 0]": [],
                         "['i_peak_y', 0]": [],
-                        # "['i_peak_y', 1]": [],
                         "['val', 0.038]": [],
                         "n_peaks": [],
                     },
@@ -134,7 +211,7 @@ def create_base_DBs(
         sample_names[1],
         traces_sample_1,
         sample_1_raw_traces_folder,
-        clear_refined_traces_cache=True,
+        clear_refined_traces_cache=False,
         save_refined_traces_cache=True,
         keep_raw_traces=True,
     )
@@ -155,7 +232,6 @@ def create_base_DBs(
                         "amax": [],
                         "['i_peak_t', 0]": [],
                         "['i_peak_y', 0]": [],
-                        # "['i_peak_y', 1]": [],
                         "['val', 0.038]": [],
                         "n_peaks": [],
                     },
@@ -168,7 +244,7 @@ def create_base_DBs(
         sample_names[0],
         traces_sample_0,
         sample_0_raw_traces_folder,
-        clear_refined_traces_cache=True,
+        clear_refined_traces_cache=False,
         save_refined_traces_cache=True,
         keep_raw_traces=True,
     )
