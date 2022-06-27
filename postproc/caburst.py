@@ -1,6 +1,7 @@
 import logging
 import sys
 
+import matplotlib.image as image
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
@@ -44,8 +45,16 @@ def check(
 
 def plot_raw_traces(DB, savefig_path, with_title):
 
-    fig, ax = plt.subplots(1, 1)
+    fig, axtot = plt.subplots(
+        1, 2, figsize=(8, 4)
+    )
 
+    ax = axtot[0]
+    ax.imshow(image.imread("caburst/base_pics/Purkinje_structure.png"))
+    ax.axis("off")
+    Utils.set_subplot_title(0, 0, 2, ax, f"Purkinje structure" if with_title else None)
+
+    ax = axtot[1]
     default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     styles = [
         [
@@ -66,9 +75,7 @@ def plot_raw_traces(DB, savefig_path, with_title):
         lh.set_linestyle(styles[idx][0]["linestyle"])
         lh.set_alpha(1)
 
-    if with_title:
-        ax.set_title("Raw traces, STEPS 4")
-
+    Utils.set_subplot_title(0, 1, 2, ax, f"raw traces" if with_title else None)
     fig.tight_layout()
     Utils.savefig(path=savefig_path, name="raw_traces", fig=fig)
     fig.show()
