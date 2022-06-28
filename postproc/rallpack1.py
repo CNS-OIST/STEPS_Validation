@@ -169,6 +169,7 @@ def create_base_DBs(
         sample_0_raw_traces_folder,
         clear_refined_traces_cache=True,
         keep_raw_traces=True,
+        save_refined_traces_cache=True,
     )
 
     return benchmark_analytic, sample_0, sample_1, sample_names
@@ -183,6 +184,7 @@ def create_diff_DB(DB0, DB1):
     trace_name = f"V zmin, {DB0.name} - {DB1.name}"
     trace_name_old = "V zmin"
     traces_diff_analytic_STEPS4.append(Trace(trace_name, "mV", multi=1))
+
     interp0, interp1, interp_time = Utils._format_traces(
         DB0.traces["t"].raw_traces.iloc[:, 0].to_numpy(),
         DB0.traces[trace_name_old].raw_traces.iloc[:, 0].to_numpy(),
