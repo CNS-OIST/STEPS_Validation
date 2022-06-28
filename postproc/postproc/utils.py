@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 
@@ -102,20 +103,24 @@ class Utils:
             return float("NaN")
 
     @staticmethod
-    def peaks_t(trace: list, time_trace: list):
+    def peaks_t(trace: list, time_trace: list, npeaks=None):
         """Time stamp of the peaks"""
         trace = numpy.array(trace)
         peaks = Utils.peaks(trace)
-
-        return [time_trace[i] for i in peaks[0]]
+        if npeaks:
+            return [time_trace[i] for i in peaks[0][:npeaks]]
+        else:
+            return [time_trace[i] for i in peaks[0]]
 
     @staticmethod
-    def peaks_y(trace: list):
+    def peaks_y(trace: list, npeaks=None):
         """Height of the peaks"""
         trace = numpy.array(trace)
         peaks = Utils.peaks(trace)
-
-        return [trace[i] for i in peaks[0]]
+        if npeaks:
+            return [trace[i] for i in peaks[0][:npeaks]]
+        else:
+            return [trace[i] for i in peaks[0]]
 
     @staticmethod
     def i_peak_t(trace: list, time_trace: list, i_peak: int):
@@ -201,6 +206,7 @@ class Utils:
 
         We interpolate the longer on the shorter. If the simulation times do not overlap we throw an error.
         """
+
         start = max(x0[0], x1[0])
         stop = min(x0[-1], x1[-1])
         npoints = max(len(x0), len(x1))
@@ -225,7 +231,7 @@ class Utils:
         sample = numpy.array(sample)
         benchmark_time_trace = numpy.array(benchmark_time_trace)
         benchmark = numpy.array(benchmark)
-        [interp_sample, interp_benchmark, iterp_time] = Utils._format_traces(
+        [interp_sample, interp_benchmark, interp_time] = Utils._format_traces(
             sample_time_trace, sample, benchmark_time_trace, benchmark
         )
 
@@ -235,7 +241,7 @@ class Utils:
         if percent:
             diff /= numpy.maximum(abs(interp_benchmark), abs(interp_sample))
 
-        return numpy.square(diff).mean(), iterp_time, diff
+        return numpy.square(diff).mean(), interp_time, diff
 
     @staticmethod
     def conf_int(a, confidence=0.95):
@@ -282,3 +288,71 @@ class Utils:
     def common_suffix(v):
         """Return common suffix for a list of strings"""
         return Utils.common_prefix([i[::-1] for i in v])[::-1]
+
+    @staticmethod
+    def pretty_print_combinations(comb):
+        if len(comb) == 0:
+            return []
+
+        p = zip(*comb) if type(comb[0]) == tuple else [comb]
+
+        ans = [""] * len(comb)
+        for i in p:
+            cp = Utils.common_prefix(i)
+            cs = Utils.common_suffix(i)
+
+            if len(cp) == len(i[0]):
+                continue
+
+            ans = [
+                token[len(cp) : len(token) - len(cs)]
+                if not ans[idx]
+                else ans[idx] + "\n" + token[len(cp) : len(token) - len(cs)]
+                for idx, token in enumerate(i)
+            ]
+
+        return ans
+
+    @staticmethod
+    def sanitize_path(path):
+        """Useful for using path as path for files"""
+        path = re.sub(" ", "_", path)
+        path = re.sub("\.", "", path)
+        return path
+
+    @staticmethod
+    def savefig(path, name, fig):
+        """A few checks and default saving configuration"""
+        path = Utils.sanitize_path(path)
+        name = Utils.sanitize_path(name)
+        if not name.endswith(".jpg"):
+            name += ".jpg"
+
+        os.makedirs(path, exist_ok=True)
+        full_path = os.path.join(path, name)
+
+        fig.savefig(full_path, dpi=300)
+
+    @staticmethod
+    def set_subplot_title(i, j, ncols, ax, title=None):
+        """Set default titles for subplots"""
+        ic = i * ncols + j
+        left_title = chr(ord("A") + ic)
+        if title:
+            left_title += "\n"
+            ax.set_title(title)
+
+        ax.set_title(left_title, loc="left", fontweight="bold")
+
+    @staticmethod
+    def pretty_print_goodness_of_fit(comp, goodness_of_fit_test_type, filter):
+        """Pretty print of the the goodness of fit test"""
+
+        logging.info("Goodness of fit tests")
+        for tDBnames, tests in comp.test_goodness_of_fit(
+            test_type=goodness_of_fit_test_type, filter=filter
+        ).items():
+            print(tDBnames)
+            for t, d in sorted(tests.items(), key=lambda t: Utils.natural_keys(t[0])):
+                for k, v in sorted(d.items(), key=lambda k: Utils.natural_keys(k[0])):
+                    print(t, k, v)
