@@ -45,9 +45,7 @@ def check(
 
 def plot_raw_traces(DB, savefig_path, with_title):
 
-    fig, axtot = plt.subplots(
-        1, 2, figsize=(8, 4)
-    )
+    fig, axtot = plt.subplots(1, 2, figsize=(8, 4))
 
     ax = axtot[0]
     ax.imshow(image.imread("caburst/base_pics/Purkinje_structure.png"))

@@ -15,16 +15,6 @@ logging.basicConfig(level=logging.INFO)
 
 
 def check(
-    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/testing_highChannelDensity_long",
-    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/testing_highChannelDensity_long",
-    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-05-24_highChannelDeinsity_longRun",
-    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-05-24_highChannelDeinsity_longRun",
-    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4",
-    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3",
-    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-06-03_highChannelDensity_smalldt",
-    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-06-03_highChannelDensity_smalldt",
-    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-05-13_highChannelDensity",
-    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-05-13_highChannelDensity",
     sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-06-16_highChannelDensity2",
     sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-06-16_highChannelDensity2",
 ):
