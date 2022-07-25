@@ -34,9 +34,11 @@ def check(
 
     """Plots"""
 
-    plot_raw_traces(sample_0_DB, savefig_path, with_title)
+    # plot_raw_traces(sample_0_DB, savefig_path, with_title)
 
-    plot_avg_and_conf_int_and_inset_spiny_min(comp, savefig_path, with_title)
+    # plot_avg_and_conf_int_and_inset_spiny_min(comp, savefig_path, with_title)
+
+    plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title)
 
     # plot_avg_and_std(comp, savefig_path, with_title)
 
@@ -112,6 +114,46 @@ def plot_avg_and_conf_int_and_inset_spiny_min(comp, savefig_path, with_title):
 
     fig.tight_layout()
     Utils.savefig(path=savefig_path, name="avg_and_conf_int_spiny_min", fig=fig)
+    fig.show()
+
+
+def plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title):
+    with_title = True
+
+    fig, axtot = plt.subplots(4, 2, figsize=(10, 10))
+    membranes = ["smooth", "spiny"]
+    ops = ["min", "max"]
+    for i, membrane in enumerate(membranes):
+        for j, op in enumerate(ops):
+
+            ax = axtot[i * 2][j]
+            comp.avgplot_raw_traces(
+                trace_name=f"{membrane} {op} V",
+                std=False,
+                ax=ax,
+                conf_int_fill_between_kwargs={"alpha": 0.3},
+            )
+            ax.set_xlabel("ms")
+            ax.set_ylabel("mV")
+            if with_title:
+                ax.set_title(f"avg. and conf. int. {membrane}, {op}")
+
+            if i == 0 and j == 1:
+                ax.legend(["STEPS3", "STEPS4"])
+
+            ax = axtot[i * 2 + 1][j]
+            comp.avgplot_raw_traces(
+                trace_name=f"{membrane} {op} V",
+                std=False,
+                baselineDB="STEPS3",
+                ax=ax,
+                conf_int_fill_between_kwargs={"alpha": 0.3},
+            )
+            ax.set_xlabel("ms")
+            ax.set_ylabel("mV")
+
+    fig.tight_layout()
+    Utils.savefig(path=savefig_path, name=f"avg_and_conf_int_and_diff", fig=fig)
     fig.show()
 
 

@@ -389,6 +389,7 @@ class Comparator:
         sampleDB_name,
         trace_name,
         percent=False,
+        ax=plt,
         *argv,
         **kwargs,
     ):
@@ -401,7 +402,6 @@ class Comparator:
               - trace_name_s (str, optional): name of the sample trace
               - savefig_path (str, optional): path to save the file
         """
-        ff = Figure(*argv, **kwargs)
 
         benchmark, sample = (
             self.traceDBs[benchmarkDB_name],
@@ -423,13 +423,7 @@ class Comparator:
                     benchmark=trace_b.raw_traces[raw_trace_name_b],
                     percent=percent,
                 )
-                ff.pplot.plot(interp_time, interp_diff)
-
-        title = ff.set_title(f"{trace_name} ({benchmarkDB_name}-{sampleDB_name})")
-
-        xlabel = ff.set_xlabel(f"{time_trace_b.name} [{time_trace_b.unit}]")
-        ylabel = ff.set_ylabel(f"{trace_b.name} [{trace_b.unit}]")
-        ff.finalize()
+                ax.plot(interp_time, interp_diff)
 
     def distplot(
         self,
@@ -484,12 +478,19 @@ class Comparator:
         trace_name,
         std=True,
         conf_lvl=0.95,
+        baselineDB=None,
         ax=plt,
         plot_kwargs={},
         std_fill_between_kwargs={},
         conf_int_fill_between_kwargs={},
     ):
         """Average plot with std deviations and confidence bands of the raw traces"""
+
+        trace_baseline = None
+        if baselineDB:
+            trace_baseline = (
+                self.traceDBs[baselineDB].traces[trace_name].raw_traces.mean(axis=1)
+            )
 
         for traceDB_name, traceDB in self.traceDBs.items():
 
@@ -503,6 +504,9 @@ class Comparator:
             trace = traceDB.traces[trace_name]
 
             avg0 = trace.raw_traces.mean(axis=1)
+            if trace_baseline is not None:
+                avg0 -= trace_baseline
+
             nt = len(trace.raw_traces.columns)
 
             ax.plot(
@@ -532,6 +536,9 @@ class Comparator:
                         )
                     )
                 )
+                if trace_baseline is not None:
+                    conf_int[0] -= trace_baseline
+                    conf_int[1] -= trace_baseline
 
                 ax.fill_between(
                     time_trace.raw_traces.iloc[:, 0],
