@@ -1,6 +1,7 @@
 import copy
 import logging
 import sys
+import math
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -72,7 +73,7 @@ def check(
 
     # plot_missing_spike(multi_t, multi_y, savefig_path)
     #
-    plot_batched_p_values(batched_comp_pvalues, npeaks_focus, savefig_path, with_title)
+    # plot_batched_p_values(batched_comp_pvalues, npeaks_focus, savefig_path, with_title)
     plot_batched_p_values_dist(
         batched_comp_pvalues, npeaks_focus, savefig_path, with_title
     )
@@ -600,17 +601,19 @@ def plot_batched_p_values(batched_comp_pvalues, npeaks_focus, savefig_path, with
 def plot_batched_p_values_dist(
     batched_comp_pvalues, npeaks_focus, savefig_path, with_title
 ):
-    for ip in range(npeaks_focus):
-        fig, axtot = plt.subplots(2, 2, figsize=(8, 6))
-        default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
-        ylabels_what = [
-            "heights",
-            "time stamps",
-        ]
-        ylabels_pos = ["zmin", "zmax"]
-        for j, op in enumerate(["peak_y", "peak_t"]):
-            for i, tracename in enumerate(["V zmin", "V zmax"]):
-                ax = axtot[j][i]
+    nc = 4
+    nr = int(math.ceil(npeaks_focus/nc))
+
+    default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    for op, ylabels_what in [("peak_y", "heights"), ("peak_t","time stamps")]:
+        for tracename in ["V zmin", "V zmax"]:
+
+            fig, axtot = plt.subplots(nr, nc, figsize=(16, 16))
+            for ip in range(npeaks_focus):
+                ir = int(ip/nc)
+                jc = ip%nc
+
+                ax = axtot[ir][jc]
 
                 batched_comp_pvalues.distplot(
                     trace=tracename,
@@ -619,20 +622,28 @@ def plot_batched_p_values_dist(
                     color=default_colors[0],
                     legend=False,
                 )
-                ax.set_xlabel("peak n")
+                ax.set_xlabel("p values")
 
-                ax.set_ylabel(f"peak {ylabels_what[j]} p values at {ylabels_pos[i]}")
+                ax.set_ylabel(f"count")
                 Utils.set_subplot_title(
-                    j,
-                    i,
-                    2,
+                    ir,
+                    jc,
+                    nc,
                     ax,
                     f"batched p values, {tracename}, {op}" if with_title else None,
                 )
 
-        fig.tight_layout()
-        Utils.savefig(path=savefig_path, name=f"batched_distplots_peak_{ip}", fig=fig)
-        fig.show()
+            for ip in range(npeaks_focus, nc * nr):
+                ir = int(ip / nc)
+                jc = ip % nc
+                ax = axtot[ir][jc]
+                fig.delaxes(ax)
+
+            fig.tight_layout()
+            Utils.savefig(path=savefig_path, name=f"batched_distplots_peak_{tracename}_{op}", fig=fig)
+            fig.show()
+
+
 
 
 def plot_missing_spike(multi_t, multi_y, savefig_path):

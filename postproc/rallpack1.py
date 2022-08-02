@@ -12,7 +12,8 @@ from postproc.utils import Utils
 
 
 def check(
-    sample_0_raw_traces_folder="rallpack1/raw_traces/STEPS4",
+    sample_0_raw_traces_folder="/home/katta/projects/STEPS4ModelRelease/rallpack1/raw_traces/STEPS4",
+    # sample_0_raw_traces_folder="rallpack1/raw_traces/STEPS4",
     sample_1_raw_traces_folder="rallpack1/raw_traces/STEPS3",
     analytical_raw_traces_folder="rallpack1/raw_traces/analytical",
     savefig_path="rallpack1/pics",

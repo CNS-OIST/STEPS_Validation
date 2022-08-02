@@ -1,5 +1,6 @@
 import logging
 import sys
+import math
 
 import matplotlib.image as image
 import matplotlib.pyplot as plt
@@ -14,11 +15,13 @@ logging.basicConfig(level=logging.WARNING)
 
 
 def check(
-    sample_0_raw_traces_folder="caburst/raw_traces/STEPS4/point_recording_22072022",
-    sample_1_raw_traces_folder="caburst/raw_traces/STEPS3/point_recording_22072022",
+    sample_0_raw_traces_folder="caburst/raw_traces/STEPS4",
+    sample_1_raw_traces_folder="caburst/raw_traces/STEPS3/ref_2022-06-03_highChannelDensity_smalldt",
     savefig_path="caburst/pics",
 ):
-    point_names = ["root V", "left tip V", "right tip V", "middle V"]
+    # point_names = ["root V", "left tip V", "right tip V", "middle V", "AMPA root open", "AMPA middle open",
+    #                                                                   "AMPA smooth open"]
+    point_names = ["smooth max V", "smooth min V", "spiny max V", "spiny min V"]
     filter = []
     goodness_of_fit_test_type = "ks"
     with_title = True
@@ -84,11 +87,14 @@ def plot_raw_traces(DB, savefig_path, with_title, point_names):
 
 def plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title, point_names):
 
-    fig, axtot = plt.subplots(4, 2, figsize=(10, 10))
-    for qq, point_name in enumerate(point_names):
-        i = qq%2
-        j = int(qq/2)
-        ax = axtot[i * 2][j]
+    nc = 2
+    nr = int(math.ceil(len(point_names)/nc))*2
+
+    fig, axtot = plt.subplots(nr, nc, figsize=(12, 16))
+    for ip, point_name in enumerate(point_names):
+        ir = int(ip / nc)
+        jc = ip % nc
+        ax = axtot[ir*2][jc]
         comp.avgplot_raw_traces(
             trace_name=point_name,
             std=False,
@@ -96,14 +102,17 @@ def plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title, point_names):
             conf_int_fill_between_kwargs={"alpha": 0.3},
         )
         ax.set_xlabel("ms")
-        ax.set_ylabel("mV")
+        if point_name.startswith("AMPA"):
+            ax.set_ylabel("n open channels")
+        else:
+            ax.set_ylabel("mV")
         if with_title:
             ax.set_title(f"avg. and conf. int. {point_name}")
 
-        if i == 0 and j == 1:
+        if ir == 0 and jc == 1:
             ax.legend(["STEPS3", "STEPS4"])
 
-        ax = axtot[i * 2 + 1][j]
+        ax = axtot[ir * 2 + 1][jc]
         comp.avgplot_raw_traces(
             trace_name=point_name,
             std=False,
@@ -112,7 +121,10 @@ def plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title, point_names):
             conf_int_fill_between_kwargs={"alpha": 0.3},
         )
         ax.set_xlabel("ms")
-        ax.set_ylabel("mV")
+        if point_name.startswith("AMPA"):
+            ax.set_ylabel("n open channels")
+        else:
+            ax.set_ylabel("mV")
 
     fig.tight_layout()
     Utils.savefig(path=savefig_path, name=f"avg_and_conf_int_and_diff", fig=fig)
