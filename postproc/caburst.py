@@ -27,9 +27,7 @@ def check(
     with_title = True
 
     sample_names, sample_0_DB, sample_1_DB = create_base_DBs(
-        sample_0_raw_traces_folder,
-        sample_1_raw_traces_folder,
-        point_names
+        sample_0_raw_traces_folder, sample_1_raw_traces_folder, point_names
     )
 
     """Create the comparator for advanced studies"""
@@ -85,16 +83,17 @@ def plot_raw_traces(DB, savefig_path, with_title, point_names):
     Utils.savefig(path=savefig_path, name="raw_traces", fig=fig)
     fig.show()
 
+
 def plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title, point_names):
 
     nc = 2
-    nr = int(math.ceil(len(point_names)/nc))*2
+    nr = int(math.ceil(len(point_names) / nc)) * 2
 
     fig, axtot = plt.subplots(nr, nc, figsize=(12, 16))
     for ip, point_name in enumerate(point_names):
         ir = int(ip / nc)
         jc = ip % nc
-        ax = axtot[ir*2][jc]
+        ax = axtot[ir * 2][jc]
         comp.avgplot_raw_traces(
             trace_name=point_name,
             std=False,
@@ -135,8 +134,8 @@ def plot_avg_and_conf_int(comp, savefig_path, with_title, point_names):
 
     fig, axtot = plt.subplots(3, 2, figsize=(9, 10))
     for qq, point_name in enumerate(point_names):
-        i = qq%2
-        j = int(qq/2)
+        i = qq % 2
+        j = int(qq / 2)
         ax = axtot[i][j]
         comp.avgplot_raw_traces(
             trace_name=point_name,
@@ -155,12 +154,11 @@ def plot_avg_and_conf_int(comp, savefig_path, with_title, point_names):
         ax.legend(["STEPS3", "STEPS4"])
 
 
-
 def plot_avg_and_std(comp, savefig_path, with_title, point_names):
     fig, axtot = plt.subplots(2, 2)
     for qq, point_name in enumerate(point_names):
-        i = qq%2
-        j = int(qq/2)
+        i = qq % 2
+        j = int(qq / 2)
         ax = axtot[i][j]
         comp.avgplot_raw_traces(
             trace_name=point_name,
@@ -180,9 +178,7 @@ def plot_avg_and_std(comp, savefig_path, with_title, point_names):
 
 
 def create_base_DBs(
-    sample_0_raw_traces_folder,
-    sample_1_raw_traces_folder,
-    point_names
+    sample_0_raw_traces_folder, sample_1_raw_traces_folder, point_names
 ):
 
     sample_names = Utils.autonaming_after_folders(
