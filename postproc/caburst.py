@@ -15,13 +15,13 @@ logging.basicConfig(level=logging.WARNING)
 
 
 def check(
-    sample_0_raw_traces_folder="caburst/raw_traces/STEPS4",
-    sample_1_raw_traces_folder="caburst/raw_traces/STEPS3/ref_2022-06-03_highChannelDensity_smalldt",
+    sample_0_raw_traces_folder="caburst/raw_traces/STEPS4/fixup_ghost_v_20220803",
+    sample_1_raw_traces_folder="caburst/raw_traces/STEPS3/master_202200802",
     savefig_path="caburst/pics",
 ):
-    # point_names = ["root V", "left tip V", "right tip V", "middle V", "AMPA root open", "AMPA middle open",
-    #                                                                   "AMPA smooth open"]
-    point_names = ["smooth max V", "smooth min V", "spiny max V", "spiny min V"]
+    point_names = ["root V", "left tip V", "right tip V", "middle V", "AMPA root open", "AMPA middle open",
+                                                                      "AMPA smooth open"]
+    # point_names = ["smooth max V", "smooth min V", "spiny max V", "spiny min V"]
     filter = []
     goodness_of_fit_test_type = "ks"
     with_title = True
