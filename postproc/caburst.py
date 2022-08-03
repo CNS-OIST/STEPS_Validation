@@ -15,12 +15,15 @@ logging.basicConfig(level=logging.WARNING)
 
 
 def check(
-    sample_0_raw_traces_folder="caburst/raw_traces/STEPS4/fixup_ghost_v_20220803",
-    sample_1_raw_traces_folder="caburst/raw_traces/STEPS3/master_202200802",
+    # sample_0_raw_traces_folder="caburst/raw_traces/STEPS4/fixup_ghost_v_20220803",
+    # sample_0_raw_traces_folder="caburst/raw_traces/STEPS3",
+    # sample_1_raw_traces_folder="caburst/raw_traces/STEPS3/master_20220802",
+    sample_0_raw_traces_folder="caburst/raw_traces/STEPS4/point_recording_20220727",
+    sample_1_raw_traces_folder="caburst/raw_traces/STEPS3/point_recording_20220727",
     savefig_path="caburst/pics",
 ):
     point_names = ["root V", "left tip V", "right tip V", "middle V", "AMPA root open", "AMPA middle open",
-                                                                      "AMPA smooth open"]
+    "AMPA smooth open"]
     # point_names = ["smooth max V", "smooth min V", "spiny max V", "spiny min V"]
     filter = []
     goodness_of_fit_test_type = "ks"
@@ -41,7 +44,7 @@ def check(
 
     # plot_avg_and_conf_int_and_inset_spiny_min(comp, savefig_path, with_title)
 
-    plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title, point_names)
+    plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title, point_names, baseline_name=sample_names[1])
 
     # plot_avg_and_std(comp, savefig_path, with_title)
 
@@ -84,7 +87,7 @@ def plot_raw_traces(DB, savefig_path, with_title, point_names):
     fig.show()
 
 
-def plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title, point_names):
+def plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title, point_names, baseline_name):
 
     nc = 2
     nr = int(math.ceil(len(point_names) / nc)) * 2
@@ -115,7 +118,7 @@ def plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title, point_names):
         comp.avgplot_raw_traces(
             trace_name=point_name,
             std=False,
-            baselineDB="STEPS3",
+            baselineDB=baseline_name,
             ax=ax,
             conf_int_fill_between_kwargs={"alpha": 0.3},
         )

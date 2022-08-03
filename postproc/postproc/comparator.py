@@ -488,8 +488,6 @@ class Comparator:
 
         trace_baseline = None
         if baselineDB:
-
-            print(self.traceDBs.keys())
             trace_baseline = (
                 self.traceDBs[baselineDB].traces[trace_name].raw_traces.mean(axis=1)
             )
