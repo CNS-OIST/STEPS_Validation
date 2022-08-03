@@ -270,6 +270,7 @@ class Trace:
             trace = self.raw_traces[file]
 
             t = time_trace.raw_traces[file]
+
             ax.plot(
                 t, trace, label=f"{self.name}, {file}", *argv, **next(fmt), **kwargs
             )

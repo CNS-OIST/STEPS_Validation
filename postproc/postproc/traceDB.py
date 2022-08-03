@@ -244,8 +244,8 @@ class TraceDB:
 
     def plot(
         self,
-        trace_names=[],
-        trace_files=[],
+        trace_names=None,
+        trace_files=None,
         fmt=[{}],
         ax=plt,
         *argv,
@@ -279,7 +279,7 @@ class TraceDB:
             trace.plot(
                 trace_files=trace_files,
                 time_trace=time_trace,
-                fmt=next(fmt),
+                fmt=[next(fmt)],
                 ax=ax,
                 *argv,
                 **kwargs,
