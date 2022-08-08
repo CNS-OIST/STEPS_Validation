@@ -15,16 +15,23 @@ logging.basicConfig(level=logging.WARNING)
 
 
 def check(
-    sample_0_raw_traces_folder="caburst/raw_traces/STEPS4/fixup_ghost_v_20220803",
-    sample_1_raw_traces_folder="caburst/raw_traces/STEPS3/master_202200802",
+    sample_0_raw_traces_folder="caburst/raw_traces/STEPS4/ref_2022-08-02_point_rec_fix_ghost_v",
+    sample_1_raw_traces_folder="caburst/raw_traces/STEPS3/PR_902_setTriCapac_20220808",
     savefig_path="caburst/pics",
 ):
-    point_names = ["root V", "left tip V", "right tip V", "middle V", "AMPA root open", "AMPA middle open",
-                                                                      "AMPA smooth open"]
+    point_names = [
+        "root V",
+        "left tip V",
+        "right tip V",
+        "middle V",
+        "AMPA root open",
+        "AMPA middle open",
+        "AMPA smooth open",
+    ]
     # point_names = ["smooth max V", "smooth min V", "spiny max V", "spiny min V"]
     filter = []
     goodness_of_fit_test_type = "ks"
-    with_title = True
+    with_title = False
 
     sample_names, sample_0_DB, sample_1_DB = create_base_DBs(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder, point_names
@@ -41,7 +48,9 @@ def check(
 
     # plot_avg_and_conf_int_and_inset_spiny_min(comp, savefig_path, with_title)
 
-    plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title, point_names)
+    plot_avg_and_conf_int_and_diff(
+        comp, savefig_path, with_title, [point_names[i] for i in [0, 3, 1, 2]], "avg"
+    )  # sample_names[1]
 
     # plot_avg_and_std(comp, savefig_path, with_title)
 
@@ -84,12 +93,14 @@ def plot_raw_traces(DB, savefig_path, with_title, point_names):
     fig.show()
 
 
-def plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title, point_names):
+def plot_avg_and_conf_int_and_diff(
+    comp, savefig_path, with_title, point_names, baselineDB
+):
 
     nc = 2
     nr = int(math.ceil(len(point_names) / nc)) * 2
 
-    fig, axtot = plt.subplots(nr, nc, figsize=(12, 16))
+    fig, axtot = plt.subplots(nr, nc, figsize=(10, 12))
     for ip, point_name in enumerate(point_names):
         ir = int(ip / nc)
         jc = ip % nc
@@ -105,17 +116,23 @@ def plot_avg_and_conf_int_and_diff(comp, savefig_path, with_title, point_names):
             ax.set_ylabel("n open channels")
         else:
             ax.set_ylabel("mV")
-        if with_title:
-            ax.set_title(f"avg. and conf. int. {point_name}")
+
+        Utils.set_subplot_title(
+            ir,
+            jc,
+            nc,
+            ax,
+            f"avg. and conf. int. {point_name}" if with_title else None,
+        )
 
         if ir == 0 and jc == 1:
-            ax.legend(["STEPS3", "STEPS4"])
+            ax.legend(["STEPS3", "_", "STEPS4"])
 
         ax = axtot[ir * 2 + 1][jc]
         comp.avgplot_raw_traces(
             trace_name=point_name,
             std=False,
-            baselineDB="STEPS3",
+            baselineDB=baselineDB,
             ax=ax,
             conf_int_fill_between_kwargs={"alpha": 0.3},
         )

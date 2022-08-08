@@ -473,6 +473,20 @@ class Comparator:
             **kwargs,
         )
 
+    def _avgavg_raw_traces(self, trace_name):
+        ans = []
+        for traceDB_name, traceDB in self.traceDBs.items():
+            if not traceDB.keep_raw_traces:
+                raise ComparatorError(
+                    f"The database {traceDB.name} has `keep_raw_traces` set to False. This is "
+                    f"incompatible with `avgplot_raw_traces`. Change that to plot."
+                )
+            traceavg = traceDB.traces[trace_name].raw_traces.mean(axis=1).to_numpy()
+            ans.append(traceavg)
+
+        ans = numpy.vstack(ans)
+        return ans.mean(axis=0)
+
     def avgplot_raw_traces(
         self,
         trace_name,
@@ -487,12 +501,10 @@ class Comparator:
         """Average plot with std deviations and confidence bands of the raw traces"""
 
         trace_baseline = None
-        if baselineDB:
-
-            print(self.traceDBs.keys())
-            trace_baseline = (
-                self.traceDBs[baselineDB].traces[trace_name].raw_traces.mean(axis=1)
-            )
+        if baselineDB == "avg":
+            trace_baseline = self._avgavg_raw_traces(trace_name)
+        elif baselineDB:
+            trace_baseline = self.traceDBs[baselineDB].traces[trace_name].raw_traces.mean(axis=1)
 
         for traceDB_name, traceDB in self.traceDBs.items():
 
