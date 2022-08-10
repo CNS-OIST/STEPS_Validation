@@ -129,7 +129,6 @@ class Comparator:
                 for ib0 in numpy.array_split(refined_trace_b, nbatches):
                     for is0 in numpy.array_split(refined_trace_s, nbatches):
                         if len(ib0) and len(is0):
-
                             val = -1
                             if test_type == "ks":
                                 val = stats.ks_2samp(is0, ib0)

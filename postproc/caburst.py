@@ -15,8 +15,8 @@ logging.basicConfig(level=logging.WARNING)
 
 
 def check(
-    sample_0_raw_traces_folder="caburst/raw_traces/STEPS4/ref_2022-08-02_point_rec_fix_ghost_v",
-    sample_1_raw_traces_folder="caburst/raw_traces/STEPS3/PR_902_setTriCapac_20220808",
+    sample_0_raw_traces_folder="caburst/raw_traces/STEPS4/ref_2022-08-09_paper_0a7f75aa",
+    sample_1_raw_traces_folder="caburst/raw_traces/STEPS3/ref_2022-08-09_paper_0a7f75aa",
     savefig_path="caburst/pics",
 ):
     point_names = [
@@ -37,6 +37,9 @@ def check(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder, point_names
     )
 
+    # reorder and filter for pretty printing
+    point_names = [point_names[i] for i in [0, 3, 1, 2]]
+
     """Create the comparator for advanced studies"""
     comp = Comparator(traceDBs=[sample_1_DB, sample_0_DB])
 
@@ -44,12 +47,12 @@ def check(
 
     """Plots"""
 
-    # plot_raw_traces(sample_0_DB, savefig_path, with_title)
+    plot_raw_traces(sample_0_DB, savefig_path, with_title, point_names)
 
     # plot_avg_and_conf_int_and_inset_spiny_min(comp, savefig_path, with_title)
 
     plot_avg_and_conf_int_and_diff(
-        comp, savefig_path, with_title, [point_names[i] for i in [0, 3, 1, 2]], "avg"
+        comp, savefig_path, with_title, point_names, "avg"
     )  # sample_names[1]
 
     # plot_avg_and_std(comp, savefig_path, with_title)
@@ -69,22 +72,23 @@ def plot_raw_traces(DB, savefig_path, with_title, point_names):
     ax = axtot[1]
     default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     styles = [
-        [
-            {
-                "color": default_colors[i],
-                "alpha": 0.035,
-                "linestyle": ["-", "--", "-.", ":"][i],
-            }
-        ]
+        {
+            "color": default_colors[i],
+            "alpha": 0.035,
+            "linestyle": ["-", "--", "-.", ":"][i],
+        }
         for i in range(4)
     ]
-    DB.plot(ax=ax, fmt=styles)
+    DB.plot(ax=ax, fmt=styles, trace_names=point_names)
     ax.set_xlabel("ms")
     ax.set_ylabel("mV")
-    leg = ax.legend(point_names)
+    if with_title:
+        leg = ax.legend(point_names)
+    else:
+        leg = ax.legend(["A", "B", "C", "D"])
     for idx, lh in enumerate(leg.legendHandles):
-        lh.set_color(styles[idx][0]["color"])
-        lh.set_linestyle(styles[idx][0]["linestyle"])
+        lh.set_color(styles[idx]["color"])
+        lh.set_linestyle(styles[idx]["linestyle"])
         lh.set_alpha(1)
 
     Utils.set_subplot_title(0, 1, 2, ax, f"raw traces" if with_title else None)
@@ -96,6 +100,7 @@ def plot_raw_traces(DB, savefig_path, with_title, point_names):
 def plot_avg_and_conf_int_and_diff(
     comp, savefig_path, with_title, point_names, baselineDB
 ):
+    conf_lvl = 0.99
 
     nc = 2
     nr = int(math.ceil(len(point_names) / nc)) * 2
@@ -110,6 +115,7 @@ def plot_avg_and_conf_int_and_diff(
             std=False,
             ax=ax,
             conf_int_fill_between_kwargs={"alpha": 0.3},
+            conf_lvl=conf_lvl,
         )
         ax.set_xlabel("ms")
         if point_name.startswith("AMPA"):
@@ -135,6 +141,7 @@ def plot_avg_and_conf_int_and_diff(
             baselineDB=baselineDB,
             ax=ax,
             conf_int_fill_between_kwargs={"alpha": 0.3},
+            conf_lvl=conf_lvl,
         )
         ax.set_xlabel("ms")
         if point_name.startswith("AMPA"):

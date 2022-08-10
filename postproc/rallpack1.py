@@ -83,7 +83,7 @@ def create_base_DBs(
     sample_1_raw_traces_folder,
     analytical_raw_traces_folder,
 ):
-    """ Create the standard trace databases required for postprocessing """
+    """Create the standard trace databases required for postprocessing"""
 
     sample_names = Utils.autonaming_after_folders(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder
@@ -177,7 +177,7 @@ def create_base_DBs(
 
 
 def create_diff_DB(DB0, DB1):
-    """ Create the database of the differences of the traces """
+    """Create the database of the differences of the traces"""
 
     traces_diff_analytic_STEPS4 = []
     traces_diff_analytic_STEPS4.append(Trace("t", "mS", multi=1))
