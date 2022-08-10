@@ -16,6 +16,8 @@ logging.basicConfig(level=logging.INFO)
 
 
 def check(
+    # sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-02-10_paper",
+    # sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-02-10_paper",
     sample_1_raw_traces_folder="rallpack3/raw_traces/STEPS4/ref_2022-08-09_paper_0a7f75aa",
     sample_0_raw_traces_folder="rallpack3/raw_traces/STEPS3/ref_2022-08-09_paper_0a7f75aa",
 ):
@@ -157,7 +159,7 @@ def create_base_DBs(
         traces_sample_1,
         sample_1_raw_traces_folder,
         clear_refined_traces_cache=clear_all_caches,
-        save_refined_traces_cache=True,
+        save_refined_traces_cache=False,
     )
 
     logging.info("Process sample 0")
@@ -191,7 +193,7 @@ def create_base_DBs(
         traces_sample_0,
         sample_0_raw_traces_folder,
         clear_refined_traces_cache=clear_all_caches,
-        save_refined_traces_cache=True,
+        save_refined_traces_cache=False,
     )
 
     return sample_names, sample_0_DB, sample_1_DB
@@ -217,7 +219,7 @@ def create_missing_spike_DB(multi_t, multi_y):
     DB_STEPS4 = TraceDB(
         "STEPS4",
         traces,
-        "rallpack3/raw_traces/STEPS4/missing_spike",
+        "rallpack3/base_data/missing_spike_STEPS4",
         clear_refined_traces_cache=True,
         save_refined_traces_cache=False,
         keep_raw_traces=True,
@@ -674,7 +676,7 @@ def plot_missing_spike_and_p_values(
     ax = axtot[0]
     DB_missing_spike_STEPS4 = create_missing_spike_DB(multi_t, multi_y)
     DB_missing_spike_STEPS4.plot(
-        ax=ax, fmt=[[{"linestyle": "-"}], [{"linestyle": "--"}]]
+        ax=ax, fmt=[{"linestyle": "-"}, {"linestyle": "--"}]
     )
     ax.set_xlabel("ms")
     ax.set_ylabel("mV")

@@ -32,6 +32,7 @@ def check(
     filter = []
     goodness_of_fit_test_type = "ks"
     with_title = False
+    conf_lvl = 0.99
 
     sample_names, sample_0_DB, sample_1_DB = create_base_DBs(
         sample_0_raw_traces_folder, sample_1_raw_traces_folder, point_names
@@ -52,8 +53,8 @@ def check(
     # plot_avg_and_conf_int_and_inset_spiny_min(comp, savefig_path, with_title)
 
     plot_avg_and_conf_int_and_diff(
-        comp, savefig_path, with_title, point_names, "avg"
-    )  # sample_names[1]
+        comp, savefig_path, with_title, point_names, "avg", conf_lvl
+    )
 
     # plot_avg_and_std(comp, savefig_path, with_title)
 
@@ -98,9 +99,9 @@ def plot_raw_traces(DB, savefig_path, with_title, point_names):
 
 
 def plot_avg_and_conf_int_and_diff(
-    comp, savefig_path, with_title, point_names, baselineDB
+    comp, savefig_path, with_title, point_names, baselineDB, conf_lvl
 ):
-    conf_lvl = 0.99
+
 
     nc = 2
     nr = int(math.ceil(len(point_names) / nc)) * 2
