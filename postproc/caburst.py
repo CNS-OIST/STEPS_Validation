@@ -66,11 +66,13 @@ def plot_raw_traces(DB, savefig_path, with_title, point_names):
     fig, axtot = plt.subplots(1, 2, figsize=(8, 4))
 
     ax = axtot[0]
+    ax.set_anchor('N')
     ax.imshow(image.imread("caburst/base_pics/Purkinje_structure.png"))
     ax.axis("off")
     Utils.set_subplot_title(0, 0, 2, ax, f"Purkinje structure" if with_title else None)
 
     ax = axtot[1]
+    ax.set_anchor('N')
     default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     styles = [
         {
@@ -86,7 +88,7 @@ def plot_raw_traces(DB, savefig_path, with_title, point_names):
     if with_title:
         leg = ax.legend(point_names)
     else:
-        leg = ax.legend(["A", "B", "C", "D"])
+        leg = ax.legend(["a", "b", "c", "d"])
     for idx, lh in enumerate(leg.legendHandles):
         lh.set_color(styles[idx]["color"])
         lh.set_linestyle(styles[idx]["linestyle"])

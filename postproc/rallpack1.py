@@ -1,5 +1,6 @@
 import copy
 import sys
+import os
 
 import matplotlib.image as image
 import matplotlib.pyplot as plt
@@ -12,8 +13,8 @@ from postproc.utils import Utils
 
 
 def check(
-    sample_0_raw_traces_folder="/home/katta/projects/STEPS4ModelRelease/rallpack1/raw_traces/STEPS4",
-    # sample_0_raw_traces_folder="rallpack1/raw_traces/STEPS4",
+    # sample_0_raw_traces_folder="/home/katta/projects/STEPS4ModelRelease/rallpack1/raw_traces/STEPS4",
+    sample_0_raw_traces_folder="rallpack1/raw_traces/STEPS4",
     sample_1_raw_traces_folder="rallpack1/raw_traces/STEPS3",
     analytical_raw_traces_folder="rallpack1/raw_traces/analytical",
     savefig_path="rallpack1/pics",
@@ -26,6 +27,11 @@ def check(
         analytical_raw_traces_folder,
     )
 
+    compare_raw_traces(benchmark_analytic, sample_0, sample_1, savefig_path, with_title)
+
+    mesh_scaling_plot(benchmark_analytic, savefig_path)
+
+def compare_raw_traces(benchmark_analytic, sample_0, sample_1, savefig_path, with_title):
     diff_analytic_STEPS4 = create_diff_DB(benchmark_analytic, sample_1)
 
     renamed_analytic = rename_traces(benchmark_analytic)
@@ -48,7 +54,7 @@ def check(
     Utils.set_subplot_title(0, 0, 2, ax, f"rallpack1 setup" if with_title else None)
 
     ax = axtot[1]
-    diff_analytic_STEPS4.plot(ax=ax, fmt=[[{"linestyle": "-"}], [{"linestyle": "--"}]])
+    diff_analytic_STEPS4.plot(ax=ax, fmt=[{"linestyle": "-"}, {"linestyle": "--"}])
     ax.set_ylim([-0.9, 2.5])
     ax.legend(["V zmin, analytic - STEPS4", "V zmax, analytic - STEPS4"], loc=4)
     ax.set_xlabel("ms")
@@ -58,13 +64,13 @@ def check(
     inset_ax = fig.add_axes([0.5, 0.5, 0.46, 0.4])
     default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     fmt = [
-        [{"linestyle": "-", "color": default_colors[0]}],
-        [{"linestyle": "-.", "color": default_colors[2]}],
+        {"linestyle": "-", "color": default_colors[0]},
+        {"linestyle": "-.", "color": default_colors[2]},
     ]
     renamed_analytic.plot(ax=inset_ax, fmt=fmt)
     fmt = [
-        [{"linestyle": "--", "color": default_colors[1]}],
-        [{"linestyle": ":", "color": default_colors[3]}],
+        {"linestyle": "--", "color": default_colors[1]},
+        {"linestyle": ":", "color": default_colors[3]},
     ]
     renamed_sample_1.plot(ax=inset_ax, fmt=fmt)
     inset_ax.set_xlabel("ms")
@@ -76,6 +82,92 @@ def check(
     fig.tight_layout()
     Utils.savefig(savefig_path, "traces", fig)
     fig.show()
+
+
+def mesh_scaling_plot(benchmark_analytic, savefig_path):
+    traces_path = "rallpack1/raw_traces/STEPS4/mesh_scaling/"
+
+    vzmin = []
+    vzmax = []
+    x = [42, 267, 2595, 12180]
+    for dir in x:
+
+        """Create the standard trace databases required for postprocessing"""
+
+        """sample_1"""
+        multi = 1000
+        traces_sample_1 = []
+        traces_sample_1.append(Trace("t", "ms", multi=multi))
+        traces_sample_1.append(
+            Trace(
+                "V zmin",
+                "mV",
+                multi=multi,
+                reduce_ops={
+                    "amin": [],
+                    "amax": [],
+                },
+            )
+        )
+        traces_sample_1.append(copy.deepcopy(traces_sample_1[-1]))
+        traces_sample_1[-1].name = "V zmax"
+
+        """Create the sample database"""
+        sample_1 = TraceDB(
+            dir,
+            traces_sample_1,
+            traces_path + str(dir),
+            clear_refined_traces_cache=True,
+            keep_raw_traces=True,
+            save_refined_traces_cache=False,
+        )
+
+        """comparator"""
+
+        comp = Comparator(traceDBs=[benchmark_analytic, sample_1])
+        for comp_name, c in comp.mse_refactored(normalized=False).items():
+            # print(comp_name)
+            vzmin.append(c["V zmin"]["mean"])
+            vzmax.append(c["V zmax"]["mean"])
+
+    fig, ax = plt.subplots()
+
+    ax.loglog(x, vzmin, label="V zmin", marker='x')
+    ax.loglog(x, vzmax, label="V zmax", marker='x')
+    ax.legend()
+
+    # diff_analytic_STEPS4.plot(ax=ax, fmt=[{"linestyle": "-"}, {"linestyle": "--"}])
+    # ax.set_ylim([-0.9, 2.5])
+    # ax.legend(["V zmin, analytic - STEPS4", "V zmax, analytic - STEPS4"], loc=4)
+    # ax.set_xlabel("ms")
+    # ax.set_ylabel("mV")
+    # Utils.set_subplot_title(0, 1, 2, ax, f"analytic - STEPS4" if with_title else None)
+    #
+    # inset_ax = fig.add_axes([0.5, 0.5, 0.46, 0.4])
+    # default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    # fmt = [
+    #     {"linestyle": "-", "color": default_colors[0]},
+    #     {"linestyle": "-.", "color": default_colors[2]},
+    # ]
+    # renamed_analytic.plot(ax=inset_ax, fmt=fmt)
+    # fmt = [
+    #     {"linestyle": "--", "color": default_colors[1]},
+    #     {"linestyle": ":", "color": default_colors[3]},
+    # ]
+    # renamed_sample_1.plot(ax=inset_ax, fmt=fmt)
+    # inset_ax.set_xlabel("ms")
+    # inset_ax.set_ylabel("mV")
+    # inset_ax.legend(
+    #     ["V zmin, analytic", "V zmax analytic", "V zmin, STEPS4", "V zmax STEPS4"]
+    # )
+
+    # fig.tight_layout()
+    Utils.savefig(savefig_path, "mesh_scaling", fig)
+    # fig.show()
+    # print(vzmin)
+    # print(vzmax)
+
+
 
 
 def create_base_DBs(
@@ -114,7 +206,7 @@ def create_base_DBs(
         analytical_raw_traces_folder,
         clear_refined_traces_cache=True,
         keep_raw_traces=True,
-        save_refined_traces_cache=True,
+        save_refined_traces_cache=False,
     )
 
     """sample_1"""
@@ -142,7 +234,7 @@ def create_base_DBs(
         sample_1_raw_traces_folder,
         clear_refined_traces_cache=True,
         keep_raw_traces=True,
-        save_refined_traces_cache=True,
+        save_refined_traces_cache=False,
     )
 
     """sample_0"""
