@@ -184,7 +184,7 @@ def test_csdclamp():
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):
-                res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
+                res[j, i, k] = sim.getTetSpecCount(int(tetidxs[k]), 'X')
     #print('{0} / {1}'.format(j + 1, NITER))
 
     itermeans = np.mean(res, axis = 0)

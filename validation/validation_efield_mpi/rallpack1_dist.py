@@ -148,7 +148,8 @@ def host_assignment_by_axis(mesh, tri_set):
     def tet_neighbs(tri):
         return [tet for tet in mesh.getTriTetNeighb(tri) if tet != UNKNOWN_TET]
 
-    tet_hosts = gd.binTetsByAxis(mesh, steps.mpi.nhosts)
+    tet_hosts = gd.linearPartition(mesh, [1, 1, steps.mpi.nhosts])
+
     tri_hosts = {}
 
     for part in consistent_neighbourhood_part(mesh, tri_set):
@@ -233,7 +234,7 @@ def init_sim(model, mesh, seed, param):
     # Set initial conditions
     sim.reset()
 
-    for t in memb.tris: sim.setTriCount(t, 'Leak', 1)
+    for t in memb.tris: sim.setTriSpecCount(t, 'Leak', 1)
 
     sim.setEfieldDT(param['EF_dt'])
     sim.setMembPotential('membrane', param['E_M'])

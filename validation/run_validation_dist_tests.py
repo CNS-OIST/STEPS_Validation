@@ -2,6 +2,9 @@ from __future__ import absolute_import
 
 import os.path as osp
 import sys
+import collections
+import collections.abc
+collections.Callable = collections.abc.Callable
 
 import nose
 

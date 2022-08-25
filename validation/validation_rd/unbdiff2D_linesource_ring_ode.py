@@ -12,7 +12,7 @@
 # components, particularly mesh loading and manipulation capabilities 
 # with functions such as steps.geom.Tetmesh.getTriBarycenter and 
 # steps.geom.Tetmesh.getTriArea etc. 
-# Localised recording by steps.solver.TetODE.getTriCount is also verified. 
+# Localised recording by steps.solver.TetODE.getTriSpecCount is also verified. 
 
 # Even though this is a deterministic model, a tolerance of 1.0% is 
 # permitted. This is because a point source is not replicated in STEPS 
@@ -139,11 +139,11 @@ def test_unbdiff2D_linesource_ring_ode():
     res_count = np.zeros((ntpnts, patch_tris_n))
 
     for t in inject_tris:
-        sim.setTriCount(t, 'X', float(NINJECT)/len(inject_tris))
+        sim.setTriSpecCount(t, 'X', float(NINJECT)/len(inject_tris))
     for i in range(ntpnts):
         sim.run(tpnts[i])
         for k in range(patch_tris_n):
-            res_count[i, k] = sim.getTriCount(patch_tris[k], 'X')
+            res_count[i, k] = sim.getTriSpecCount(patch_tris[k], 'X')
 
 
     tpnt_compare = [75, 100, 150]

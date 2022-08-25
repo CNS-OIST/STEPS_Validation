@@ -82,8 +82,8 @@ res_std1 = np.zeros([ntpnts])
 res_std2 = np.zeros([ntpnts])
 
 sim.reset()
-sim.setCompCount('comp1', 'A', 0)
-sim.setCompCount('comp1', 'B', B0)
+sim.setCompSpecCount('comp1', 'A', 0)
+sim.setCompSpecCount('comp1', 'B', B0)
 
 sim.checkpoint(configuration.checkpoint('masteq_diff'))
 

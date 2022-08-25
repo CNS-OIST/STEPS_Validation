@@ -17,7 +17,7 @@
 # components, particularly mesh loading and manipulation capabilities 
 # with functions such as steps.utilities.meshio.loadMesh and 
 # steps.geom.Tetmesh.findTetByPoint, steps.geom.Tetmesh.getTetVol etc. 
-# Localised recording by steps.solver.TetODE.getTetCount is also verified. 
+# Localised recording by steps.solver.TetODE.getTetSpecCount is also verified. 
 
 # Even though this is a deterministic model, a tolerance of 3.5% is 
 # permitted. This is because a point source is not replicated in STEPS 
@@ -200,11 +200,11 @@ def test_unbdiff_ode():
     res = np.zeros((NITER, ntpnts, SAMPLE))
 
     for j in range(NITER):
-        sim.setTetCount(ctetidx, 'X', NINJECT)
+        sim.setTetSpecCount(ctetidx, 'X', NINJECT)
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):
-                res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
+                res[j, i, k] = sim.getTetSpecCount(int(tetidxs[k]), 'X')
                 
     itermeans = np.mean(res, axis = 0)
 
