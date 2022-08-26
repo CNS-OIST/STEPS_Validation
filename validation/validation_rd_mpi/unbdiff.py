@@ -112,7 +112,7 @@ def test_unbdiff():
     # And fetch the total number of tets to make the data structures
     ntets = g.countTets()
 
-    tet_hosts = gd.binTetsByAxis(g, steps.mpi.nhosts)
+    tet_hosts = gd.linearPartition(g, [1, 1, steps.mpi.nhosts])
     sim = solvmod.TetOpSplit(m, g, rng, False, tet_hosts)
 
 
@@ -124,11 +124,11 @@ def test_unbdiff():
 
     for j in range(NITER):
         sim.reset()
-        sim.setTetCount(ctetidx, 'X', NINJECT)
+        sim.setTetSpecCount(ctetidx, 'X', NINJECT)
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):
-                res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
+                res[j, i, k] = sim.getTetSpecCount(int(tetidxs[k]), 'X')
 
     itermeans = numpy.mean(res, axis = 0)
 

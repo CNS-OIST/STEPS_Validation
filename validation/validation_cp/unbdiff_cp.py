@@ -108,6 +108,6 @@ ntpnts = tpnts.shape[0]
 res = np.zeros((NITER, ntpnts, SAMPLE))
 
 sim.reset()
-sim.setTetCount(ctetidx, 'X', NINJECT)
+sim.setTetSpecCount(ctetidx, 'X', NINJECT)
 sim.checkpoint(configuration.checkpoint('unbdiff'))
 

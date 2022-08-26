@@ -74,7 +74,7 @@ def test_masteq_diff():
     rng = srng.create('r123', 512)
     rng.initialize(1000)
 
-    tet_hosts = gd.binTetsByAxis(geom, steps.mpi.nhosts)
+    tet_hosts = gd.linearPartition(geom, [1, 1, steps.mpi.nhosts])
     sim = solvmod.TetOpSplit(mdl, geom, rng, False, tet_hosts)
 
     sim.reset()
@@ -87,13 +87,13 @@ def test_masteq_diff():
     res_std2 = numpy.zeros([ntpnts])
 
     sim.reset()
-    sim.setCompCount('comp1', 'A', 0)
-    sim.setCompCount('comp1', 'B', B0)
+    sim.setCompSpecCount('comp1', 'A', 0)
+    sim.setCompSpecCount('comp1', 'B', B0)
 
     b_time = time.time()
     for t in range(0, ntpnts):
         sim.run(tpnts[t])
-        res[t] = sim.getCompCount('comp1', 'A')
+        res[t] = sim.getCompSpecCount('comp1', 'A')
 
 
     def fact(x): return (1 if x==0 else x * fact(x-1))

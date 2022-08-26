@@ -90,7 +90,7 @@ def test_masteqdiff():
     b_time = time.time()
     for t in range(0, ntpnts):
         sim.run(tpnts[t])
-        res[t] = sim.getCompCount('comp1', 'A')
+        res[t] = sim.getCompSpecCount('comp1', 'A')
 
 
     def fact(x): return (1 if x==0 else x * fact(x-1))

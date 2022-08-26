@@ -1,5 +1,7 @@
 import os.path as osp
 import sys
+import collections.abc
+collections.Callable = collections.abc.Callable
 
 import nose
 

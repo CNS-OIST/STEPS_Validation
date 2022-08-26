@@ -175,6 +175,6 @@ for z in minztets:
 
 sim.reset()
 for k in minztets:
-    sim.setTetConc(k, 'X', CONC)
-    sim.setTetClamped(k, 'X', True)
+    sim.setTetSpecConc(k, 'X', CONC)
+    sim.setTetSpecClamped(k, 'X', True)
 sim.checkpoint(configuration.checkpoint('csd_clamp'))

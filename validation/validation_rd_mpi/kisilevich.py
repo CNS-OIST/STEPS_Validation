@@ -125,7 +125,7 @@ def test_kisilevich():
     rng = srng.create('r123', 512)
     rng.initialize(1000)
 
-    tet_hosts = gd.binTetsByAxis(mesh, steps.mpi.nhosts)
+    tet_hosts = gd.linearPartition(mesh, [1, 1, steps.mpi.nhosts])
     sim = solvmod.TetOpSplit(mdl, mesh, rng, False, tet_hosts)
 
     tpnts = numpy.arange(0.0, INT, DT)
@@ -138,17 +138,17 @@ def test_kisilevich():
     for i in range (0, NITER):
         sim.reset()
         
-        sim.setDiffBoundaryDiffusionActive('diffb', 'A', True)
-        sim.setDiffBoundaryDiffusionActive('diffb', 'B', True)
+        sim.setDiffBoundarySpecDiffusionActive('diffb', 'A', True)
+        sim.setDiffBoundarySpecDiffusionActive('diffb', 'B', True)
         
-        sim.setCompCount('compa', 'A', NA0)
-        sim.setCompCount('compb', 'B', NB0)
+        sim.setCompSpecCount('compa', 'A', NA0)
+        sim.setCompSpecCount('compb', 'B', NB0)
         
         for t in range(0, ntpnts):
             sim.run(tpnts[t])
             for k in range(SAMPLE):
-                resA[i,t,k] = sim.getTetCount(int(tetidxs[k]), 'A')
-                resB[i,t,k] = sim.getTetCount(int(tetidxs[k]), 'B')
+                resA[i,t,k] = sim.getTetSpecCount(int(tetidxs[k]), 'A')
+                resB[i,t,k] = sim.getTetSpecCount(int(tetidxs[k]), 'B')
 
 
     itermeansA = numpy.mean(resA, axis=0)

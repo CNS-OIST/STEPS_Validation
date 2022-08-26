@@ -114,7 +114,7 @@ def test_bounddiff():
     # And fetch the total number of tets to make the data structures
     ntets = g.countTets()
 
-    tet_hosts = gd.binTetsByAxis(g, steps.mpi.nhosts)
+    tet_hosts = gd.linearPartition(g, [1, 1, steps.mpi.nhosts])
     sim = solvmod.TetOpSplit(m, g, rng, False, tet_hosts)
 
     tpnts = numpy.arange(0.0, INT, DT)
@@ -168,12 +168,12 @@ def test_bounddiff():
         tetcount = int((1.0*NINJECT)/nztets)
         totset = 0
         for k in minztets:
-            sim.setTetCount(k, 'X', tetcount)
+            sim.setTetSpecCount(k, 'X', tetcount)
             totset+=tetcount
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):
-                res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
+                res[j, i, k] = sim.getTetSpecCount(int(tetidxs[k]), 'X')
 
     itermeans = numpy.mean(res, axis = 0)
 

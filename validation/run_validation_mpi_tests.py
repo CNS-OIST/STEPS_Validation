@@ -2,10 +2,14 @@ from __future__ import absolute_import
 
 import os.path as osp
 import sys
+import collections.abc
+collections.Callable = collections.abc.Callable
 
 import nose
 
 from config import configuration
+
+
 
 
 DEFAULT_TEST_SUITE = [
