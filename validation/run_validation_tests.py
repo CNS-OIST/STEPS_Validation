@@ -5,6 +5,7 @@ import unittest
 
 if __name__ == '__main__':
     test_dir = osp.dirname(osp.abspath(__file__))
+    top_dir = osp.join(test_dir, '..')
     loader = unittest.TestLoader()
 
     directories = []
@@ -17,8 +18,7 @@ if __name__ == '__main__':
         print(f'Running validations from {start_dir}')
 
         with contextlib.redirect_stdout(None):
-            top_dir = osp.join(test_dir, '..')
-            suite = loader.discover(test_dir, pattern='test_*.py', top_level_dir=top_dir)
+            suite = loader.discover(start_dir, pattern='test_*.py', top_level_dir=top_dir)
 
         runner = unittest.TextTestRunner(verbosity=2)
         runner.run(suite)
