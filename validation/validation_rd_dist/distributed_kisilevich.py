@@ -38,7 +38,9 @@ import unittest
 
 from scipy.constants import Avogadro
 from . import tol_funcs
-from .. import configuration
+from ..config import Configuration
+
+configuration = Configuration(__file__)
 
 ########################################################################
 

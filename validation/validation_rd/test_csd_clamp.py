@@ -44,7 +44,9 @@ import steps.solver as solvmod
 import steps.utilities.meshio as meshio
 
 from . import tol_funcs
-from .. import configuration
+from ..config import Configuration
+
+configuration = Configuration(__file__)
 
 ########################################################################
 

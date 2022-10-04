@@ -2,7 +2,9 @@ import os.path as path
 import unittest
 
 from . import rallpack1_dist
-from .. import configuration
+from ..config import Configuration
+
+configuration = Configuration(__file__)
 
 # defaults
 C={ 'meshdir': configuration.path('validation_efield/meshes'),

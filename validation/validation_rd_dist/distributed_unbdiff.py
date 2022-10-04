@@ -18,7 +18,9 @@ from steps.saving import *
 from steps.sim import *
 
 from . import tol_funcs
-from .. import configuration
+from ..config import Configuration
+
+configuration = Configuration(__file__)
 
 ########################################################################
 

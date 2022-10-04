@@ -1,10 +1,16 @@
 import os
 import os.path as osp
 
+PREFIX2SUFFIX = {
+    'test': '',
+    'parallel': '_mpi',
+    'distributed': '_dist',
+}
 
 class Configuration(object):
-    def __init__(self):
-        self.suffix = ''
+    def __init__(self, srcPath):
+        srcPref, *_ = osp.basename(srcPath).split('_')
+        self.suffix = PREFIX2SUFFIX[srcPref]
 
     @property
     def meshes_dir(self):
@@ -32,7 +38,3 @@ class Configuration(object):
         if not osp.isdir(checkpoints_dir):
             os.makedirs(checkpoints_dir)
         return osp.join(checkpoints_dir, name)
-
-
-configuration = Configuration()
-del Configuration
