@@ -27,10 +27,6 @@ import steps.rng as srng
 import steps.utilities.geom_decompose as gd
 import steps.utilities.meshio as meshio
 
-from ..config import Configuration
-
-configuration = Configuration(__file__)
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 sim_parameters = {
@@ -265,7 +261,7 @@ def run_sim(sim, dt, t_end, vertices, verbose=False):
 # Returns RMS error, table containing computed end-point voltages
 # and reference voltage data.
 
-def run_comparison(seed, mesh_file, mesh_format, mesh_scale, v0_datafile, v1_datafile, verbose=False):
+def run_comparison(configuration, seed, mesh_file, mesh_format, mesh_scale, v0_datafile, v1_datafile, verbose=False):
     # sample at same interval as rallpack1 reference data
     sim_dt = 5.0e-5
 

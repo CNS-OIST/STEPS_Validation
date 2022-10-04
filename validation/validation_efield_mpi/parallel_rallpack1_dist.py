@@ -30,7 +30,7 @@ class TestRallpack1(unittest.TestCase):
         v1data = path.join(C['datadir'],C['v1data'])
         seed = C['seed']
 
-        simdata, rms_err_0um, rms_err_1000um = rallpack1_dist.run_comparison(seed, meshfile, meshfmt, meshscale, v0data, v1data)
+        simdata, rms_err_0um, rms_err_1000um = rallpack1_dist.run_comparison(configuration, seed, meshfile, meshfmt, meshscale, v0data, v1data)
 
         print("rms error at 0um = " + str(rms_err_0um))
         print("rms error at 1000um = " + str(rms_err_1000um))
