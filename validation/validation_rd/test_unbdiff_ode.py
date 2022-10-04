@@ -26,12 +26,11 @@
   
 ########################################################################
 
-from __future__ import print_function, absolute_import
-
 import datetime
 import time
-
 import numpy as np
+import unittest
+
 try:
     from steps.geom import UNKNOWN_TET
 except ImportError:
@@ -47,44 +46,37 @@ from .. import configuration
 
 ########################################################################
 
-def setup_module():
-    global rng
+# Number of iterations; plotting dt; sim endtime:
+NITER = 1
 
-    rng = srng.create('r123', 1024) 
-    rng.initialize(1000) # The max unsigned long
+DT = 0.01
+INT = 0.21
 
-    # Number of iterations; plotting dt; sim endtime:
-    global NITER, DT, INT
+# Number of molecules injected in centre; diff constant; number of tets sampled:
 
-    NITER = 1
+NINJECT = 100000 	
 
-    DT = 0.01
-    INT = 0.21
+DCST = 0.02e-9
 
-    # Number of molecules injected in centre; diff constant; number of tets sampled:
-    global NINJECT, DCST, tolerance
+# Small expected error from non point source
+tolerance = 3.5/100
 
-    NINJECT = 100000 	
+########################################################################
 
-    DCST = 0.02e-9
+SAMPLE = 10000	 
 
-    # Small expected error from non point source
-    tolerance = 3.5/100
+MESHFILE = 'sphere_rad10_77Ktets'
 
-    ########################################################################
-    global SAMPLE, MESHFILE, tetidxs, tetrads, tetvols
+# create the array of tet indices to be found at random
+tetidxs = np.zeros(SAMPLE, dtype = 'int')
+for i in range(SAMPLE): tetidxs[i] = i
 
-    SAMPLE = 10000	 
+# further create the array of tet barycentre distance to centre
+tetrads = np.zeros(SAMPLE)
+tetvols = np.zeros(SAMPLE)
 
-    MESHFILE = 'sphere_rad10_77Ktets'
-
-    # create the array of tet indices to be found at random
-    tetidxs = np.zeros(SAMPLE, dtype = 'int')
-    for i in range(SAMPLE): tetidxs[i] = i
-
-    # further create the array of tet barycentre distance to centre
-    tetrads = np.zeros(SAMPLE)
-    tetvols = np.zeros(SAMPLE)
+rng = srng.create('r123', 1024) 
+rng.initialize(1000) # The max unsigned long
 
 ########################################################################
 
@@ -179,77 +171,85 @@ def gen_geom():
 
 ########################################################################
 
-def test_unbdiff_ode():
-    "Diffusion - Unbounded (TetODE)"
+class TestUnbDiffODE(unittest.TestCase):
+    def test_unbdiff_ode(self):
+        "Diffusion - Unbounded (TetODE)"
 
-    m = gen_model()
-    g = gen_geom()
+        m = gen_model()
+        g = gen_geom()
 
-    # Fetch the index of the centre tet
-    ctetidx = g.findTetByPoint([0.0, 0.0, 0.0])
-    # And fetch the total number of tets to make the data structures
-    ntets = g.countTets()
+        # Fetch the index of the centre tet
+        ctetidx = g.findTetByPoint([0.0, 0.0, 0.0])
+        # And fetch the total number of tets to make the data structures
+        ntets = g.countTets()
 
-    sim = solvmod.TetODE(m, g)
-    sim.setTolerances(1e-7, 1e-7)
+        sim = solvmod.TetODE(m, g)
+        sim.setTolerances(1e-7, 1e-7)
 
-    tpnts = np.arange(0.0, INT, DT)
-    ntpnts = tpnts.shape[0]
+        tpnts = np.arange(0.0, INT, DT)
+        ntpnts = tpnts.shape[0]
 
-    #Create the big old data structure: iterations x time points x concentrations
-    res = np.zeros((NITER, ntpnts, SAMPLE))
+        #Create the big old data structure: iterations x time points x concentrations
+        res = np.zeros((NITER, ntpnts, SAMPLE))
 
-    for j in range(NITER):
-        sim.setTetCount(ctetidx, 'X', NINJECT)
-        for i in range(ntpnts):
-            sim.run(tpnts[i])
-            for k in range(SAMPLE):
-                res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
-                
-    itermeans = np.mean(res, axis = 0)
+        for j in range(NITER):
+            sim.setTetCount(ctetidx, 'X', NINJECT)
+            for i in range(ntpnts):
+                sim.run(tpnts[i])
+                for k in range(SAMPLE):
+                    res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
+                    
+        itermeans = np.mean(res, axis = 0)
 
-    tpnt_compare = [10, 15, 20]
-    passed = True
-    max_err = 0.0
+        tpnt_compare = [10, 15, 20]
+        passed = True
+        max_err = 0.0
 
-    for t in tpnt_compare:
-        bin_n = 20
-        
-        r_max = tetrads.max()
-        r_min = 0.0
-        
-        r_seg = (r_max-r_min)/bin_n
-        bin_mins = np.zeros(bin_n+1)
-        r_tets_binned = np.zeros(bin_n)
-        bin_vols = np.zeros(bin_n)    
-        
-        r = r_min
-        for b in range(bin_n + 1):
-            bin_mins[b] = r
-            if (b!=bin_n): r_tets_binned[b] = r +r_seg/2.0
-            r+=r_seg
-        bin_counts = [None]*bin_n
-        for i in range(bin_n): bin_counts[i] = []
-        for i in range((itermeans[t].size)):
-            i_r = tetrads[i]
-            for b in range(bin_n):
-                if(i_r>=bin_mins[b] and i_r<bin_mins[b+1]):
-                    bin_counts[b].append(itermeans[t][i])
-                    bin_vols[b]+=sim.getTetVol(int(tetidxs[i]))
-                    break
-        
-        bin_concs = np.zeros(bin_n)
-        for c in range(bin_n): 
-            for d in range(bin_counts[c].__len__()):
-                bin_concs[c] += bin_counts[c][d]
-            bin_concs[c]/=(bin_vols[c]*1.0e18)
-        
-        for i in range(bin_n):
-            if (r_tets_binned[i] > 2.0 and r_tets_binned[i] < 6.0):
-                rad = r_tets_binned[i]*1.0e-6
-                det_conc = 1e-18*((NINJECT/(np.power((4*np.pi*DCST*tpnts[t]),1.5)))*(np.exp((-1.0*(rad*rad))/(4*DCST*tpnts[t]))))
-                steps_conc = bin_concs[i]
-                assert tol_funcs.tolerable(det_conc, steps_conc, tolerance)
+        for t in tpnt_compare:
+            bin_n = 20
+            
+            r_max = tetrads.max()
+            r_min = 0.0
+            
+            r_seg = (r_max-r_min)/bin_n
+            bin_mins = np.zeros(bin_n+1)
+            r_tets_binned = np.zeros(bin_n)
+            bin_vols = np.zeros(bin_n)    
+            
+            r = r_min
+            for b in range(bin_n + 1):
+                bin_mins[b] = r
+                if (b!=bin_n): r_tets_binned[b] = r +r_seg/2.0
+                r+=r_seg
+            bin_counts = [None]*bin_n
+            for i in range(bin_n): bin_counts[i] = []
+            for i in range((itermeans[t].size)):
+                i_r = tetrads[i]
+                for b in range(bin_n):
+                    if(i_r>=bin_mins[b] and i_r<bin_mins[b+1]):
+                        bin_counts[b].append(itermeans[t][i])
+                        bin_vols[b]+=sim.getTetVol(int(tetidxs[i]))
+                        break
+            
+            bin_concs = np.zeros(bin_n)
+            for c in range(bin_n): 
+                for d in range(bin_counts[c].__len__()):
+                    bin_concs[c] += bin_counts[c][d]
+                bin_concs[c]/=(bin_vols[c]*1.0e18)
+            
+            for i in range(bin_n):
+                if (r_tets_binned[i] > 2.0 and r_tets_binned[i] < 6.0):
+                    rad = r_tets_binned[i]*1.0e-6
+                    det_conc = 1e-18*((NINJECT/(np.power((4*np.pi*DCST*tpnts[t]),1.5)))*(np.exp((-1.0*(rad*rad))/(4*DCST*tpnts[t]))))
+                    steps_conc = bin_concs[i]
+                    assert tol_funcs.tolerable(det_conc, steps_conc, tolerance)
 
 ########################################################################
-# END
+
+def suite():
+    all_tests = []
+    all_tests.append(unittest.makeSuite(TestUnbDiffODE, "test"))
+    return unittest.TestSuite(all_tests)
+
+if __name__ == "__main__":
+    unittest.TextTestRunner(verbosity=2).run(suite())
