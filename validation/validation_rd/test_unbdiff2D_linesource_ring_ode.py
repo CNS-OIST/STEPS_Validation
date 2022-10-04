@@ -21,8 +21,6 @@
   
 ########################################################################
 
-from __future__ import print_function, absolute_import
-
 import steps.model as smodel
 import steps.solver as solvmod
 import steps.utilities.meshio as smeshio
@@ -32,32 +30,27 @@ import steps.rng as srng
 import datetime
 import time
 import numpy as np
+import unittest
 
 from . import tol_funcs
 from .. import configuration
 
 ########################################################################
 
-def setup_module():
-    global rng, DT, INT, NINJECT, DCST, tolerance, MESHFILE
+# plotting dt; sim endtime:
+DT = 0.02
+INT = 3.02
 
-    rng = srng.create('r123', 1024) 
-    rng.initialize(1000) # The max unsigned long
+# Number of molecules injected in centre; diff constant
+NINJECT = 1000
+DCST = 0.01e-9
 
-    # plotting dt; sim endtime:
-    DT = 0.02
-    INT = 3.02
+# Error from non-zero injection width etc should be less than 1%
+tolerance = 1.0/100
 
-    # Number of molecules injected in centre; diff constant
-    NINJECT = 1000
-    DCST = 0.01e-9
+########################################################################
 
-    # Error from non-zero injection width etc should be less than 1%
-    tolerance = 1.0/100
-
-    ########################################################################
-
-    MESHFILE ='ring2_or10_ir9_injx0width2_60084tets.inp'
+MESHFILE ='ring2_or10_ir9_injx0width2_60084tets.inp'
 
 ########################################################################
 
@@ -123,77 +116,86 @@ def gen_geom():
 
 ########################################################################
 
-def test_unbdiff2D_linesource_ring_ode():
-    "Surface Diffusion - Unbounded, line source (TetODE)"
+class TestUnbDiff2DLineSourceRingODE(unittest.TestCase):
+    def test_unbdiff2D_linesource_ring_ode(self):
+        "Surface Diffusion - Unbounded, line source (TetODE)"
+        rng = srng.create('r123', 1024) 
+        rng.initialize(1000) # The max unsigned long
 
-    m = gen_model()
-    g, patch_tris, patch_tris_n, inject_tris, tridists, triareas = gen_geom()
-
-
-    sim = solvmod.TetODE(m, g, rng)
-    sim.setTolerances(1e-7, 1e-7)
-
-    tpnts = np.arange(0.0, INT, DT)
-    ntpnts = tpnts.shape[0]
-
-    res_count = np.zeros((ntpnts, patch_tris_n))
-
-    for t in inject_tris:
-        sim.setTriSpecCount(t, 'X', float(NINJECT)/len(inject_tris))
-    for i in range(ntpnts):
-        sim.run(tpnts[i])
-        for k in range(patch_tris_n):
-            res_count[i, k] = sim.getTriSpecCount(patch_tris[k], 'X')
+        m = gen_model()
+        g, patch_tris, patch_tris_n, inject_tris, tridists, triareas = gen_geom()
 
 
-    tpnt_compare = [75, 100, 150]
+        sim = solvmod.TetODE(m, g, rng)
+        sim.setTolerances(1e-7, 1e-7)
 
-    passed = True
-    max_err = 0.0
+        tpnts = np.arange(0.0, INT, DT)
+        ntpnts = tpnts.shape[0]
 
-    for t in tpnt_compare:
-        bin_n = 50
-        
-        r_min=0
-        r_max=0
-        
-        for i in tridists: 		
-            if (i > r_max): r_max = i 	
-            if (i < r_min): r_min = i
-        
-        r_seg = (r_max-r_min)/bin_n
-        bin_mins = np.zeros(bin_n+1)
-        r_tris_binned = np.zeros(bin_n)
-        bin_areas = np.zeros(bin_n)    
-        
-        r = r_min
-        for b in range(bin_n + 1):
-            bin_mins[b] = r
-            if (b!=bin_n): r_tris_binned[b] = r +r_seg/2.0
-            r+=r_seg
-        bin_counts = [None]*bin_n
-        for i in range(bin_n): bin_counts[i] = []
-        for i in range((res_count[t].size)):
-            i_r = tridists[i]
-            for b in range(bin_n):
-                if(i_r>=bin_mins[b] and i_r<bin_mins[b+1]):
-                    bin_counts[b].append(res_count[t][i])
-                    bin_areas[b]+=sim.getTriArea(int(patch_tris[i]))
-                    break
-        
-        bin_concs = np.zeros(bin_n)
-        for c in range(bin_n): 
-            for d in range(bin_counts[c].__len__()):
-                bin_concs[c] += bin_counts[c][d]
-            bin_concs[c]/=(bin_areas[c]*1.0e12)
-        
-        for i in range(bin_n):
-            if (r_tris_binned[i] > -10.0 and r_tris_binned[i] < 10.0):
-                dist = r_tris_binned[i]*1e-6
-                det_conc = 1e-6*(NINJECT/(4*np.sqrt((np.pi*DCST*tpnts[t]))))*(np.exp((-1.0*(dist*dist))/(4*DCST*tpnts[t])))	
-                steps_conc = bin_concs[i]
-                assert tol_funcs.tolerable(det_conc, steps_conc, tolerance)
-                
+        res_count = np.zeros((ntpnts, patch_tris_n))
+
+        for t in inject_tris:
+            sim.setTriSpecCount(t, 'X', float(NINJECT)/len(inject_tris))
+        for i in range(ntpnts):
+            sim.run(tpnts[i])
+            for k in range(patch_tris_n):
+                res_count[i, k] = sim.getTriSpecCount(patch_tris[k], 'X')
+
+
+        tpnt_compare = [75, 100, 150]
+
+        passed = True
+        max_err = 0.0
+
+        for t in tpnt_compare:
+            bin_n = 50
+            
+            r_min=0
+            r_max=0
+            
+            for i in tridists: 		
+                if (i > r_max): r_max = i 	
+                if (i < r_min): r_min = i
+            
+            r_seg = (r_max-r_min)/bin_n
+            bin_mins = np.zeros(bin_n+1)
+            r_tris_binned = np.zeros(bin_n)
+            bin_areas = np.zeros(bin_n)    
+            
+            r = r_min
+            for b in range(bin_n + 1):
+                bin_mins[b] = r
+                if (b!=bin_n): r_tris_binned[b] = r +r_seg/2.0
+                r+=r_seg
+            bin_counts = [None]*bin_n
+            for i in range(bin_n): bin_counts[i] = []
+            for i in range((res_count[t].size)):
+                i_r = tridists[i]
+                for b in range(bin_n):
+                    if(i_r>=bin_mins[b] and i_r<bin_mins[b+1]):
+                        bin_counts[b].append(res_count[t][i])
+                        bin_areas[b]+=sim.getTriArea(int(patch_tris[i]))
+                        break
+            
+            bin_concs = np.zeros(bin_n)
+            for c in range(bin_n): 
+                for d in range(bin_counts[c].__len__()):
+                    bin_concs[c] += bin_counts[c][d]
+                bin_concs[c]/=(bin_areas[c]*1.0e12)
+            
+            for i in range(bin_n):
+                if (r_tris_binned[i] > -10.0 and r_tris_binned[i] < 10.0):
+                    dist = r_tris_binned[i]*1e-6
+                    det_conc = 1e-6*(NINJECT/(4*np.sqrt((np.pi*DCST*tpnts[t]))))*(np.exp((-1.0*(dist*dist))/(4*DCST*tpnts[t])))	
+                    steps_conc = bin_concs[i]
+                    assert tol_funcs.tolerable(det_conc, steps_conc, tolerance)
+                    
 ########################################################################
-# END
 
+def suite():
+    all_tests = []
+    all_tests.append(unittest.makeSuite(TestUnbDiff2DLineSourceRingODE, "test"))
+    return unittest.TestSuite(all_tests)
+
+if __name__ == "__main__":
+    unittest.TextTestRunner(verbosity=2).run(suite())

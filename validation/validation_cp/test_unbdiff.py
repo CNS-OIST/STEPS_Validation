@@ -47,6 +47,9 @@ MESHFILE = 'sphere_rad10_33Ktets_adaptive'
 
 class TestUnboundedDiffusion(unittest.TestCase):
     def setUp(self):
+        rng = srng.create('mt19937', 1024)
+        rng.initialize(int(time.time()%4294967295)) # The max unsigned long
+
         # create the array of tet indices to be found at random
         tetidxs = np.zeros(SAMPLE, dtype = 'int')
         for i in range(SAMPLE): tetidxs[i] = i
