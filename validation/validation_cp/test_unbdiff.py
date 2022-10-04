@@ -21,7 +21,9 @@ import steps.geom as stetmesh
 import steps.rng as srng
 
 from . import tol_funcs
-from .. import configuration
+from ..config import Configuration
+
+configuration = Configuration(__file__)
 
 # Number of iterations; plotting dt; sim endtime:
 NITER = 10

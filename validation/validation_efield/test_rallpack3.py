@@ -21,9 +21,9 @@ import steps.rng as srng
 import steps.solver as ssolver
 import steps.utilities.meshio as meshio
 
+from ..config import Configuration
 
-
-from .. import configuration
+configuration = Configuration(__file__)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 

@@ -27,8 +27,9 @@ import steps.rng as srng
 import steps.utilities.geom_decompose as gd
 import steps.utilities.meshio as meshio
 
+from ..config import Configuration
 
-from .. import configuration
+configuration = Configuration(__file__)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 

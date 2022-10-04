@@ -33,7 +33,9 @@ import numpy as np
 import unittest
 
 from . import tol_funcs
-from .. import configuration
+from ..config import Configuration
+
+configuration = Configuration(__file__)
 
 ########################################################################
 

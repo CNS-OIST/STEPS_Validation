@@ -33,3 +33,9 @@ Any of these scripts can run specific validation suites with e.g.:
 ```
 python3 run_validation_tests.py validation_rd
 ```
+
+Single validation scripts can be run from the STEPS_Validation folder with e.g.:
+
+```
+python3 -m validation.validation_cp.test_csd_clamp
+```
