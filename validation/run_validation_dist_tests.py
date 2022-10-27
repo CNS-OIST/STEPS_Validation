@@ -1,26 +1,24 @@
-from __future__ import absolute_import
-
+import contextlib
 import os.path as osp
 import sys
-import collections.abc
-collections.Callable = collections.abc.Callable
-
-import nose
-
-from config import configuration
-
-
-DEFAULT_TEST_SUITE = [
-    'validation_rd_dist/kisilevich.py',
-    'validation_rd_dist/masteq_diff.py',
-    'validation_rd_dist/unbdiff.py',
-    'validation_rd_dist/bounddiff.py',
-]
-
+import unittest
 
 if __name__ == '__main__':
     test_dir = osp.dirname(osp.abspath(__file__))
-    test_suite = sys.argv[1:] or DEFAULT_TEST_SUITE
-    configuration.suffix = '_dist'
-    for suite in test_suite:
-        nose.run(argv=['-s', '-v', osp.join(test_dir, suite)])
+    top_dir = osp.join(test_dir, '..')
+    loader = unittest.TestLoader()
+
+    directories = []
+    for fold in sys.argv[1:]:
+        directories.append(osp.join(test_dir, fold))
+    if len(directories) == 0:
+        directories.append(test_dir)
+
+    for start_dir in directories:
+        print(f'Running validations from {start_dir}')
+
+        with contextlib.redirect_stdout(None):
+            suite = loader.discover(start_dir, pattern='distributed_*.py', top_level_dir=top_dir)
+
+        runner = unittest.TextTestRunner(verbosity=2)
+        runner.run(suite)
