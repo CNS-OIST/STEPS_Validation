@@ -1,5 +1,6 @@
 import os.path as path
 import unittest
+import steps.mpi
 
 from . import rallpack1_dist
 from ..config import Configuration
@@ -14,7 +15,8 @@ C={ 'meshdir': configuration.path('validation_efield/meshes'),
     'datadir': 'validation_efield/data/rallpack1_correct',
     'v0data': 'v0',
     'v1data': 'vx',
-    'seed': 7 }
+    'seed': 7,
+    'plot': False }
 
 class TestRallpack1(unittest.TestCase):
 
@@ -34,20 +36,21 @@ class TestRallpack1(unittest.TestCase):
 
         print("rms error at 0um = " + str(rms_err_0um))
         print("rms error at 1000um = " + str(rms_err_1000um))
-        
-        #import matplotlib.pyplot as plt
-        #plt.subplot(211)
-        #plt.plot(simdata[0,:], simdata[2,:], 'k-' ,label = 'Correct, 0um', linewidth=3)
-        #plt.plot(simdata[0,:], simdata[1,:], 'r--', label = 'STEPS, 0um', linewidth=3)
-        #plt.legend(loc='best')
-        #plt.ylabel('Potential (mV)')
-        #plt.subplot(212)
-        #plt.plot(simdata[0,:], simdata[4,:], 'k-' ,label = 'Correct, 1000um', linewidth=3)
-        #plt.plot(simdata[0,:], simdata[3,:], 'r--', label = 'STEPS, 1000um', linewidth=3)
-        #plt.legend(loc='best')
-        #plt.ylabel('Potential (mV)')
-        #plt.xlabel('Time (ms)')
-        #plt.show(block=True)
+
+        if (C['plot']) and steps.mpi.rank == 0:
+            import matplotlib.pyplot as plt
+            plt.subplot(211)
+            plt.plot(simdata[0,:], simdata[2,:], 'k-' ,label = 'Correct, 0um', linewidth=3)
+            plt.plot(simdata[0,:], simdata[1,:], 'r--', label = 'STEPS, 0um', linewidth=3)
+            plt.legend(loc='best')
+            plt.ylabel('Potential (mV)')
+            plt.subplot(212)
+            plt.plot(simdata[0,:], simdata[4,:], 'k-' ,label = 'Correct, 1000um', linewidth=3)
+            plt.plot(simdata[0,:], simdata[3,:], 'r--', label = 'STEPS, 1000um', linewidth=3)
+            plt.legend(loc='best')
+            plt.ylabel('Potential (mV)')
+            plt.xlabel('Time (ms)')
+            plt.show(block=True)
 
         max_rms_err = 1.e-3
         assert(rms_err_0um < max_rms_err)

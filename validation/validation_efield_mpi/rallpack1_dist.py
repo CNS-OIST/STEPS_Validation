@@ -205,7 +205,7 @@ def build_model(mesh, param):
     area_cylinder = np.pi * param['diameter'] * param['length']
     L_G_tot = area_cylinder / param['R_M']
     g_leak_sc = L_G_tot / len(memb.tris)
-    OC_L = smodel.OhmicCurr('OC_L', ssys, chanstate = Leak, erev = param['E_M'], g = g_leak_sc)
+    OC_L = smodel.OhmicCurr('OC_L', ssys, chanstate = Leak, erev = 0, g = g_leak_sc)
 
     return mdl
 
@@ -231,7 +231,9 @@ def init_sim(model, mesh, seed, param):
     # Set initial conditions
     sim.reset()
 
-    for t in memb.tris: sim.setTriSpecCount(t, 'Leak', 1)
+    for t in memb.tris:
+        sim.setTriSpecCount(t, 'Leak', 1)
+        sim.setTriOhmicErev(t, 'OC_L', param['E_M'])
 
     sim.setEfieldDT(param['EF_dt'])
     sim.setMembPotential('membrane', param['E_M'])
@@ -251,7 +253,7 @@ def run_sim(sim, dt, t_end, vertices, verbose=False):
     nvert = len(vertices)
 
     for l in range(N):
-        if verbose and steps.mpi.rank == 0: 
+        if verbose and steps.mpi.rank == 0:
             print("sim time (ms): ", dt*l*1.0e3)
         sim.run(l*dt)
         result[l,:] = [sim.getVertV(v) for v in vertices]
@@ -299,11 +301,10 @@ def run_comparison(configuration, seed, mesh_file, mesh_format, mesh_scale, v0_d
     data[4,:] = vref_1000um[0:npt]
 
     # rms difference
-    err_0um = data[2,:] - data[1,:] 
+    err_0um = data[2,:] - data[1,:]
     rms_err_0um = la.norm(err_0um)/np.sqrt(npt)
 
     err_1000um = data[4,:] - data[3,:]
     rms_err_1000um = la.norm(err_1000um)/np.sqrt(npt)
 
     return data, rms_err_0um, rms_err_1000um
-
