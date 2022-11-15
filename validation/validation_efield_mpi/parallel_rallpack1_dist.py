@@ -1,5 +1,6 @@
 import os.path as path
 import unittest
+import steps.mpi
 
 from . import rallpack1_dist
 from ..config import Configuration
@@ -36,7 +37,7 @@ class TestRallpack1(unittest.TestCase):
         print("rms error at 0um = " + str(rms_err_0um))
         print("rms error at 1000um = " + str(rms_err_1000um))
 
-        if (C['plot']):
+        if (C['plot']) and steps.mpi.rank == 0:
             import matplotlib.pyplot as plt
             plt.subplot(211)
             plt.plot(simdata[0,:], simdata[2,:], 'k-' ,label = 'Correct, 0um', linewidth=3)
