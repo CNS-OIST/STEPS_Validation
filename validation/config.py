@@ -3,6 +3,7 @@ import os.path as osp
 
 PREFIX2SUFFIX = {
     'test': '',
+    'testcp': '',
     'parallel': '_mpi',
     'distributed': '_dist',
 }
