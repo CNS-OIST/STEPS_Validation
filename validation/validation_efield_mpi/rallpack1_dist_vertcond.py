@@ -242,7 +242,7 @@ def init_sim(model, mesh, seed, param):
     
     
     for v in range(mesh.nverts):
-        if mesh.getVertex(v)[2] < 0.0005: sim.setVertVolRes(v, param['R_A']*2)
+        if mesh.getVertex(v)[2] < 0.0001: sim.setVertVolRes(v, param['R_A']*1)
 
     v_zmin = mesh.getROIData('v_zmin')
     I = param['Iinj']/len(v_zmin)

@@ -39,6 +39,7 @@ class TestRallpack1(unittest.TestCase):
 
         if (C['plot']) and steps.mpi.rank == 0:
             import matplotlib.pyplot as plt
+            simdata*=1e3 # Convert to ms, mV
             plt.subplot(211)
             plt.plot(simdata[0,:], simdata[2,:], 'k-' ,label = 'Correct, 0um', linewidth=3)
             plt.plot(simdata[0,:], simdata[1,:], 'r--', label = 'STEPS, 0um', linewidth=3)

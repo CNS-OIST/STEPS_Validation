@@ -38,6 +38,7 @@ class TestRallpack1_vertcond(unittest.TestCase):
         print("rms error at 1000um = " + str(rms_err_1000um))
 
         if (C['plot']) and steps.mpi.rank == 0:
+            simdata*=1e3 # Convert to ms, mV
             import matplotlib.pyplot as plt
             plt.subplot(211)
             plt.plot(simdata[0,:], simdata[1,:], 'r--', label = 'STEPS, 0um', linewidth=3)
