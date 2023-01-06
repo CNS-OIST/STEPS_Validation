@@ -503,7 +503,9 @@ class Comparator:
         if baselineDB == "avg":
             trace_baseline = self._avgavg_raw_traces(trace_name)
         elif baselineDB:
-            trace_baseline = self.traceDBs[baselineDB].traces[trace_name].raw_traces.mean(axis=1)
+            trace_baseline = (
+                self.traceDBs[baselineDB].traces[trace_name].raw_traces.mean(axis=1)
+            )
 
         for traceDB_name, traceDB in self.traceDBs.items():
 

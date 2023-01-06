@@ -18,7 +18,7 @@ class Utils:
 
     @staticmethod
     def autonaming_after_folders(path1, path2):
-        """ Extrapolate sample name from folders """
+        """Extrapolate sample name from folders"""
         res = [os.path.basename(path1), os.path.basename(path2)]
         while res[0] == res[1] and path1 and path2:
 

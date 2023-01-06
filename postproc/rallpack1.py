@@ -31,7 +31,10 @@ def check(
 
     mesh_scaling_plot(benchmark_analytic, savefig_path)
 
-def compare_raw_traces(benchmark_analytic, sample_0, sample_1, savefig_path, with_title):
+
+def compare_raw_traces(
+    benchmark_analytic, sample_0, sample_1, savefig_path, with_title
+):
     diff_analytic_STEPS4 = create_diff_DB(benchmark_analytic, sample_1)
 
     renamed_analytic = rename_traces(benchmark_analytic)
@@ -132,8 +135,8 @@ def mesh_scaling_plot(benchmark_analytic, savefig_path):
 
     fig, ax = plt.subplots()
 
-    ax.loglog(x, vzmin, label="V zmin", marker='x')
-    ax.loglog(x, vzmax, label="V zmax", marker='x')
+    ax.loglog(x, vzmin, label="V zmin", marker="x")
+    ax.loglog(x, vzmax, label="V zmax", marker="x")
     ax.legend()
 
     # diff_analytic_STEPS4.plot(ax=ax, fmt=[{"linestyle": "-"}, {"linestyle": "--"}])
@@ -166,8 +169,6 @@ def mesh_scaling_plot(benchmark_analytic, savefig_path):
     # fig.show()
     # print(vzmin)
     # print(vzmax)
-
-
 
 
 def create_base_DBs(

@@ -675,9 +675,7 @@ def plot_missing_spike_and_p_values(
 
     ax = axtot[0]
     DB_missing_spike_STEPS4 = create_missing_spike_DB(multi_t, multi_y)
-    DB_missing_spike_STEPS4.plot(
-        ax=ax, fmt=[{"linestyle": "-"}, {"linestyle": "--"}]
-    )
+    DB_missing_spike_STEPS4.plot(ax=ax, fmt=[{"linestyle": "-"}, {"linestyle": "--"}])
     ax.set_xlabel("ms")
     ax.set_ylabel("mV")
     ax.set_ylim([-80, 110])

@@ -93,7 +93,7 @@ class Trace:
         return ss
 
     def _check_for_nans(self):
-        """ Check for nans in the trace """
+        """Check for nans in the trace"""
         for k, v in self.raw_traces.items():
             if v.isnull().values.any():
                 raise TraceError(
@@ -101,7 +101,7 @@ class Trace:
                 )
 
     def filter_refined_trace(self, op, filter=None):
-        """ Apply filter to refined traces """
+        """Apply filter to refined traces"""
         if not filter:
             return self.refined_traces[op]
         else:
@@ -110,21 +110,21 @@ class Trace:
             return t.loc[self.refined_traces[filter[0]] == filter[1]].dropna()
 
     def raw_traces_to_parquet(self, path):
-        """ Save raw traces to parquet """
+        """Save raw traces to parquet"""
         self.raw_traces.to_parquet(os.path.join(path, f"{self.name}.parquet"))
 
     def raw_traces_from_parquet(self, path):
-        """ Load raw traces from parquet """
+        """Load raw traces from parquet"""
         self.raw_traces = pandas.read_parquet(
             os.path.join(path, f"{self.name}.parquet")
         )
 
     def refined_traces_to_parquet(self, path):
-        """ Save refined traces to parquet """
+        """Save refined traces to parquet"""
         self.refined_traces.to_parquet(os.path.join(path, f"{self.name}.parquet"))
 
     def refined_traces_from_parquet(self, path):
-        """ Load refined traces from parquet """
+        """Load refined traces from parquet"""
         if not len(self.refined_traces.columns):
             return
 
@@ -212,7 +212,7 @@ class Trace:
         are arguments to be fed after the traces.
         """
 
-        logging.info(f"Refining {self.name}, processing {file}")
+        logging.debug(f"Refining {self.name}, processing {file}")
 
         row = {}
         for op_key in self.refined_traces.columns:
@@ -276,5 +276,5 @@ class Trace:
             )
 
     def distplot(self, op, ax=plt, *argv, **kwargs):
-        """ Plot refined traces in a histogram """
+        """Plot refined traces in a histogram"""
         seaborn.histplot(data=self.refined_traces, x=op, ax=ax, *argv, **kwargs)

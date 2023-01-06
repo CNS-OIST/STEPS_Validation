@@ -127,7 +127,7 @@ class TraceDB:
             i._check_for_nans()
 
     def _save_refined_traces_cache(self):
-        """ Save refined traces cache """
+        """Save refined traces cache"""
         os.makedirs(self.refined_traces_cache_path, exist_ok=True)
 
         for trace_name in self.traces:
@@ -208,7 +208,7 @@ class TraceDB:
             file_path (str): file from which data must be extracted
         """
 
-        logging.info(f"Extract {file_path}")
+        logging.debug(f"Extract {file_path}")
 
         header = -1
         with open(file_path) as f:

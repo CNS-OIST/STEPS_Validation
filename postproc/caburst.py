@@ -66,13 +66,13 @@ def plot_raw_traces(DB, savefig_path, with_title, point_names):
     fig, axtot = plt.subplots(1, 2, figsize=(8, 4))
 
     ax = axtot[0]
-    ax.set_anchor('N')
+    ax.set_anchor("N")
     ax.imshow(image.imread("caburst/base_pics/Purkinje_structure.png"))
     ax.axis("off")
     Utils.set_subplot_title(0, 0, 2, ax, f"Purkinje structure" if with_title else None)
 
     ax = axtot[1]
-    ax.set_anchor('N')
+    ax.set_anchor("N")
     default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     styles = [
         {
@@ -103,7 +103,6 @@ def plot_raw_traces(DB, savefig_path, with_title, point_names):
 def plot_avg_and_conf_int_and_diff(
     comp, savefig_path, with_title, point_names, baselineDB, conf_lvl
 ):
-
 
     nc = 2
     nr = int(math.ceil(len(point_names) / nc)) * 2
