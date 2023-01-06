@@ -18,7 +18,7 @@ if __name__ == '__main__':
         print(f'Running validations from {start_dir}')
 
         with contextlib.redirect_stdout(None):
-            suite = loader.discover(start_dir, pattern='parallel_*.py', top_level_dir=top_dir)
+            suite = loader.discover(start_dir, pattern='parallel_rallpack*.py', top_level_dir=top_dir)
 
         runner = unittest.TextTestRunner(verbosity=2)
         runner.run(suite)

@@ -1,30 +1,24 @@
+import contextlib
 import os.path as osp
 import sys
-import collections.abc
-collections.Callable = collections.abc.Callable
-
-import nose
-
-
-DEFAULT_TEST_SUITE = [
-    'validation_cp',
-    'validation_efield',
-    'validation_rd',
-]
-
-
-def main():
-    test_dir = osp.dirname(osp.abspath(__file__))
-    test_suite = sys.argv[1:] or DEFAULT_TEST_SUITE
-    for suite in test_suite:
-        nose.run(argv=[
-            __file__,
-            '-s',
-            '--all-modules',
-            '-v',
-            osp.join(test_dir, suite)
-        ])
-
+import unittest
 
 if __name__ == '__main__':
-    main()
+    test_dir = osp.dirname(osp.abspath(__file__))
+    top_dir = osp.join(test_dir, '..')
+    loader = unittest.TestLoader()
+
+    directories = []
+    for fold in sys.argv[1:]:
+        directories.append(osp.join(test_dir, fold))
+    if len(directories) == 0:
+        directories.append(test_dir)
+
+    for start_dir in directories:
+        print(f'Running validations from {start_dir}')
+
+        with contextlib.redirect_stdout(None):
+            suite = loader.discover(start_dir, pattern='test_*.py', top_level_dir=top_dir)
+
+        runner = unittest.TextTestRunner(verbosity=2)
+        runner.run(suite)

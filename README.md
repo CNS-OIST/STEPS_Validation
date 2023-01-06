@@ -13,15 +13,29 @@ To run all validations, clone this repository and go to the validation directory
 1. To run all serial validations (validation_rd, validation_cp, validation_efield)
     
     ```
-    python run_validation_tests.py
+    python3 run_validation_tests.py
     ```
 
 2. To run all parallel validations (validation_rd_mpi, validation_efield_mpi)
     
     ```
-    mpirun -n 4 python run_validation_mpi_tests.py 
+    mpirun -n 4 python3 run_validation_mpi_tests.py 
     ```
     
+3. To run all distributed validations (validation_rd_dist)
     
+    ```
+    mpirun -n 4 python3 run_validation_dist_tests.py 
+    ```
+    
+Any of these scripts can run specific validation suites with e.g.:
 
+```
+python3 run_validation_tests.py validation_rd
+```
 
+Single validation scripts can be run from the STEPS_Validation folder with e.g.:
+
+```
+python3 -m validation.validation_cp.test_csd_clamp
+```
