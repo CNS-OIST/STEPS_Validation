@@ -80,9 +80,10 @@ def check(
         batched_comp_pvalues, npeaks_focus, savefig_path, with_title
     )
 
-    plot_missing_spike_and_p_values(
-        multi_t, multi_y, batched_comp_pvalues, npeaks_focus, savefig_path, with_title
-    )
+    # Too much log, it breaks the CI
+    # plot_missing_spike_and_p_values(
+    #     multi_t, multi_y, batched_comp_pvalues, npeaks_focus, savefig_path, with_title
+    # )
 
 
 def pvalues_reference(
