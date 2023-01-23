@@ -41,13 +41,13 @@ class TestRallpack1_vertcond(unittest.TestCase):
             simdata*=1e3 # Convert to ms, mV
             import matplotlib.pyplot as plt
             plt.subplot(211)
-            plt.plot(simdata[0,:], simdata[2,:], 'k-' ,label = 'Correct, 0um', linewidth=3)
-            plt.plot(simdata[0,:], simdata[1,:], 'r--', label = 'STEPS, 0um', linewidth=3)
+            plt.plot(simdata[0,:], simdata[2,:], 'k-' ,label = 'Rallpack1, 0um', linewidth=3)
+            plt.plot(simdata[0,:], simdata[1,:], 'r--', label = 'STEPS setVertVolRes test, 0um', linewidth=3)
             plt.legend(loc='best')
             plt.ylabel('Potential (mV)')
             plt.subplot(212)
-            plt.plot(simdata[0,:], simdata[4,:], 'k-' ,label = 'Correct, 1000um', linewidth=3)
-            plt.plot(simdata[0,:], simdata[3,:], 'r--', label = 'STEPS, 1000um', linewidth=3)
+            plt.plot(simdata[0,:], simdata[4,:], 'k-' ,label = 'Rallpack1, 1000um', linewidth=3)
+            plt.plot(simdata[0,:], simdata[3,:], 'r--', label = 'STEPS setVertVolRes test, 1000um', linewidth=3)
             plt.legend(loc='best')
             plt.ylabel('Potential (mV)')
             plt.xlabel('Time (ms)')
