@@ -240,10 +240,10 @@ def init_sim(model, mesh, seed, param):
     sim.setMembVolRes('membrane', param['R_A'])
     sim.setMembCapac('membrane', param['C_M']/area_mesh_factor)
     
-    
     for v in range(mesh.nverts):
-        if mesh.getVertex(v)[2] < 0.0001: sim.setVertVolRes(v, param['R_A']*1)
-
+        if mesh.getVertex(v)[2] < 0.0005:
+            sim.setVertVolRes(v, param['R_A']*5)
+    
     v_zmin = mesh.getROIData('v_zmin')
     I = param['Iinj']/len(v_zmin)
     for v in v_zmin: sim.setVertIClamp(v, I)
