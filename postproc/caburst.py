@@ -15,8 +15,11 @@ logging.basicConfig(level=logging.WARNING)
 
 
 def check(
-    sample_0_raw_traces_folder="caburst/raw_traces/STEPS4/ref_2022-08-09_paper_0a7f75aa",
-    sample_1_raw_traces_folder="caburst/raw_traces/STEPS3/ref_2022-08-09_paper_0a7f75aa",
+    raw_traces_folders=[
+        "caburst/raw_traces/STEPS4/ref_2022-08-09_paper_0a7f75aa",
+        "caburst/raw_traces/STEPS3/ref_2022-08-09_paper_0a7f75aa",
+    ],
+    sample_names=["STEPS4", "STEPS3"],
     savefig_path="caburst/pics",
 ):
     point_names = [
@@ -35,7 +38,7 @@ def check(
     conf_lvl = 0.99
 
     sample_names, sample_0_DB, sample_1_DB = create_base_DBs(
-        sample_0_raw_traces_folder, sample_1_raw_traces_folder, point_names
+        raw_traces_folders, point_names, sample_names=sample_names
     )
 
     # reorder and filter for pretty printing
@@ -112,7 +115,7 @@ def plot_avg_and_conf_int_and_diff(
         ir = int(ip / nc)
         jc = ip % nc
         ax = axtot[ir * 2][jc]
-        comp.avgplot_raw_traces(
+        names = comp.avgplot_raw_traces(
             trace_name=point_name,
             std=False,
             ax=ax,
@@ -134,7 +137,7 @@ def plot_avg_and_conf_int_and_diff(
         )
 
         if ir == 0 and jc == 1:
-            ax.legend(["STEPS3", "_", "STEPS4"])
+            ax.legend([names[0], "_", names[1]])
 
         ax = axtot[ir * 2 + 1][jc]
         comp.avgplot_raw_traces(
@@ -203,13 +206,13 @@ def plot_avg_and_std(comp, savefig_path, with_title, point_names):
     fig.show()
 
 
-def create_base_DBs(
-    sample_0_raw_traces_folder, sample_1_raw_traces_folder, point_names
-):
+def create_base_DBs(raw_traces_folders, point_names, sample_names=None):
+    sample_0_raw_traces_folder, sample_1_raw_traces_folder = raw_traces_folders
 
-    sample_names = Utils.autonaming_after_folders(
-        sample_0_raw_traces_folder, sample_1_raw_traces_folder
-    )
+    if sample_names is None:
+        sample_names = Utils.autonaming_after_folders(
+            sample_0_raw_traces_folder, sample_1_raw_traces_folder
+        )
 
     """Create the benchmark traces"""
     multi = 1000
@@ -270,7 +273,7 @@ def create_base_DBs(
         sample_names[0],
         traces_sample_0,
         sample_0_raw_traces_folder,
-        clear_refined_traces_cache=False,
+        clear_refined_traces_cache=True,
         save_refined_traces_cache=True,
         keep_raw_traces=True,
     )

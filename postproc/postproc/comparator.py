@@ -507,7 +507,10 @@ class Comparator:
                 self.traceDBs[baselineDB].traces[trace_name].raw_traces.mean(axis=1)
             )
 
+        names = []
+
         for traceDB_name, traceDB in self.traceDBs.items():
+            names.append(traceDB.name)
 
             if not traceDB.keep_raw_traces:
                 raise ComparatorError(
@@ -562,6 +565,7 @@ class Comparator:
                     label=f"conf. int. {traceDB_name}",
                     **conf_int_fill_between_kwargs,
                 )
+        return names
 
     def avgplot_refined_traces(
         self,
