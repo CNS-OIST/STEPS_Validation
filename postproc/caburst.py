@@ -16,10 +16,18 @@ logging.basicConfig(level=logging.WARNING)
 
 def check(
     raw_traces_folders=[
-        "caburst/raw_traces/STEPS4/ref_2022-08-09_paper_0a7f75aa",
-        "caburst/raw_traces/STEPS3/ref_2022-08-09_paper_0a7f75aa",
+        # "caburst/raw_traces/STEPS3/PR_1040_archive22_8_petsc3_16_0a7f75aa",
+        # "caburst/raw_traces/STEPS3/PR_1040",
+        # "caburst/raw_traces/STEPS3/PR_1040_debug",
+        # "caburst/raw_traces/STEPS3/release41_891_1",
+        # "caburst/raw_traces/STEPS3/release41_891_2",
+        # "caburst/raw_traces/STEPS3/release41_891",
+        "caburst/raw_traces/STEPS3/release41_891",
+        "caburst/raw_traces/STEPS4/release41_891",
+        # "caburst/raw_traces/STEPS3/release41_891_1bis",
+        # "caburst/raw_traces/STEPS4/release41",
     ],
-    sample_names=["STEPS4", "STEPS3"],
+    sample_names=["STEPS3_release41_891", "STEPS4_release41_891"],
     savefig_path="caburst/pics",
 ):
     point_names = [
@@ -41,6 +49,8 @@ def check(
         raw_traces_folders, point_names, sample_names=sample_names
     )
 
+
+
     # reorder and filter for pretty printing
     point_names = [point_names[i] for i in [0, 3, 1, 2]]
 
@@ -51,17 +61,17 @@ def check(
 
     """Plots"""
 
-    plot_raw_traces(sample_0_DB, savefig_path, with_title, point_names)
-
-    # plot_avg_and_conf_int_and_inset_spiny_min(comp, savefig_path, with_title)
-
-    plot_avg_and_conf_int_and_diff(
-        comp, savefig_path, with_title, point_names, "avg", conf_lvl
-    )
-
-    # plot_avg_and_std(comp, savefig_path, with_title)
-
-    # plot_avg_and_conf_int(comp, savefig_path, with_title)
+    # plot_raw_traces(sample_0_DB, savefig_path, with_title, point_names)
+    #
+    # # plot_avg_and_conf_int_and_inset_spiny_min(comp, savefig_path, with_title)
+    #
+    # plot_avg_and_conf_int_and_diff(
+    #     comp, savefig_path, with_title, point_names, "avg", conf_lvl
+    # )
+    #
+    # # plot_avg_and_std(comp, savefig_path, with_title)
+    #
+    # # plot_avg_and_conf_int(comp, savefig_path, with_title)
 
 
 def plot_raw_traces(DB, savefig_path, with_title, point_names):
@@ -209,6 +219,16 @@ def plot_avg_and_std(comp, savefig_path, with_title, point_names):
 def create_base_DBs(raw_traces_folders, point_names, sample_names=None):
     sample_0_raw_traces_folder, sample_1_raw_traces_folder = raw_traces_folders
 
+    reduce_ops={
+        "amin": [],
+        "amax": [],
+        "['i_peak_t', 0]": [],
+        "['i_peak_y', 0]": [],
+        "['val', 29]": [],
+        "['val', 38]": [],
+        "n_peaks": [],
+    },
+
     if sample_names is None:
         sample_names = Utils.autonaming_after_folders(
             sample_0_raw_traces_folder, sample_1_raw_traces_folder
@@ -229,7 +249,8 @@ def create_base_DBs(raw_traces_folders, point_names, sample_names=None):
                     "amax": [],
                     "['i_peak_t', 0]": [],
                     "['i_peak_y', 0]": [],
-                    "['val', 0.038]": [],
+                    "['val', 29]": [],
+                    "['val', 38]": [],
                     "n_peaks": [],
                 },
             )
@@ -241,7 +262,7 @@ def create_base_DBs(raw_traces_folders, point_names, sample_names=None):
         sample_names[1],
         traces_sample_1,
         sample_1_raw_traces_folder,
-        clear_refined_traces_cache=False,
+        clear_refined_traces_cache=True,
         save_refined_traces_cache=True,
         keep_raw_traces=True,
     )
@@ -261,7 +282,8 @@ def create_base_DBs(raw_traces_folders, point_names, sample_names=None):
                     "amax": [],
                     "['i_peak_t', 0]": [],
                     "['i_peak_y', 0]": [],
-                    "['val', 0.038]": [],
+                    "['val', 29]": [],
+                    "['val', 38]": [],
                     "n_peaks": [],
                 },
             )
