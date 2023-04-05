@@ -11,6 +11,8 @@ from postproc.trace import Trace
 from postproc.traceDB import TraceDB
 from postproc.utils import Utils
 
+import numpy as np
+
 logging.basicConfig(level=logging.WARNING)
 
 
@@ -61,6 +63,11 @@ def check(
 
     """Plots"""
 
+    plot_goodness_of_fit(comp, goodness_of_fit_test_type, filter, savefig_path)
+
+
+
+
     # plot_raw_traces(sample_0_DB, savefig_path, with_title, point_names)
     #
     # # plot_avg_and_conf_int_and_inset_spiny_min(comp, savefig_path, with_title)
@@ -72,6 +79,38 @@ def check(
     # # plot_avg_and_std(comp, savefig_path, with_title)
     #
     # # plot_avg_and_conf_int(comp, savefig_path, with_title)
+
+
+def plot_goodness_of_fit(comp, goodness_of_fit_test_type, filter,savefig_path):
+
+    t0 = list(np.arange(0, 60.2, 0.2))
+
+    fig, axtot = plt.subplots(2, 2)
+    for tDBnames, tests in comp.test_goodness_of_fit(
+            test_type=goodness_of_fit_test_type, filter=filter
+    ).items():
+        qq = 0
+        for t, d in sorted(tests.items(), key=lambda t: Utils.natural_keys(t[0])):
+            if "AMPA" in t:
+                continue
+            i = qq % 2
+            j = int(qq / 2)
+            ax = axtot[i][j]
+            y = [d[f"['val', {i}]"][0].pvalue for i in t0]
+            ax.plot(t0, y)
+            ax.set_xlabel("ms")
+            ax.set_ylabel("pvalue")
+            Utils.set_subplot_title(
+                i, j, 2, ax, t
+            )
+            qq += 1
+    fig.tight_layout()
+    Utils.savefig(path=savefig_path, name="pvalues", fig=fig)
+    fig.show()
+
+
+
+
 
 
 def plot_raw_traces(DB, savefig_path, with_title, point_names):
@@ -219,15 +258,7 @@ def plot_avg_and_std(comp, savefig_path, with_title, point_names):
 def create_base_DBs(raw_traces_folders, point_names, sample_names=None):
     sample_0_raw_traces_folder, sample_1_raw_traces_folder = raw_traces_folders
 
-    reduce_ops={
-        "amin": [],
-        "amax": [],
-        "['i_peak_t', 0]": [],
-        "['i_peak_y', 0]": [],
-        "['val', 29]": [],
-        "['val', 38]": [],
-        "n_peaks": [],
-    },
+    ro = [f"['val', {i}]" for i in np.arange(0, 60.2, 0.2)]
 
     if sample_names is None:
         sample_names = Utils.autonaming_after_folders(
@@ -244,15 +275,7 @@ def create_base_DBs(raw_traces_folders, point_names, sample_names=None):
                 point_name,
                 "mV",
                 multi=multi,
-                reduce_ops={
-                    "amin": [],
-                    "amax": [],
-                    "['i_peak_t', 0]": [],
-                    "['i_peak_y', 0]": [],
-                    "['val', 29]": [],
-                    "['val', 38]": [],
-                    "n_peaks": [],
-                },
+                reduce_ops={i: [] for i in ro },
             )
         )
     traces_sample_1.append(Trace("t", "ms", multi=multi))
@@ -277,15 +300,7 @@ def create_base_DBs(raw_traces_folders, point_names, sample_names=None):
                 point_name,
                 "mV",
                 multi=multi,
-                reduce_ops={
-                    "amin": [],
-                    "amax": [],
-                    "['i_peak_t', 0]": [],
-                    "['i_peak_y', 0]": [],
-                    "['val', 29]": [],
-                    "['val', 38]": [],
-                    "n_peaks": [],
-                },
+                reduce_ops={i: [] for i in ro },
             )
         )
     traces_sample_0.append(Trace("t", "ms", multi=multi))
