@@ -19,7 +19,7 @@
 # components, particularly mesh loading and manipulation capabilities 
 # with functions such as steps.utilities.meshio.loadMesh and 
 # steps.geom.Tetmesh.getBoundMin/Max, steps.geom.Tetmesh.getVertex etc. 
-# Localised recording by steps.solver.TetODE.getTetSpecCount is also verified. 
+# Localised recording by steps.solver.TetODE.getTetCount is also verified. 
 
 # Even though this is a deterministic model, a tolerance of 3% is 
 # permitted. This is because an infinitely thin place source is 
@@ -202,17 +202,17 @@ class TestConstSourceDiffReacODE(unittest.TestCase):
         totset = 0
         for k in minztets:    
             sim.setTetReacK(k, 'reacX', FLUX/nminztets)		
-            sim.setTetSpecCount(k, 'A', 1)
-            totset+=sim.getTetSpecCount(k, 'X')
+            sim.setTetCount(k, 'A', 1)
+            totset+=sim.getTetCount(k, 'X')
         for l in maxztets:
             sim.setTetReacK(l, 'reacX', FLUX/nmaxztets)
-            sim.setTetSpecCount(l, 'A', 1)
-            totset+=sim.getTetSpecCount(l, 'X')
+            sim.setTetCount(l, 'A', 1)
+            totset+=sim.getTetCount(l, 'X')
             
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):
-                res[i, k] = sim.getTetSpecCount(int(tetidxs[k]), 'X')*1.0e6
+                res[i, k] = sim.getTetCount(int(tetidxs[k]), 'X')*1.0e6
 
         ########################################################################
 

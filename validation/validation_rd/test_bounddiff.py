@@ -19,7 +19,7 @@
 # components, particularly mesh loading and manipulation capabilities 
 # with functions such as steps.utilities.meshio.loadMesh and 
 # steps.geom.Tetmesh.getTetTriNeighb, steps.geom.Tetmesh.getVertex etc. 
-# Localised recording by steps.solver.Tetexact.getTetSpecCount is also verified. 
+# Localised recording by steps.solver.Tetexact.getTetCount is also verified. 
 
 # A 5% tolerance is imposed when comparing the mean output from 10 
 # stochastic simulations of the STEPS model to the analytical solution. 
@@ -183,12 +183,12 @@ class TestBoundedDiffusion(unittest.TestCase):
             tetcount = int((1.0*NINJECT)/nztets)
             totset = 0
             for k in minztets:
-                sim.setTetSpecCount(k, 'X', tetcount)
+                sim.setTetCount(k, 'X', tetcount)
                 totset+=tetcount
             for i in range(ntpnts):
                 sim.run(tpnts[i])
                 for k in range(SAMPLE):
-                    res[j, i, k] = sim.getTetSpecCount(int(tetidxs[k]), 'X')
+                    res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
 
         itermeans = np.mean(res, axis = 0)
 

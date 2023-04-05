@@ -181,13 +181,13 @@ class TestCSDClamp(unittest.TestCase):
             sim.reset()
             totset = 0
             for k in minztets:
-                sim.setTetSpecConc(k, 'X', CONC)
-                sim.setTetSpecClamped(k, 'X', True)
-                totset+=sim.getTetSpecCount(k, 'X')
+                sim.setTetConc(k, 'X', CONC)
+                sim.setTetClamped(k, 'X', True)
+                totset+=sim.getTetCount(k, 'X')
             for i in range(ntpnts):
                 sim.run(tpnts[i])
                 for k in range(SAMPLE):
-                    res[j, i, k] = sim.getTetSpecCount(int(tetidxs[k]), 'X')
+                    res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
 
         itermeans = numpy.mean(res, axis = 0)
 

@@ -158,19 +158,19 @@ class TestKISODE(unittest.TestCase):
 
 
         for i in range (0, NITER):
-            sim.setCompSpecCount('comp1', 'A', 2*NA0)
-            sim.setCompSpecCount('comp1', 'B', 2*NB0)
+            sim.setCompCount('comp1', 'A', 2*NA0)
+            sim.setCompCount('comp1', 'B', 2*NB0)
             
             for t in Btets:
-                sim.setTetSpecCount(t, 'A', 0)
+                sim.setTetCount(t, 'A', 0)
             for t in Atets:
-                sim.setTetSpecCount(t, 'B', 0)
+                sim.setTetCount(t, 'B', 0)
 
             for t in range(0, ntpnts):
                 sim.run(tpnts[t])
                 for k in range(SAMPLE):
-                    resA[i,t,k] = sim.getTetSpecCount(int(tetidxs[k]), 'A')
-                    resB[i,t,k] = sim.getTetSpecCount(int(tetidxs[k]), 'B')
+                    resA[i,t,k] = sim.getTetCount(int(tetidxs[k]), 'A')
+                    resB[i,t,k] = sim.getTetCount(int(tetidxs[k]), 'B')
                 
         itermeansA = np.mean(resA, axis=0)
         itermeansB = np.mean(resB, axis=0)
