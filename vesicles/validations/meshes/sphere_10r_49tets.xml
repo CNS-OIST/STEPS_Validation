@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<tetmesh>
+	<nodes size="23">
+		<node idx = "0">
+			<coords>0.0, 0.0, -1e-06</coords>
+		</node>
+		<node idx = "1">
+			<coords>-8.200965e-07, 4.836874e-16, -5.722251999999999e-07</coords>
+		</node>
+		<node idx = "2">
+			<coords>6.270605999999999e-09, -3.487594e-07, -1.89555e-07</coords>
+		</node>
+		<node idx = "3">
+			<coords>1.2590199999999998e-08, 3.0940449999999997e-07, -3.822576e-07</coords>
+		</node>
+		<node idx = "4">
+			<coords>8.200965e-07, 0.0, -5.722251999999999e-07</coords>
+		</node>
+		<node idx = "5">
+			<coords>8.660349999999999e-07, -4.999815999999999e-07, 1.348534e-09</coords>
+		</node>
+		<node idx = "6">
+			<coords>6.360886e-09, 1.5632209999999998e-07, 3.016341e-07</coords>
+		</node>
+		<node idx = "7">
+			<coords>4.1004829999999997e-07, -7.102244e-07, 5.722251999999999e-07</coords>
+		</node>
+		<node idx = "8">
+			<coords>8.660240999999999e-07, 5.000021e-07, 3.890503e-10</coords>
+		</node>
+		<node idx = "9">
+			<coords>-1.9413509999999998e-12, 9.999997999999999e-07, 6.18103e-10</coords>
+		</node>
+		<node idx = "10">
+			<coords>-4.1004829999999997e-07, -7.102244e-07, 5.722251999999999e-07</coords>
+		</node>
+		<node idx = "11">
+			<coords>-8.660322000000001e-07, 4.999871e-07, 1.042857e-09</coords>
+		</node>
+		<node idx = "12">
+			<coords>-8.660171999999999e-07, -5.000132e-07, 1.05859e-09</coords>
+		</node>
+		<node idx = "13">
+			<coords>4.1004829999999997e-07, 7.102244e-07, 5.722251999999999e-07</coords>
+		</node>
+		<node idx = "14">
+			<coords>8.200965e-07, 0.0, 5.722251999999999e-07</coords>
+		</node>
+		<node idx = "15">
+			<coords>4.1004829999999997e-07, -7.102244e-07, -5.722251999999999e-07</coords>
+		</node>
+		<node idx = "16">
+			<coords>-4.1004829999999997e-07, -7.102244e-07, -5.722251999999999e-07</coords>
+		</node>
+		<node idx = "17">
+			<coords>1.7451970000000002e-11, -9.999994e-07, 1.1202639999999998e-09</coords>
+		</node>
+		<node idx = "18">
+			<coords>4.1004829999999997e-07, 7.102244e-07, -5.722251999999999e-07</coords>
+		</node>
+		<node idx = "19">
+			<coords>0.0, 0.0, 1e-06</coords>
+		</node>
+		<node idx = "20">
+			<coords>-8.200965e-07, 4.836874e-16, 5.722251999999999e-07</coords>
+		</node>
+		<node idx = "21">
+			<coords>-4.1004829999999997e-07, 7.102244e-07, 5.722251999999999e-07</coords>
+		</node>
+		<node idx = "22">
+			<coords>-4.1004829999999997e-07, 7.102244e-07, -5.722251999999999e-07</coords>
+		</node>
+	</nodes>
+	<triangles size="116">
+		<tri idx="0">
+			<nodes>0, 1, 2</nodes>
+		</tri>
+		<tri idx="1">
+			<nodes>0, 1, 3</nodes>
+		</tri>
+		<tri idx="2">
+			<nodes>0, 2, 3</nodes>
+		</tri>
+		<tri idx="3">
+			<nodes>1, 2, 3</nodes>
+		</tri>
+		<tri idx="4">
+			<nodes>2, 4, 5</nodes>
+		</tri>
+		<tri idx="5">
+			<nodes>2, 4, 6</nodes>
+		</tri>
+		<tri idx="6">
+			<nodes>4, 5, 6</nodes>
+		</tri>
+		<tri idx="7">
+			<nodes>2, 5, 6</nodes>
+		</tri>
+		<tri idx="8">
+			<nodes>2, 5, 7</nodes>
+		</tri>
+		<tri idx="9">
+			<nodes>5, 6, 7</nodes>
+		</tri>
+		<tri idx="10">
+			<nodes>2, 6, 7</nodes>
+		</tri>
+		<tri idx="11">
+			<nodes>3, 4, 8</nodes>
+		</tri>
+		<tri idx="12">
+			<nodes>4, 6, 8</nodes>
+		</tri>
+		<tri idx="13">
+			<nodes>3, 4, 6</nodes>
+		</tri>
+		<tri idx="14">
+			<nodes>3, 6, 8</nodes>
+		</tri>
+		<tri idx="15">
+			<nodes>2, 3, 4</nodes>
+		</tri>
+		<tri idx="16">
+			<nodes>2, 3, 6</nodes>
+		</tri>
+		<tri idx="17">
+			<nodes>3, 8, 9</nodes>
+		</tri>
+		<tri idx="18">
+			<nodes>3, 6, 9</nodes>
+		</tri>
+		<tri idx="19">
+			<nodes>6, 8, 9</nodes>
+		</tri>
+		<tri idx="20">
+			<nodes>1, 2, 6</nodes>
+		</tri>
+		<tri idx="21">
+			<nodes>1, 3, 6</nodes>
+		</tri>
+		<tri idx="22">
+			<nodes>2, 7, 10</nodes>
+		</tri>
+		<tri idx="23">
+			<nodes>6, 7, 10</nodes>
+		</tri>
+		<tri idx="24">
+			<nodes>2, 6, 10</nodes>
+		</tri>
+		<tri idx="25">
+			<nodes>3, 9, 11</nodes>
+		</tri>
+		<tri idx="26">
+			<nodes>3, 6, 11</nodes>
+		</tri>
+		<tri idx="27">
+			<nodes>6, 9, 11</nodes>
+		</tri>
+		<tri idx="28">
+			<nodes>1, 3, 11</nodes>
+		</tri>
+		<tri idx="29">
+			<nodes>1, 6, 11</nodes>
+		</tri>
+		<tri idx="30">
+			<nodes>1, 2, 12</nodes>
+		</tri>
+		<tri idx="31">
+			<nodes>1, 6, 12</nodes>
+		</tri>
+		<tri idx="32">
+			<nodes>2, 6, 12</nodes>
+		</tri>
+		<tri idx="33">
+			<nodes>2, 10, 12</nodes>
+		</tri>
+		<tri idx="34">
+			<nodes>6, 10, 12</nodes>
+		</tri>
+		<tri idx="35">
+			<nodes>0, 2, 4</nodes>
+		</tri>
+		<tri idx="36">
+			<nodes>0, 3, 4</nodes>
+		</tri>
+		<tri idx="37">
+			<nodes>8, 9, 13</nodes>
+		</tri>
+		<tri idx="38">
+			<nodes>6, 9, 13</nodes>
+		</tri>
+		<tri idx="39">
+			<nodes>6, 8, 13</nodes>
+		</tri>
+		<tri idx="40">
+			<nodes>8, 13, 14</nodes>
+		</tri>
+		<tri idx="41">
+			<nodes>6, 13, 14</nodes>
+		</tri>
+		<tri idx="42">
+			<nodes>6, 8, 14</nodes>
+		</tri>
+		<tri idx="43">
+			<nodes>15, 16, 17</nodes>
+		</tri>
+		<tri idx="44">
+			<nodes>2, 15, 16</nodes>
+		</tri>
+		<tri idx="45">
+			<nodes>2, 15, 17</nodes>
+		</tri>
+		<tri idx="46">
+			<nodes>2, 16, 17</nodes>
+		</tri>
+		<tri idx="47">
+			<nodes>10, 12, 17</nodes>
+		</tri>
+		<tri idx="48">
+			<nodes>2, 10, 17</nodes>
+		</tri>
+		<tri idx="49">
+			<nodes>2, 12, 17</nodes>
+		</tri>
+		<tri idx="50">
+			<nodes>8, 9, 18</nodes>
+		</tri>
+		<tri idx="51">
+			<nodes>3, 8, 18</nodes>
+		</tri>
+		<tri idx="52">
+			<nodes>3, 9, 18</nodes>
+		</tri>
+		<tri idx="53">
+			<nodes>4, 8, 18</nodes>
+		</tri>
+		<tri idx="54">
+			<nodes>3, 4, 18</nodes>
+		</tri>
+		<tri idx="55">
+			<nodes>4, 5, 8</nodes>
+		</tri>
+		<tri idx="56">
+			<nodes>5, 6, 8</nodes>
+		</tri>
+		<tri idx="57">
+			<nodes>0, 1, 16</nodes>
+		</tri>
+		<tri idx="58">
+			<nodes>0, 2, 16</nodes>
+		</tri>
+		<tri idx="59">
+			<nodes>1, 2, 16</nodes>
+		</tri>
+		<tri idx="60">
+			<nodes>5, 15, 17</nodes>
+		</tri>
+		<tri idx="61">
+			<nodes>2, 5, 15</nodes>
+		</tri>
+		<tri idx="62">
+			<nodes>2, 5, 17</nodes>
+		</tri>
+		<tri idx="63">
+			<nodes>4, 5, 15</nodes>
+		</tri>
+		<tri idx="64">
+			<nodes>2, 4, 15</nodes>
+		</tri>
+		<tri idx="65">
+			<nodes>7, 10, 17</nodes>
+		</tri>
+		<tri idx="66">
+			<nodes>2, 7, 17</nodes>
+		</tri>
+		<tri idx="67">
+			<nodes>7, 14, 19</nodes>
+		</tri>
+		<tri idx="68">
+			<nodes>6, 7, 19</nodes>
+		</tri>
+		<tri idx="69">
+			<nodes>6, 7, 14</nodes>
+		</tri>
+		<tri idx="70">
+			<nodes>6, 14, 19</nodes>
+		</tri>
+		<tri idx="71">
+			<nodes>7, 10, 19</nodes>
+		</tri>
+		<tri idx="72">
+			<nodes>6, 10, 19</nodes>
+		</tri>
+		<tri idx="73">
+			<nodes>10, 12, 20</nodes>
+		</tri>
+		<tri idx="74">
+			<nodes>6, 10, 20</nodes>
+		</tri>
+		<tri idx="75">
+			<nodes>6, 12, 20</nodes>
+		</tri>
+		<tri idx="76">
+			<nodes>12, 16, 17</nodes>
+		</tri>
+		<tri idx="77">
+			<nodes>2, 12, 16</nodes>
+		</tri>
+		<tri idx="78">
+			<nodes>13, 19, 21</nodes>
+		</tri>
+		<tri idx="79">
+			<nodes>6, 19, 21</nodes>
+		</tri>
+		<tri idx="80">
+			<nodes>6, 13, 19</nodes>
+		</tri>
+		<tri idx="81">
+			<nodes>6, 13, 21</nodes>
+		</tri>
+		<tri idx="82">
+			<nodes>0, 15, 16</nodes>
+		</tri>
+		<tri idx="83">
+			<nodes>0, 2, 15</nodes>
+		</tri>
+		<tri idx="84">
+			<nodes>0, 1, 22</nodes>
+		</tri>
+		<tri idx="85">
+			<nodes>0, 3, 22</nodes>
+		</tri>
+		<tri idx="86">
+			<nodes>1, 3, 22</nodes>
+		</tri>
+		<tri idx="87">
+			<nodes>1, 11, 12</nodes>
+		</tri>
+		<tri idx="88">
+			<nodes>6, 11, 12</nodes>
+		</tri>
+		<tri idx="89">
+			<nodes>19, 20, 21</nodes>
+		</tri>
+		<tri idx="90">
+			<nodes>6, 19, 20</nodes>
+		</tri>
+		<tri idx="91">
+			<nodes>6, 20, 21</nodes>
+		</tri>
+		<tri idx="92">
+			<nodes>9, 11, 22</nodes>
+		</tri>
+		<tri idx="93">
+			<nodes>3, 9, 22</nodes>
+		</tri>
+		<tri idx="94">
+			<nodes>3, 11, 22</nodes>
+		</tri>
+		<tri idx="95">
+			<nodes>5, 7, 17</nodes>
+		</tri>
+		<tri idx="96">
+			<nodes>0, 4, 15</nodes>
+		</tri>
+		<tri idx="97">
+			<nodes>11, 20, 21</nodes>
+		</tri>
+		<tri idx="98">
+			<nodes>6, 11, 21</nodes>
+		</tri>
+		<tri idx="99">
+			<nodes>6, 11, 20</nodes>
+		</tri>
+		<tri idx="100">
+			<nodes>10, 19, 20</nodes>
+		</tri>
+		<tri idx="101">
+			<nodes>9, 13, 21</nodes>
+		</tri>
+		<tri idx="102">
+			<nodes>6, 9, 21</nodes>
+		</tri>
+		<tri idx="103">
+			<nodes>5, 8, 14</nodes>
+		</tri>
+		<tri idx="104">
+			<nodes>5, 6, 14</nodes>
+		</tri>
+		<tri idx="105">
+			<nodes>1, 12, 16</nodes>
+		</tri>
+		<tri idx="106">
+			<nodes>0, 18, 22</nodes>
+		</tri>
+		<tri idx="107">
+			<nodes>0, 3, 18</nodes>
+		</tri>
+		<tri idx="108">
+			<nodes>3, 18, 22</nodes>
+		</tri>
+		<tri idx="109">
+			<nodes>9, 11, 21</nodes>
+		</tri>
+		<tri idx="110">
+			<nodes>5, 7, 14</nodes>
+		</tri>
+		<tri idx="111">
+			<nodes>13, 14, 19</nodes>
+		</tri>
+		<tri idx="112">
+			<nodes>1, 11, 22</nodes>
+		</tri>
+		<tri idx="113">
+			<nodes>9, 18, 22</nodes>
+		</tri>
+		<tri idx="114">
+			<nodes>0, 4, 18</nodes>
+		</tri>
+		<tri idx="115">
+			<nodes>11, 12, 20</nodes>
+		</tri>
+	</triangles>
+	<tetrahedrons size="49">
+		<tet idx="0">
+			<nodes>0, 1, 2, 3</nodes>
+		</tet>
+		<tet idx="1">
+			<nodes>4, 2, 5, 6</nodes>
+		</tet>
+		<tet idx="2">
+			<nodes>7, 5, 2, 6</nodes>
+		</tet>
+		<tet idx="3">
+			<nodes>4, 8, 3, 6</nodes>
+		</tet>
+		<tet idx="4">
+			<nodes>4, 3, 2, 6</nodes>
+		</tet>
+		<tet idx="5">
+			<nodes>9, 3, 8, 6</nodes>
+		</tet>
+		<tet idx="6">
+			<nodes>1, 2, 3, 6</nodes>
+		</tet>
+		<tet idx="7">
+			<nodes>7, 2, 10, 6</nodes>
+		</tet>
+		<tet idx="8">
+			<nodes>11, 3, 9, 6</nodes>
+		</tet>
+		<tet idx="9">
+			<nodes>1, 3, 11, 6</nodes>
+		</tet>
+		<tet idx="10">
+			<nodes>1, 12, 2, 6</nodes>
+		</tet>
+		<tet idx="11">
+			<nodes>10, 2, 12, 6</nodes>
+		</tet>
+		<tet idx="12">
+			<nodes>4, 0, 2, 3</nodes>
+		</tet>
+		<tet idx="13">
+			<nodes>13, 9, 8, 6</nodes>
+		</tet>
+		<tet idx="14">
+			<nodes>14, 13, 8, 6</nodes>
+		</tet>
+		<tet idx="15">
+			<nodes>15, 16, 17, 2</nodes>
+		</tet>
+		<tet idx="16">
+			<nodes>10, 17, 12, 2</nodes>
+		</tet>
+		<tet idx="17">
+			<nodes>18, 8, 9, 3</nodes>
+		</tet>
+		<tet idx="18">
+			<nodes>4, 8, 18, 3</nodes>
+		</tet>
+		<tet idx="19">
+			<nodes>4, 5, 8, 6</nodes>
+		</tet>
+		<tet idx="20">
+			<nodes>0, 1, 16, 2</nodes>
+		</tet>
+		<tet idx="21">
+			<nodes>15, 17, 5, 2</nodes>
+		</tet>
+		<tet idx="22">
+			<nodes>4, 15, 5, 2</nodes>
+		</tet>
+		<tet idx="23">
+			<nodes>7, 17, 10, 2</nodes>
+		</tet>
+		<tet idx="24">
+			<nodes>7, 19, 14, 6</nodes>
+		</tet>
+		<tet idx="25">
+			<nodes>7, 10, 19, 6</nodes>
+		</tet>
+		<tet idx="26">
+			<nodes>20, 10, 12, 6</nodes>
+		</tet>
+		<tet idx="27">
+			<nodes>16, 12, 17, 2</nodes>
+		</tet>
+		<tet idx="28">
+			<nodes>19, 21, 13, 6</nodes>
+		</tet>
+		<tet idx="29">
+			<nodes>15, 0, 16, 2</nodes>
+		</tet>
+		<tet idx="30">
+			<nodes>0, 22, 1, 3</nodes>
+		</tet>
+		<tet idx="31">
+			<nodes>1, 11, 12, 6</nodes>
+		</tet>
+		<tet idx="32">
+			<nodes>19, 20, 21, 6</nodes>
+		</tet>
+		<tet idx="33">
+			<nodes>22, 9, 11, 3</nodes>
+		</tet>
+		<tet idx="34">
+			<nodes>7, 5, 17, 2</nodes>
+		</tet>
+		<tet idx="35">
+			<nodes>4, 0, 15, 2</nodes>
+		</tet>
+		<tet idx="36">
+			<nodes>21, 20, 11, 6</nodes>
+		</tet>
+		<tet idx="37">
+			<nodes>19, 10, 20, 6</nodes>
+		</tet>
+		<tet idx="38">
+			<nodes>13, 21, 9, 6</nodes>
+		</tet>
+		<tet idx="39">
+			<nodes>14, 8, 5, 6</nodes>
+		</tet>
+		<tet idx="40">
+			<nodes>16, 1, 12, 2</nodes>
+		</tet>
+		<tet idx="41">
+			<nodes>0, 18, 22, 3</nodes>
+		</tet>
+		<tet idx="42">
+			<nodes>21, 11, 9, 6</nodes>
+		</tet>
+		<tet idx="43">
+			<nodes>7, 14, 5, 6</nodes>
+		</tet>
+		<tet idx="44">
+			<nodes>14, 19, 13, 6</nodes>
+		</tet>
+		<tet idx="45">
+			<nodes>1, 22, 11, 3</nodes>
+		</tet>
+		<tet idx="46">
+			<nodes>22, 18, 9, 3</nodes>
+		</tet>
+		<tet idx="47">
+			<nodes>4, 18, 0, 3</nodes>
+		</tet>
+		<tet idx="48">
+			<nodes>20, 12, 11, 6</nodes>
+		</tet>
+	</tetrahedrons>
+	<compartments size="0">
+	</compartments>
+	<patches size="0">
+	</patches>
+	<ROI_records size="0">
+	</ROI_records>
+</tetmesh>
