@@ -9,7 +9,7 @@ The output of these models is directly used in the preprint figures, as indicate
 
 We also give an indication of runtime because this varies considerably- some models necessitate a long runtime, whilst others run very quickly. Of course this is just an indication, and different platforms will give different results.  
 
-All models, unless stated, must be run on a minimum of two cores on a STEPS version 5.0 or above. For example, to run the 'vesreac' model in 4 cores:
+All models, unless stated, must be run on a minimum of two cores on a STEPS version 5.0 or above. For example, to run the 'vesreac' model on 4 cores:
  ```
  mpirun -n 4 python3 vesreac.py
  ```
