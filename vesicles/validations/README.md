@@ -1,5 +1,5 @@
 
-VALIDATION MODELS FOR VESICLE MODELING IN STEPS 5.0. 
+# VALIDATION MODELS FOR VESICLE MODELING IN STEPS 5.0. 
 Authors Iain Hepburn and Jules Lallouette
 
 ---------------------------------------------------------------------
