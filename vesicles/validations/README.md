@@ -21,12 +21,12 @@ NOTE: due to stochastic effects, any reproduced figure may look slightly differe
 
 vesicle_diff.py
  - runtime ~90 minutes on 2 cores. 
- - produces plot plots/vesicle_diff.pdf, shown in Fig. 2a
+ - produces plot plots/vesicle\_diff.pdf, shown in Fig. 2a
 
 rothman.py
  - this is a large model of over 100,000 vesicles in a mossy fibre terminal mesh of over 500,000 tetrahedrons
  - runtime ~2.5 hours on 2 cores.
- - data is outputted to data/rothman_{MESHFILE}_{scale}_{DT}_{T_END}
+ - data is outputted to data/rothman\_{MESHFILE}\_{scale}\_{DT}\_{T\_END}
 
 rothman_plot.py
  - does not need to be run in parallel
@@ -34,7 +34,7 @@ rothman_plot.py
 
 path_ind.py
  - runtime ~5 seconds on 2 cores 
- - produces plot plots/path_ind.pdf, shown in Fig. 2c
+ - produces plot plots/path\_ind.pdf, shown in Fig. 2c
 
 path.py
  - runtime ~5 seconds on 2 cores 
@@ -66,7 +66,7 @@ binding.py
 
 raft_diff.py
  - runtime ~3 minutes on 2 cores
- - produces plot plots/raft_diff.pdf, shown in Fig. 5a
+ - produces plot plots/raft\_diff.pdf, shown in Fig. 5a
 
 raftsreac.py
  - runtime ~10 minutes on 8 cores
@@ -74,12 +74,12 @@ raftsreac.py
 
 raft_gendis.py
  - runtime ~1 hour on 2 cores
- - produces plot plots/raft_gendis.pdf, shown in Fig. 5d
+ - produces plot plots/raft\_gendis.pdf, shown in Fig. 5d
 
 
 reducedvol.py
  - runtime ~4 hours on 2 cores
- - produces plots in plots/reducedvol_(date)/ used in Extended Data Fig. 1
+ - produces plots in plots/reducedvol\_(date)/ used in Extended Data Fig. 1
 
 
 
