@@ -23,13 +23,11 @@ NOTE: due to stochastic effects, any reproduced figure may look slightly differe
  - runtime ~90 minutes on 2 cores. 
  - produces plot plots/vesicle\_diff.pdf, shown in Fig. 2a
 
-   
 **rothman.py**
  - this is a large model of over 100,000 vesicles in a mossy fibre terminal mesh of over 500,000 tetrahedrons
  - runtime ~2.5 hours on 2 cores.
  - data is outputted to data/rothman\_{MESHFILE}\_{scale}\_{DT}\_{T\_END}
 
-  
 **rothman_plot.py**
  - does not need to be run in parallel
  - is used to plot the Rothman mossy fibre terminal model data to plots/rothman.pdf, shown in Fig. 2b 
