@@ -1,4 +1,4 @@
-# Visualizations of vesicle models in STEPS with three examples.  
+#Visualizations of vesicle models in STEPS with three examples.  
 
 These models are shown in Supplementary Videos 1,2,3 of: Hybrid vesicle and reaction-diffusion modeling with STEPS
 Iain Hepburn, Jules Lallouette, Weiliang Chen, Andrew R. Gallimore, Sarah Y. Nagasawa, Erik De Schutter
