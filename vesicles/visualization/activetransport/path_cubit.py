@@ -18,9 +18,10 @@ with open('path.pkl', 'rb') as f:
         print(t)
         startvolindex = volindex
         for vidx, vpos in vesDct.items():
+            position = ' '.join(str(x / scale) for x in vpos)
             cubit.cmd(f'create sphere radius {ves_radius}')
             cubit.cmd(f'color Volume {volindex} {ves_colour1}')
-            cubit.cmd(f'move volume {volindex} location {" ".join(map(str, vpos))}')
+            cubit.cmd(f'move volume {volindex} location {position}')
             volindex += 1
         cubit.cmd(f'hardcopy "images/path_{t}.jpg" jpg')
         for vidx in range(startvolindex, volindex):
