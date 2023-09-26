@@ -18,7 +18,7 @@ The Python script activetransport/path.py runs the model and writes the data to 
  To visualize the data in Coreform Cubit (https://coreform.com/products/coreform-cubit/) a custom script is provided, activetransport/path_cubit.py. To generate the images as for Supplementary Video 1, first Coreform Cubit should be launched, the working directory changed, and the mesh loaded so that some visualization settings can be made manually. The following two commmands should be run on the Coreform Cubit command line:
  
  ```
-cd "{path_to_my_repo}/STEPS_Validation/vesicles/visualization/activetransport"
+cd "{path_to_repo}/STEPS_Validation/vesicles/visualization/activetransport"
 import abaqus mesh geometry "meshes/sphere_0.5D_2088tets.inp"
  ```
 

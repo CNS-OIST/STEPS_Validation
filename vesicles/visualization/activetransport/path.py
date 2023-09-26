@@ -65,7 +65,7 @@ sim.toSave(vesPos, dt=DT)
 
 tpnts = np.linspace(0, NTPNTS*DT, NTPNTS+1)
 path_inj = range(0, NTPNTS, 200)
-with XDMFHandler('path') as hdf:
+with XDMFHandler('data/path') as hdf:
     sim.toDB(hdf, 'path')
     sim.newRun()
     for i in range(len(tpnts)):
@@ -80,8 +80,8 @@ with XDMFHandler('path') as hdf:
                 v('surf').Spec1.Count = 20
 
 if MPI.rank == 0:
-    with HDF5Handler('path') as hdf:
+    with HDF5Handler('data/path') as hdf:
         group = hdf['path']
         vesPos, = group.results
-        with open('path.pkl', 'wb') as f:
+        with open('data/path.pkl', 'wb') as f:
             pickle.dump(vesPos.data[0,:,0], f)
