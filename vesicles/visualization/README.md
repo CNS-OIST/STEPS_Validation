@@ -30,3 +30,5 @@ The data is visualized in Blender using the stepsblender extension module. The d
  ```
  python3 -m stepsblender.load clustering --blenderArgs clustering.blend --exclude ".*" --include ves --timeScale 5
  ```
+
+To directly render the movie in background mode, the `--render` option can be added. The frames will be rendered in the current working directory, a different directory can be specified with `--outputPath /path/to/dir`.
