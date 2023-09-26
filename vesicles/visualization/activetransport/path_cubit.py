@@ -6,11 +6,15 @@
 #!python
 import time
 from math import *
-# Do this on the CUBIT command line FIRST so visuals can be set manually: import abaqus mesh geometry "/Users/iain/GIT/STEPS_Validation/vesicles/visualization/activetransport/meshes/sphere_0.5D_2088tets.inp"
+
+# Do these commands on the CUBIT command line FIRST
+
+# To change the working directory, e.g.: cd "{path_to_my_repo}/STEPS_Validation/vesicles/visualization/activetransport"
+# So visuals can be set manually: import abaqus mesh geometry "meshes/sphere_0.5D_2088tets.inp"
 
 
 
-ifile_ves=open('/Users/iain/GIT/STEPS_Validation/vesicles/visualization/activetransport/data/path_ves.txt', 'r')
+ifile_ves=open('data/path_ves.txt', 'r')
 
 ves_pos_data = ifile_ves.readlines()
 
@@ -39,7 +43,7 @@ for t in range(ntpnts):
           cubit.cmd('move volume '+str(volindex)+'  location '+posstring)
           volindex+=1
           i+=3
-     cubstring ='hardcopy "'+'/Users/iain/GIT/STEPS_Validation/vesicles/visualization/activetransport/images/path_'+str(t)+'.jpg" jpg'
+     cubstring ='hardcopy "'+'images/path_'+str(t)+'.jpg" jpg'
      cubit.cmd(cubstring)
      for vidx in range(startvolindex, volindex): cubit.silent_cmd('delete volume '+str(vidx))
 

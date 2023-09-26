@@ -6,8 +6,24 @@ bioRxiv 2023.05.08.539782; doi: https://doi.org/10.1101/2023.05.08.539782
 
 
 
-1. Active transport on virtual actin cytoskeleton 'Paths'
-TODO
+1. Active transport on virtual cytoskeleton 'Paths'
+
+This simple model demonstrates stochastic walks on 'Paths', representing motor protein transport on actin filaments or microtubules. 
+
+The Python script activetransport/path.py runs the model and writes the data to activetransport/data/path_ves.txt. This model should be run in the usual way (from the activetransport directory):
+ ```
+ mpirun -n 2 python3 path.py
+ ```
+ 
+ To visualize the data in Coreform Cubit (https://coreform.com/products/coreform-cubit/) a custom script is provided, activetransport/path_cubit.py. To generate the images as for Supplementary Video 1, first Coreform Cubit should be launched, the working directory changed, and the mesh loaded so that some visualization settings can be made manually. The following two commmands should be run on the Coreform Cubit command line:
+ 
+ ```
+cd "{path_to_my_repo}/STEPS_Validation/vesicles/visualization/activetransport"
+import abaqus mesh geometry "meshes/sphere_0.5D_2088tets.inp"
+ ```
+
+The "View in transparent mode" option should be selected so that vesicles can be seen inside the mesh. 
+Then simply run the script activetransport/path_cubit.py from the "Play Journal File" option, and images will be output to activetransport/images/. 
 
 
 2. Exocytosis
