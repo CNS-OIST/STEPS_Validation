@@ -1,6 +1,5 @@
 #!python
-import steps.interface
-from steps.saving import *
+import pickle
 
 # Do these commands on the CUBIT command line FIRST
 
@@ -14,10 +13,8 @@ volindex = 2
 ves_radius = '25e-3'
 scale = 1e-6
 
-with HDF5Handler('path') as hdf:
-    group = hdf['path']
-    vesPos, = group.results
-    for t, vesDct in enumerate(vesPos.data[0,:,0]):
+with open('path.pkl', 'rb') as f:
+    for t, vesDct in enumerate(pickle.load(f)):
         print(t)
         startvolindex = volindex
         for vidx, vpos in vesDct.items():

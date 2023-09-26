@@ -7,6 +7,7 @@ from steps.sim import *
 from steps.saving import *
 
 import numpy as np
+import pickle
 
 scale = 1e-6
 NTPNTS = 1000
@@ -77,3 +78,10 @@ with XDMFHandler('path') as hdf:
         for v in VesicleList(sim.comp.Ves1):
             if v.Pos[1] > 0:
                 v('surf').Spec1.Count = 20
+
+if MPI.rank == 0:
+    with HDF5Handler('path') as hdf:
+        group = hdf['path']
+        vesPos, = group.results
+        with open('path.pkl', 'wb') as f:
+            pickle.dump(vesPos.data[0,:,0], f)
