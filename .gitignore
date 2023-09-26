@@ -8,3 +8,7 @@
 **pics**
 !**base_pics**
 **.DS_Store
+/vesicles/visualization/activetransport/images/**
+/vesicles/visualization/activetransport/data/**
+
+
