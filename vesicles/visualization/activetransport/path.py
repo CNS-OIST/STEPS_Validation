@@ -8,6 +8,10 @@ from steps.saving import *
 
 import numpy as np
 import pickle
+import os
+
+os.makedirs("data", exist_ok=True)
+os.makedirs("images", exist_ok=True)
 
 scale = 1e-6
 NTPNTS = 1000
