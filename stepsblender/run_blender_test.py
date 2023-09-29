@@ -68,7 +68,8 @@ if __name__ == '__main__':
     if args.command in ['clean', 'all']:
         printStage('Clean all data')
 
-        shutil.rmtree(DATA_DIR)
+        if os.path.exists(DATA_DIR):
+            shutil.rmtree(DATA_DIR)
 
         print('OK')
     if args.command in ['run', 'all']:
