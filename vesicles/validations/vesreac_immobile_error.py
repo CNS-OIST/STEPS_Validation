@@ -29,7 +29,7 @@ globals().update(params)
 
 AVOGADRO = 6.022e23
 
-def run_sim(hdfPath, meshPath, DCST, vesDt, nr):
+def run_sim(hdfPath, meshPath, DCST, specDcst, vesDt, nr):
     model = Model()
     r = ReactionManager()
 
@@ -41,6 +41,9 @@ def run_sim(hdfPath, meshPath, DCST, vesDt, nr):
         with vssys:
             SB.o + SA.v > r[1] > SA.v
             r[1].K = KCST
+        if specDcst > 0:
+            with vsys:
+                Diffusion(SB, specDcst)
 
     mesh = TetMesh.LoadAbaqus(meshPath, scale)
     with mesh:
@@ -74,15 +77,18 @@ def run_sim(hdfPath, meshPath, DCST, vesDt, nr):
 
 if __name__ == '__main__':
     if sys.argv[1] == 'runSingle':
-        hdfPath, meshPath, DCST, vesDt, nr = sys.argv[2:]
-        run_sim(hdfPath, meshPath, float(DCST), float(vesDt), nr)
+        hdfPath, meshPath, DCST, specDcst, vesDt, nr = sys.argv[2:]
+        run_sim(hdfPath, meshPath, float(DCST), float(specDcst), float(vesDt), nr)
     elif sys.argv[1] == 'runGrid':
         import shlex, subprocess
 
         hdfPrefix = 'data/vesreac_immobile_reactants'
+        specDcst = 0
         nmpi, totproc = map(int, sys.argv[2:4])
         if len(sys.argv) > 4:
             hdfPrefix = sys.argv[4]
+        if len(sys.argv) > 5:
+            specDcst = float(sys.argv[5])
 
         meshDir = 'meshes'
         meshes = [
@@ -100,7 +106,7 @@ if __name__ == '__main__':
         processes = []
         for i, (meshPath, DCST, vesDt, nr) in enumerate(itertools.product(allMeshes, DCSTVals, vesDtVals, range(NITER))):
             hdfPath = hdfPrefix + f'_{i}'
-            command = f'mpirun --bind-to none -n {nmpi} python3 {__file__} runSingle {hdfPath} {meshPath} {DCST} {vesDt} {nr}'
+            command = f'mpirun --bind-to none -n {nmpi} python3 {__file__} runSingle {hdfPath} {meshPath} {DCST} {specDcst} {vesDt} {nr}'
             print('Running', i, '/', len(allMeshes) * len(DCSTVals) * len(vesDtVals) * NITER)
             processes.append((i ,subprocess.Popen(shlex.split(command), env=os.environ, shell=False, stdout=subprocess.DEVNULL)))
             while len(processes) >= totproc // nmpi:
