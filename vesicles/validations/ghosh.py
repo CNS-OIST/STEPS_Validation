@@ -179,13 +179,9 @@ plt.plot(tpnts * 1e3,
          linestyle='--',
          label='Ghosh',
          linewidth=lw)
-plt.plot(tpnts * 1e3, (4 * 1e-12 * tpnts) / (50e-9**2),
-         'k:',
-         label="4Dt/r$^2$ (planar diffusion)",
-         linewidth=lw)
 plt.xlabel('Time(ms)')
 plt.ylabel('Angular displacement$^2$ (rad$^2$)')
-plt.ylim(0, 6)
+plt.ylim(0, 3)
 plt.legend(loc='best')
 fig = plt.gcf()
 fig.set_size_inches(3.4, 3.4)

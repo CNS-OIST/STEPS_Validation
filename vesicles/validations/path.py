@@ -85,7 +85,7 @@ actin2.addBranch(2, {3: 1})
 actin2.addVesicle(ves1,
                   speed=speed2,
                   dependencies=2 * spec2,
-                  stoch_stepsize=1e-12)
+                  stoch_stepsize=1e-10)
 
 rs = ResultSelector(sim)
 
