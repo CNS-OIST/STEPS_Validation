@@ -154,3 +154,7 @@ if __name__ == '__main__':
                         print('Run', j, 'finished')
                     processes = remainingProcs
                     time.sleep(0.5)
+        # Wait until all runs are finished
+        for j, p in processes:
+            p.wait()
+            print('Run', j, 'finished')
