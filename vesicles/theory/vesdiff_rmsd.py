@@ -26,5 +26,5 @@ fig = plt.gcf()
 fig.set_size_inches(3.4, 3.4)
 plt.xlabel("RMSD (/diameter)")
 plt.ylabel("Diffusion steps over 2 diameters (%)")
-plt.savefig('vesiclediff_rmsd.pdf', dpi=300, bbox_inches='tight')
+plt.savefig('plots/vesiclediff_rmsd.pdf', dpi=300, bbox_inches='tight')
 

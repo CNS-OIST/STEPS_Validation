@@ -26,5 +26,5 @@ fig.set_size_inches(3.4, 3.4)
 plt.xlabel("Vesicle diffusion distance (nm)")
 plt.ylabel("Probability density")
 plt.legend()
-plt.savefig('vesiclediff_steps.pdf', dpi=300, bbox_inches='tight')
+plt.savefig('plots/vesiclediff_steps.pdf', dpi=300, bbox_inches='tight')
 
