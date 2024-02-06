@@ -22,7 +22,7 @@ import time
 ########################################################################
 
 
-def run_sim(hdfPath, ntets, D, NITER, use_foi, use_soAA):
+def run_sim(hdfPath, ntets, D, NITER, use_foi, use_soAA, seed):
 
     # Vesicle-related parameters
     ves_N = 10
@@ -79,7 +79,7 @@ def run_sim(hdfPath, ntets, D, NITER, use_foi, use_soAA):
         comp = Compartment.Create(mesh.tets, vsys)
         memb = Patch.Create(mesh.surface, comp, None)
 
-    rng = RNG('mt19937', 512, 123)
+    rng = RNG('mt19937', 512, seed)
     sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
 
     CONCA_soAA = (ves_N * spec_A_soAA_number_perves) / \
@@ -118,9 +118,9 @@ def run_sim(hdfPath, ntets, D, NITER, use_foi, use_soAA):
 
 if __name__ == '__main__':
     if sys.argv[1] == 'runSingle':
-        hdfPath, ntets, D, NITER, use_foi, use_soAA = sys.argv[2:]
+        hdfPath, ntets, D, NITER, use_foi, use_soAA, seed = sys.argv[2:]
         run_sim(hdfPath, int(ntets), float(D), int(NITER),
-                use_foi == 'True', use_soAA == "True")
+                use_foi == 'True', use_soAA == "True", int(seed))
     elif sys.argv[1] == 'runGrid':
         import shlex
         import subprocess
@@ -140,7 +140,8 @@ if __name__ == '__main__':
                 NITER = nrunsPerProc
             else:
                 NITER = Ntotal_runs % nrunsPerProc
-            command = f'mpirun --bind-to none -n {nmpi} python3 {__file__} runSingle {hdfPath} {ntets} {D} {NITER} {D == 0} {True}'
+            seed = hash((ntets, D, rind, i)) % int(1e10)
+            command = f'mpirun --bind-to none -n {nmpi} python3 {__file__} runSingle {hdfPath} {ntets} {D} {NITER} {D == 0} {True} {seed}'
             print('Running', i, '/', len(mesh_ntets)
                   * len(DVals) * nsplit_runs)
             processes.append((i, subprocess.Popen(shlex.split(
