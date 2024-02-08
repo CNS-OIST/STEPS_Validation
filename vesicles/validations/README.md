@@ -62,7 +62,7 @@ NOTE: due to stochastic effects, any reproduced figure may look slightly differe
 
 **vesreac_error.py**
  - should not be run with mpirun, this script will itself spawn mpirun commands so that several simulations are run in parallel
- - should be launched with e.g. `python3 vesreac_error.py runGrid 2 64 50` with 2 being the number of mpi ranks per simulation, 64 being the total number of cores that can be used, and 50 being the number of iterations per mpirun command.
+ - should be launched with e.g. `python3 vesreac_error.py runGrid 6 128 32 123` with `6` being the number of mpi ranks per simulation, `128` being the total number of cores that can be used, `32` being the number of iterations per mpirun command, and `123` being the base seed for the random number generator.
 
 **vesreac_immobile_error_plot.py**
  - does not need to be run in parallel
