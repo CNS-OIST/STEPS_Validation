@@ -125,7 +125,7 @@ if __name__ == '__main__':
         import shlex
         import subprocess
 
-        nmpi, totproc, nrunsPerProc = map(int, sys.argv[2:])
+        nmpi, totproc, nrunsPerProc, baseseed = map(int, sys.argv[2:])
         hdfPrefix = 'data/vesreac_error'
         mesh_ntets = [291, 577, 991, 2088, 3414, 11773, 41643, 265307]
         DVals = [0, 0.1]
@@ -140,7 +140,7 @@ if __name__ == '__main__':
                 NITER = nrunsPerProc
             else:
                 NITER = Ntotal_runs % nrunsPerProc
-            seed = hash((ntets, D, rind, i)) % int(1e10)
+            seed = hash((baseseed, ntets, D, rind, i)) % int(1e10)
             command = f'mpirun --bind-to none -n {nmpi} python3 {__file__} runSingle {hdfPath} {ntets} {D} {NITER} {D == 0} {True} {seed}'
             print('Running', i, '/', len(mesh_ntets)
                   * len(DVals) * nsplit_runs)
