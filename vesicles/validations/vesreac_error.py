@@ -13,14 +13,16 @@ from steps.rng import *
 from steps.saving import *
 from steps.sim import *
 
-from matplotlib import pyplot as plt
-import numpy as np
+import itertools
+import math
+import os
+import sys
 import time
-from scipy.optimize import curve_fit
 
 ########################################################################
 
-def run_sim(ntets, D, NITER_foi, NITER_soAA):
+
+def run_sim(hdfPath, ntets, D, NITER, use_foi, use_soAA, seed):
 
     # Vesicle-related parameters
     ves_N = 10
@@ -40,8 +42,6 @@ def run_sim(ntets, D, NITER_foi, NITER_soAA):
     spec_A_soAA_number_perves = 100
     spec_B_soAA_number_incomp = ves_N * spec_A_soAA_number_perves
 
-    NITER_max = max([NITER_foi, NITER_soAA])
-    
     INT = 0.21
     DT = 0.01
     AVOGADRO = 6.022e23
@@ -61,115 +61,101 @@ def run_sim(ntets, D, NITER_foi, NITER_soAA):
 
         with vssys:
             # First order irreversible
-            A_foi.v >r[1]> None
+            A_foi.v > r[1] > None
             r[1].K = KCST_foi
 
             # Second order irreversible AA
-            B_soAA.o + A_soAA.v >r[1]> C_soAA.v
+            B_soAA.o + A_soAA.v > r[1] > C_soAA.v
             r[1].K = KCST_soAA
 
         with vsys:
             Diffusion(B_soAA, 10e-12)
 
     scale, diam = (1e-6, '0.5D') if ntets in [577, 2088] else (0.25e-6, '2D')
-    mesh = TetMesh.LoadAbaqus('meshes/sphere_'+diam+'_'+str(ntets)+'tets.inp', scale)
+    mesh = TetMesh.LoadAbaqus(
+        'meshes/sphere_'+diam+'_'+str(ntets)+'tets.inp', scale)
 
     with mesh:
         comp = Compartment.Create(mesh.tets, vsys)
         memb = Patch.Create(mesh.surface, comp, None)
 
-
-    rng = RNG('mt19937', 512, 123)
+    rng = RNG('mt19937', 512, seed)
     sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
 
-    CONCA_soAA = (ves_N * spec_A_soAA_number_perves) / (AVOGADRO * comp.Vol * 1e3)
+    CONCA_soAA = (ves_N * spec_A_soAA_number_perves) / \
+        (AVOGADRO * comp.Vol * 1e3)
     CONCB_soAA = spec_B_soAA_number_incomp / (AVOGADRO * comp.Vol * 1e3)
 
     rs = ResultSelector(sim)
 
     volfact = AVOGADRO * comp.Vol * 1e3
-    
+
     rs_foi = rs.comp.ves('surf').A_foi.Count
-    rs_soAA = rs.comp.ves(
-        'surf').A_soAA.Count / volfact << rs.comp.B_soAA.Conc << rs.comp.ves(
-            'surf').C_soAA.Count / volfact
-    
+    rs_soAA = rs.comp.ves('surf').A_soAA.Count / volfact
+
     sim.toSave(rs_foi, rs_soAA, dt=DT)
 
-    btime=time.time()
+    with HDF5Handler(hdfPath) as hdf:
+        sim.toDB(hdf, f'sim_{ntets}_{D}',
+                 ntets=ntets, D=D, spec_A_foi_N=spec_A_foi_N, CONCA_soAA=CONCA_soAA, KCST_foi=KCST_foi,
+                 KCST_soAA=KCST_soAA, use_foi=use_foi, use_soAA=use_soAA
+                 )
+        for i in range(NITER):
 
-    for i in range(NITER_max):
-        if MPI.rank == 0 and not i%100:
-            print(ntets, D, ':', i, 'of', NITER_max)
+            sim.newRun()
 
-        sim.newRun()
+            sim.comp.ves.Count = ves_N
 
-        sim.comp.ves.Count = ves_N
+            if use_foi:
+                sim.comp.VESICLES()('surf').A_foi.Count = spec_A_foi_number_perves
 
-        if i < NITER_foi:
-            sim.comp.VESICLES()('surf').A_foi.Count = spec_A_foi_number_perves
+            if use_soAA:
+                sim.comp.B_soAA.Count = spec_B_soAA_number_incomp
+                sim.comp.VESICLES()('surf').A_soAA.Count = spec_A_soAA_number_perves
 
-        if i < NITER_soAA:
-            sim.comp.B_soAA.Count = spec_B_soAA_number_incomp
-            sim.comp.VESICLES()('surf').A_soAA.Count = spec_A_soAA_number_perves
-        
-        sim.run(INT)
-        
-        mean_res_foi = np.mean(rs_foi.data[:NITER_foi, ...], axis=0).flatten()
-        mean_res_soAA = np.mean(rs_soAA.data[:NITER_soAA, ...], axis=0)
-        
-        def foi_findrate(x, K): return spec_A_foi_N * np.exp(-K * x)
-        def soAA_findrate(x, K): return (1.0 / CONCA_soAA + ((x * K))) * 1e-6
-        
-        poptfoi, pcovfoi = curve_fit(foi_findrate, rs_foi.time[0], mean_res_foi, p0=KCST_foi)
-        poptAAv, pcovAAv = curve_fit(soAA_findrate, rs_soAA.time[0],(1.0 / mean_res_soAA[:, 0]) * 1e-6, p0=KCST_soAA)
-        
-        fo_error = 100*abs(poptfoi[0]-KCST_foi)/KCST_foi
-        so_error = 100*abs(poptAAv[0]-KCST_soAA)/KCST_soAA
-
-    return fo_error, so_error
+            sim.run(INT)
 
 
-mesh_ntets = [291,577,991,2088,3414,11773,41643,265307]
-mesh_sizetets = [119.77,96.58,81.19,63.76,54.21,36.03,23.68,12.79]
+if __name__ == '__main__':
+    if sys.argv[1] == 'runSingle':
+        hdfPath, ntets, D, NITER, use_foi, use_soAA, seed = sys.argv[2:]
+        run_sim(hdfPath, int(ntets), float(D), int(NITER),
+                use_foi == 'True', use_soAA == "True", int(seed))
+    elif sys.argv[1] == 'runGrid':
+        import shlex
+        import subprocess
 
+        nmpi, totproc, nrunsPerProc, baseseed = map(int, sys.argv[2:])
+        hdfPrefix = 'data/vesreac_error'
+        mesh_ntets = [291, 577, 991, 2088, 3414, 11773, 41643, 265307]
+        DVals = [0, 0.1]
+        Ntotal_runs = 1000
 
-foi_error = []
-so_error_D0 = []
-so_error_D0_1 = []
-
-for ntets in mesh_ntets:
-    error = run_sim(ntets, 0, 1000, 1000)
-    foi_error.append(error[0])
-    so_error_D0.append(error[1])
-
-for ntets in mesh_ntets:
-    error = run_sim(ntets, 0.1, 1, 1000)
-    so_error_D0_1.append(error[1])
-
-lw=3
-
-plt.plot(mesh_sizetets, foi_error, linewidth=lw, marker ='o')
-plt.xlim(0, 130)
-plt.gca().invert_xaxis()
-plt.ylim(0,2)
-plt.xlabel("Average tetrahedron size (nm)")
-plt.ylabel("Error in 2nd order reaction rate (%)")
-fig = plt.gcf()
-fig.set_size_inches(3.4, 3.4)
-fig.savefig("plots/vesreac_error_size_foi.pdf", dpi=300, bbox_inches='tight')
-plt.close()
-
-plt.plot(mesh_sizetets, so_error_D0, label='D=0$\mu m^2s^{-1}$', linewidth=lw, marker ='o')
-plt.plot(mesh_sizetets, so_error_D0_1, label='D=0.1$\mu m^2s^{-1}$', linewidth=lw, marker ='o')
-plt.legend()
-plt.xlim(0, 130)
-plt.gca().invert_xaxis()
-plt.ylim(0,15)
-plt.xlabel("Average tetrahedron size (nm)")
-plt.ylabel("Error in 2nd order reaction rate (%)")
-fig = plt.gcf()
-fig.set_size_inches(3.4, 3.4)
-fig.savefig("plots/vesreac_error_size.pdf", dpi=300, bbox_inches='tight')
-plt.close()
-
+        nsplit_runs = math.ceil(Ntotal_runs / nrunsPerProc)
+        # Scheduling
+        processes = []
+        for i, (ntets, D, rind) in enumerate(itertools.product(mesh_ntets, DVals, range(nsplit_runs))):
+            hdfPath = hdfPrefix + f'_{i}'
+            if (rind + 1) * nrunsPerProc <= Ntotal_runs:
+                NITER = nrunsPerProc
+            else:
+                NITER = Ntotal_runs % nrunsPerProc
+            seed = hash((baseseed, ntets, D, rind, i)) % int(1e10)
+            command = f'mpirun --bind-to none -n {nmpi} python3 {__file__} runSingle {hdfPath} {ntets} {D} {NITER} {D == 0} {True} {seed}'
+            print('Running', i, '/', len(mesh_ntets)
+                  * len(DVals) * nsplit_runs)
+            processes.append((i, subprocess.Popen(shlex.split(
+                command), env=os.environ, shell=False, stdout=subprocess.DEVNULL)))
+            while len(processes) >= totproc // nmpi:
+                remainingProcs = []
+                for j, proc in processes:
+                    if proc.poll() is None:
+                        remainingProcs.append((j, proc))
+                    else:
+                        print('Run', j, 'finished')
+                    processes = remainingProcs
+                    time.sleep(0.5)
+        # Wait until all runs are finished
+        for j, p in processes:
+            p.wait()
+            print('Run', j, 'finished')
