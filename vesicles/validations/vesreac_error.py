@@ -13,193 +13,149 @@ from steps.rng import *
 from steps.saving import *
 from steps.sim import *
 
-from matplotlib import pyplot as plt
-import numpy as np
+import itertools
+import math
+import os
+import sys
 import time
-from scipy.optimize import curve_fit
 
 ########################################################################
 
-# Simulation parameters
 
-mesh_ntets = 291
-scale = 0.25e-6 # any '2D' mesh requires a scale of 0.25e-6
+def run_sim(hdfPath, ntets, D, NITER, use_foi, use_soAA, seed):
 
-D=10 # Diffusion factor
+    # Vesicle-related parameters
+    ves_N = 10
+    ves_diam = 40e-9
 
-########################################################################
+    ########################################################################
 
-# Vesicle-related parameters
-ves_N = 10
-ves_diam = 40e-9
+    # First order irreversible parameters
+    KCST_foi = 10
+    spec_A_foi_number_perves = 10
+    spec_A_foi_N = spec_A_foi_number_perves * ves_N
 
-########################################################################
+    ########################################################################
 
-# Second order irreversible AA parameters
-NITER_soAA = 1000
-KCST_soAA = 2e6
-spec_A_soAA_number_perves = 100
-spec_B_soAA_number_incomp = ves_N * spec_A_soAA_number_perves
+    # Second order irreversible AA parameters
+    KCST_soAA = 2e6
+    spec_A_soAA_number_perves = 100
+    spec_B_soAA_number_incomp = ves_N * spec_A_soAA_number_perves
 
-# Second order irreversible AB parameters
-NITER_soAB = 1000
-KCST_soAB = 0.5e6
-n_soAB = 2
-spec_A_soAB_number_perves = 50
-spec_B_soAB_number_incomp = ves_N * spec_A_soAB_number_perves / n_soAB
+    INT = 0.21
+    DT = 0.01
+    AVOGADRO = 6.022e23
 
-########################################################################
+    ########################################################################
 
-NITER_max = max([NITER_soAA, NITER_soAB])
+    model = Model()
+    r = ReactionManager()
 
-INT = 0.21
-DT = 0.01
+    with model:
+        vsys = VolumeSystem.Create()
+        vssys = VesicleSurfaceSystem.Create()
 
-AVOGADRO = 6.022e23
-LINEWIDTH = 3
+        ves = Vesicle.Create(ves_diam, D*1e-12, vssys)
+        A_foi = Species.Create()
+        A_soAA, B_soAA, C_soAA = Species.Create()
 
-########################################################################
+        with vssys:
+            # First order irreversible
+            A_foi.v > r[1] > None
+            r[1].K = KCST_foi
 
-model = Model()
-r = ReactionManager()
+            # Second order irreversible AA
+            B_soAA.o + A_soAA.v > r[1] > C_soAA.v
+            r[1].K = KCST_soAA
 
-with model:
-    vsys = VolumeSystem.Create()
-    vssys = VesicleSurfaceSystem.Create()
+        with vsys:
+            Diffusion(B_soAA, 10e-12)
 
-    ves = Vesicle.Create(ves_diam, D*1e-12, vssys)
-    A_soAA, B_soAA, C_soAA, A_soAB, B_soAB, C_soAB = Species.Create(
-    )
+    scale, diam = (1e-6, '0.5D') if ntets in [577, 2088] else (0.25e-6, '2D')
+    mesh = TetMesh.LoadAbaqus(
+        'meshes/sphere_'+diam+'_'+str(ntets)+'tets.inp', scale)
 
-    with vssys:
+    with mesh:
+        comp = Compartment.Create(mesh.tets, vsys)
+        memb = Patch.Create(mesh.surface, comp, None)
 
-        # Second order irreversible AA
-        B_soAA.o + A_soAA.v >r[1]> C_soAA.v
-        r[1].K = KCST_soAA
+    rng = RNG('mt19937', 512, seed)
+    sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
 
-        # Second order irreversible AB
-        B_soAB.o + A_soAB.v >r[1]> C_soAB.v
-        r[1].K = KCST_soAB
+    CONCA_soAA = (ves_N * spec_A_soAA_number_perves) / \
+        (AVOGADRO * comp.Vol * 1e3)
+    CONCB_soAA = spec_B_soAA_number_incomp / (AVOGADRO * comp.Vol * 1e3)
 
-    with vsys:
-        Diffusion(B_soAA, 10e-12)
-        Diffusion(B_soAB, 10e-12)
+    rs = ResultSelector(sim)
 
-########################################################################
+    volfact = AVOGADRO * comp.Vol * 1e3
 
-mesh = TetMesh.LoadAbaqus('meshes/sphere_2D_'+str(mesh_ntets)+'tets.inp', scale)
-if MPI.rank == 0:
-    print ("Mesh volume (nm^3):", mesh.Vol*1e27)
+    rs_foi = rs.comp.ves('surf').A_foi.Count
+    rs_soAA = rs.comp.ves('surf').A_soAA.Count / volfact
 
-with mesh:
-    comp = Compartment.Create(mesh.tets, vsys)
-    memb = Patch.Create(mesh.surface, comp, None)
+    sim.toSave(rs_foi, rs_soAA, dt=DT)
 
-########################################################################
+    with HDF5Handler(hdfPath) as hdf:
+        sim.toDB(hdf, f'sim_{ntets}_{D}',
+                 ntets=ntets, D=D, spec_A_foi_N=spec_A_foi_N, CONCA_soAA=CONCA_soAA, KCST_foi=KCST_foi,
+                 KCST_soAA=KCST_soAA, use_foi=use_foi, use_soAA=use_soAA
+                 )
+        for i in range(NITER):
 
-rng = RNG('mt19937', 512, 1)
-sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+            sim.newRun()
 
-CONCA_soAA = (ves_N * spec_A_soAA_number_perves) / (AVOGADRO * comp.Vol * 1e3)
-CONCB_soAA = spec_B_soAA_number_incomp / (AVOGADRO * comp.Vol * 1e3)
+            sim.comp.ves.Count = ves_N
 
-CONCA_soAB = (ves_N * spec_A_soAB_number_perves) / (AVOGADRO * comp.Vol * 1e3)
-CONCB_soAB = CONCA_soAB / n_soAB
+            if use_foi:
+                sim.comp.VESICLES()('surf').A_foi.Count = spec_A_foi_number_perves
 
-rs = ResultSelector(sim)
+            if use_soAA:
+                sim.comp.B_soAA.Count = spec_B_soAA_number_incomp
+                sim.comp.VESICLES()('surf').A_soAA.Count = spec_A_soAA_number_perves
 
-volfact = AVOGADRO * comp.Vol * 1e3
-rs_soAA = rs.comp.ves(
-    'surf').A_soAA.Count / volfact << rs.comp.B_soAA.Conc << rs.comp.ves(
-        'surf').C_soAA.Count / volfact
-rs_soAB = rs.comp.ves('surf').A_soAB.Count / volfact << rs.comp.B_soAB.Conc
-
-sim.toSave(rs_soAA, rs_soAB, dt=DT)
-
-btime=time.time()
-
-for i in range(NITER_max):
-    if MPI.rank == 0:
-        print ("So far", time.time()-btime, "s")
-        print(i, 'of', NITER_max)
-    
-    sim.newRun()
-
-    sim.comp.ves.Count = ves_N
-
-    if i < NITER_soAA:
-        sim.comp.B_soAA.Count = spec_B_soAA_number_incomp
-        sim.comp.VESICLES()('surf').A_soAA.Count = spec_A_soAA_number_perves
-    if i < NITER_soAB:
-        sim.comp.B_soAB.Count = spec_B_soAB_number_incomp
-        sim.comp.VESICLES()('surf').A_soAB.Count = spec_A_soAB_number_perves
-
-    sim.run(INT)
-
-if MPI.rank == 0:
-
-    tpnts = rs_soAA.time[0]
-
-    plt.subplot(223)
-    mean_res_soAA = np.mean(rs_soAA.data[:NITER_soAA, ...], axis=0)
-
-    invA = (1.0 / mean_res_soAA[:, 0]) * 1e-6
-    invB = (1.0 / mean_res_soAA[:, 1]) * 1e-6
-    lineA = (1.0 / CONCA_soAA + ((tpnts * KCST_soAA))) * 1e-6
-    lineB = (1.0 / CONCB_soAA + ((tpnts * KCST_soAA))) * 1e-6
-
-    plt.plot(tpnts, lineA, 'k-', linewidth=LINEWIDTH, label='analytical')
-    plt.plot(tpnts,
-             invA,
-             'r--',
-             linewidth=LINEWIDTH,
-             ms=5,
-             label='STEPS, vesicle species ')
-    plt.plot(tpnts,
-             invB,
-             'yo',
-             linewidth=LINEWIDTH,
-             label='STEPS, cytosolic species')
-    plt.legend()
-    plt.xlabel('Time (s)')
-    plt.ylabel('Inverse concentration (1/$\mu$M)')
-
-    plt.subplot(224)
-    mean_res_soAB = np.mean(rs_soAB.data[:NITER_soAB, ...], axis=0)
-
-    A_soAB = mean_res_soAB[:, 0]
-    B_soAB = mean_res_soAB[:, 1]
-    C_soAB = CONCA_soAB - CONCB_soAB
-    lnBA_soAB = np.log(B_soAB / A_soAB)
-    lineAB_soAB = np.log(CONCB_soAB / CONCA_soAB) - C_soAB * KCST_soAB * tpnts
-    plt.plot(tpnts, lineAB_soAB, 'k-', linewidth=LINEWIDTH, label='analytical')
-    plt.plot(tpnts, lnBA_soAB, 'r--', linewidth=LINEWIDTH, label='STEPS')
-    plt.legend()
-    plt.xlabel('Time (s)')
-
-    plt.subplots_adjust(wspace=0.3, hspace=0.3)
-    fig = plt.gcf()
-    fig.set_size_inches(7, 7)
-    fig.savefig("plots/vesreac_error_D"+str(D)+"_"+str(mesh_ntets)+".pdf", dpi=300, bbox_inches='tight')
-    plt.close()
+            sim.run(INT)
 
 
-    tpnts = rs_soAA.time[0]
+if __name__ == '__main__':
+    if sys.argv[1] == 'runSingle':
+        hdfPath, ntets, D, NITER, use_foi, use_soAA, seed = sys.argv[2:]
+        run_sim(hdfPath, int(ntets), float(D), int(NITER),
+                use_foi == 'True', use_soAA == "True", int(seed))
+    elif sys.argv[1] == 'runGrid':
+        import shlex
+        import subprocess
 
-    def soAA_func(x, K):
-        return (1.0 / CONCA_soAA + ((x * K))) * 1e-6
-    
-    poptAAv, pcovAAv = curve_fit(soAA_func, tpnts,(1.0 / mean_res_soAA[:, 0]) * 1e-6, p0=KCST_soAA)
-    poptAAc, pcovAAc = curve_fit(soAA_func, tpnts,(1.0 / mean_res_soAA[:, 1]) * 1e-6, p0=KCST_soAA)
-    
+        nmpi, totproc, nrunsPerProc, baseseed = map(int, sys.argv[2:])
+        hdfPrefix = 'data/vesreac_error'
+        mesh_ntets = [291, 577, 991, 2088, 3414, 11773, 41643, 265307]
+        DVals = [0, 0.1]
+        Ntotal_runs = 1000
 
-    tpnts = rs_soAB.time[0]
-
-    def soAB_func(x, K):
-        return np.log(CONCB_soAB / CONCA_soAB) - C_soAB * K * x
-    
-    poptAB, pcovAB = curve_fit(soAB_func, tpnts, lnBA_soAB , p0=KCST_soAB)
-
-
-    print ("soAA error, vesicle species", "soAA error, cytosolic species", "soAB error (%):")
-    print(100*abs(poptAAv[0]-KCST_soAA)/KCST_soAA, 100*abs(poptAAc[0]-KCST_soAA)/KCST_soAA, 100*abs(poptAB[0]-KCST_soAB)/KCST_soAB)
+        nsplit_runs = math.ceil(Ntotal_runs / nrunsPerProc)
+        # Scheduling
+        processes = []
+        for i, (ntets, D, rind) in enumerate(itertools.product(mesh_ntets, DVals, range(nsplit_runs))):
+            hdfPath = hdfPrefix + f'_{i}'
+            if (rind + 1) * nrunsPerProc <= Ntotal_runs:
+                NITER = nrunsPerProc
+            else:
+                NITER = Ntotal_runs % nrunsPerProc
+            seed = hash((baseseed, ntets, D, rind, i)) % int(1e10)
+            command = f'mpirun --bind-to none -n {nmpi} python3 {__file__} runSingle {hdfPath} {ntets} {D} {NITER} {D == 0} {True} {seed}'
+            print('Running', i, '/', len(mesh_ntets)
+                  * len(DVals) * nsplit_runs)
+            processes.append((i, subprocess.Popen(shlex.split(
+                command), env=os.environ, shell=False, stdout=subprocess.DEVNULL)))
+            while len(processes) >= totproc // nmpi:
+                remainingProcs = []
+                for j, proc in processes:
+                    if proc.poll() is None:
+                        remainingProcs.append((j, proc))
+                    else:
+                        print('Run', j, 'finished')
+                    processes = remainingProcs
+                    time.sleep(0.5)
+        # Wait until all runs are finished
+        for j, p in processes:
+            p.wait()
+            print('Run', j, 'finished')
