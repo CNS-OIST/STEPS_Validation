@@ -202,17 +202,17 @@ class TestConstSourceDiffReacODE(unittest.TestCase):
         totset = 0
         for k in minztets:    
             sim.setTetReacK(k, 'reacX', FLUX/nminztets)		
-            sim.setTetCount(k, 'A', 1)
-            totset+=sim.getTetCount(k, 'X')
+            sim.setTetSpecCount(k, 'A', 1)
+            totset+=sim.getTetSpecCount(k, 'X')
         for l in maxztets:
             sim.setTetReacK(l, 'reacX', FLUX/nmaxztets)
-            sim.setTetCount(l, 'A', 1)
-            totset+=sim.getTetCount(l, 'X')
+            sim.setTetSpecCount(l, 'A', 1)
+            totset+=sim.getTetSpecCount(l, 'X')
             
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(SAMPLE):
-                res[i, k] = sim.getTetCount(int(tetidxs[k]), 'X')*1.0e6
+                res[i, k] = sim.getTetSpecCount(int(tetidxs[k]), 'X')*1.0e6
 
         ########################################################################
 

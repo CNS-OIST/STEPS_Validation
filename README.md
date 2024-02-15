@@ -3,7 +3,7 @@
 This repository contains long validation tests for STEPS. The short validation
 tests are found in the main STEPS repository under test/validation.
 
-Target STEPS version: 4.1.0
+Target STEPS version: 5.0.1
 
 To run all validations, clone this repository and go to the validation directory
  
