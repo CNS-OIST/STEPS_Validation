@@ -71,42 +71,47 @@ ves_count = rs.cyto.vesicle.Count
 
 sim.toSave(ves_count, dt=DT)
 
-for i in range(NITER):
-    if MPI.rank == 0:
-        print(i + 1, 'of', NITER)
+with HDF5Handler('data/exocytosis') as hdf:
+    sim.toDB(hdf, 'exocytosis')
 
-    sim.newRun()
+    for i in range(NITER):
+        if MPI.rank == 0:
+            print(i + 1, 'of', NITER)
 
-    sim.cyto.vesicle.Count = ves_N
+        sim.newRun()
 
-    sim.run(INT)
+        sim.cyto.vesicle.Count = ves_N
+
+        sim.run(INT)
 
 if MPI.rank == 0:
+    with HDF5Handler('data/exocytosis') as hdf:
+        ves_count, = hdf['exocytosis'].results
 
-    tpnts = ves_count.time[0]
-    mean_res = np.mean(ves_count.data, axis=0).flatten()
-    std_res = np.std(ves_count.data, axis=0).flatten()
+        tpnts = ves_count.time[0]
+        mean_res = np.mean(ves_count.data, axis=0).flatten()
+        std_res = np.std(ves_count.data, axis=0).flatten()
 
-    analy = ves_N * np.exp(-KCST * tpnts)
-    std = np.sqrt(ves_N * np.exp(-KCST * tpnts) * (1 - np.exp(-KCST * tpnts)))
+        analy = ves_N * np.exp(-KCST * tpnts)
+        std = np.sqrt(ves_N * np.exp(-KCST * tpnts) * (1 - np.exp(-KCST * tpnts)))
 
-    plt.errorbar(tpnts,
-                 analy,
-                 std,
-                 color='black',
-                 label='analytical',
-                 linewidth=LINEWIDTH)
-    plt.errorbar(tpnts + DT / 3.0,
-                 mean_res,
-                 std_res,
-                 color='red',
-                 ls='--',
-                 label='STEPS',
-                 linewidth=LINEWIDTH)
-    plt.legend()
-    plt.xlabel('Time (s)')
-    plt.ylabel('Vesicle number')
-    fig = plt.gcf()
-    fig.set_size_inches(3.4, 3.4)
-    fig.savefig('plots/exocytosis.pdf', dpi=300, bbox_inches='tight')
-    plt.close()
+        plt.errorbar(tpnts,
+                    analy,
+                    std,
+                    color='black',
+                    label='analytical',
+                    linewidth=LINEWIDTH)
+        plt.errorbar(tpnts + DT / 3.0,
+                    mean_res,
+                    std_res,
+                    color='red',
+                    ls='--',
+                    label='STEPS',
+                    linewidth=LINEWIDTH)
+        plt.legend()
+        plt.xlabel('Time (s)')
+        plt.ylabel('Vesicle number')
+        fig = plt.gcf()
+        fig.set_size_inches(3.4, 3.4)
+        fig.savefig('plots/exocytosis.pdf', dpi=300, bbox_inches='tight')
+        plt.close()
