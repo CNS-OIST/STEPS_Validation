@@ -64,15 +64,20 @@ vesPos = rs.VESICLE(ves).Pos
 
 sim.toSave(vesPos, dt=DT)
 
-sim.newRun(reset=False)
+with HDF5Handler('data/path_ind') as hdf:
+    sim.toDB(hdf, f'path_ind')
 
-sim.run(ENDT)
+    sim.newRun(reset=False)
+
+    sim.run(ENDT)
 
 if MPI.rank == 0:
-    plt.plot(vesPos.time[0], vesPos.data[0, :, 0][:, 2])
-    plt.xlabel('Time (s)')
-    plt.ylabel('z position ($\mu$m)')
-    fig = plt.gcf()
-    fig.set_size_inches(7, 3.5)
-    fig.savefig("plots/path_ind.pdf", dpi=300, bbox_inches='tight')
-    plt.close()
+    with HDF5Handler('data/path_ind') as hdf:
+        vesPos, = hdf['path_ind'].results
+        plt.plot(vesPos.time[0], vesPos.data[0, :, 0][:, 2])
+        plt.xlabel('Time (s)')
+        plt.ylabel('z position ($\mu$m)')
+        fig = plt.gcf()
+        fig.set_size_inches(7, 3.5)
+        fig.savefig("plots/path_ind.pdf", dpi=300, bbox_inches='tight')
+        plt.close()
