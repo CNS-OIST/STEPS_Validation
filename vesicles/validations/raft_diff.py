@@ -71,62 +71,66 @@ rafts = rs.TRIS(memb.tris).raft.Count
 
 sim.toSave(rafts, dt=DT)
 
-for j in range(NITER):
-    if MPI.rank == 0:
-        print(j, 'of', NITER)
-    sim.newRun()
-    sim.TRI(ctri).raft.Count = NINJECT
+with HDF5Handler('data/raft_diff') as hdf:
+    sim.toDB(hdf, f'raft_diff')
+    for j in range(NITER):
+        if MPI.rank == 0:
+            print(j, 'of', NITER)
+        sim.newRun()
+        sim.TRI(ctri).raft.Count = NINJECT
 
-    sim.run(INT)
-
-tpnt_compare = range(3, 13, 2)
+        sim.run(INT)
 
 if MPI.rank == 0:
-    first = True
-    for t in tpnt_compare:
-        bin_n = 20
+    tpnt_compare = range(3, 13, 2)
 
-        bins = np.histogram_bin_edges(trirads, bin_n)
-        tri_bins = np.digitize(trirads, bins)
+    with HDF5Handler('data/raft_diff') as hdf:
+        rafts, = hdf['raft_diff'].results
+        first = True
+        for t in tpnt_compare:
+            bin_n = 20
 
-        # Compute average position for each bin
-        bins_pos = np.bincount(tri_bins,
-                               weights=trirads) / np.bincount(tri_bins)
-        bin_areas = np.bincount(tri_bins, weights=triareas)
+            bins = np.histogram_bin_edges(trirads, bin_n)
+            tri_bins = np.digitize(trirads, bins)
 
-        bin_counts = np.bincount(tri_bins,
-                                 weights=np.mean(rafts.data[:, t, :], axis=0))
-        bin_concs = bin_counts / (bin_areas * 1e12)
+            # Compute average position for each bin
+            bins_pos = np.bincount(tri_bins,
+                                   weights=trirads) / np.bincount(tri_bins)
+            bin_areas = np.bincount(tri_bins, weights=triareas)
 
-        det_conc = 1.0e-12 * (NINJECT /
-                              (4 * np.pi * DCST * rafts.time[0, t])) * (np.exp(
-                                  (-1.0 * (bins_pos**2)) /
-                                  (4 * DCST * rafts.time[0, t])))
+            bin_counts = np.bincount(tri_bins,
+                                     weights=np.mean(rafts.data[:, t, :], axis=0))
+            bin_concs = bin_counts / (bin_areas * 1e12)
 
-        if first:
-            plt.plot(bins_pos * 1e6,
-                     det_conc,
-                     'k-',
-                     label='analytical',
-                     linewidth=3)
-            plt.plot(bins_pos * 1e6,
-                     bin_concs,
-                     'r--',
-                     label='STEPS',
-                     linewidth=3)
-            first = False
-        else:
-            plt.plot(bins_pos * 1e6, det_conc, 'k-', linewidth=3)
-            plt.plot(bins_pos * 1e6, bin_concs, 'r--', linewidth=3)
+            det_conc = 1.0e-12 * (NINJECT /
+                                  (4 * np.pi * DCST * rafts.time[0, t])) * (np.exp(
+                                      (-1.0 * (bins_pos**2)) /
+                                      (4 * DCST * rafts.time[0, t])))
 
-    plt.xlabel('Distance from origin ($\mu$m)')
-    plt.ylabel('Raft density ($\mu$m$^{-2}$)')
-    plt.legend()
-    plt.xlim(0, 5)
-    fig = plt.gcf()
-    fig.set_size_inches(3.4, 3.4)
-    fig.savefig("plots/raft_diff.pdf", dpi=300, bbox_inches='tight')
-    plt.close()
+            if first:
+                plt.plot(bins_pos * 1e6,
+                         det_conc,
+                         'k-',
+                         label='analytical',
+                         linewidth=3)
+                plt.plot(bins_pos * 1e6,
+                         bin_concs,
+                         'r--',
+                         label='STEPS',
+                         linewidth=3)
+                first = False
+            else:
+                plt.plot(bins_pos * 1e6, det_conc, 'k-', linewidth=3)
+                plt.plot(bins_pos * 1e6, bin_concs, 'r--', linewidth=3)
+
+        plt.xlabel('Distance from origin ($\mu$m)')
+        plt.ylabel('Raft density ($\mu$m$^{-2}$)')
+        plt.legend()
+        plt.xlim(0, 5)
+        fig = plt.gcf()
+        fig.set_size_inches(3.4, 3.4)
+        fig.savefig("plots/raft_diff.pdf", dpi=300, bbox_inches='tight')
+        plt.close()
 
 ########################################################################
 # END

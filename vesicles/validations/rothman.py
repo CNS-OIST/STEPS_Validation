@@ -23,9 +23,9 @@ T_END = 0.3
 ########################################################################
 
 mito_vol_frac = 0.28
-vesicle_vol_frac = 0.17  # Rothman et al MFT
-vesicle_immob_frac = 0.25  # Rothman et al MFT
-vesicle_diam = 49e-9  # Rothman et al MFT
+vesicle_vol_frac = 0.17  #  Rothman et al MFT
+vesicle_immob_frac = 0.25  #  Rothman et al MFT
+vesicle_diam = 49e-9  #  Rothman et al MFT
 DCST = 0.06e-12
 
 ########################################################################
@@ -106,22 +106,17 @@ positions = rs.VESICLES(recordVes).Pos
 
 sim.toSave(positions, dt=DT)
 
-sim.newRun(reset=False)
-
-for t in tpnts:
+with HDF5Handler('data/rothman') as hdf:
+    group = sim.toDB(hdf, f'rothman', starting_pos=starting_pos,
+                     mito_vol_frac=mito_vol_frac)
     if MPI.rank == 0:
-        print(t, tpnts[-1], time.time() - btime)
-    sim.run(t)
+        group.staticData['tpnts'] = list(tpnts)
 
-if MPI.rank == 0:
-    ves_mean = np.mean(np.sum(
-        (positions.data[0, ...] - starting_pos)**2, axis=2) * 1e12,
-                       axis=1)
+    sim.newRun(reset=False)
 
-    with open(f'data/rothman_{MESHFILE}_{scale}_{DT}_{T_END}', 'wb') as f:
-        pickle.dump(mito_vol_frac, f)
-        pickle.dump(tpnts * 6, f)
-        pickle.dump(ves_mean, f)
+    for t in tpnts:
+        if MPI.rank == 0:
+            print(t, tpnts[-1], time.time() - btime)
+        sim.run(t)
 
-    print("That took ", time.time() - btime, "seconds")
-
+print("That took ", time.time() - btime, "seconds")
