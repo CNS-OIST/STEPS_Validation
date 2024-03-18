@@ -1,7 +1,11 @@
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
 from random import *
 from math import *
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 
 D=0.06e-12

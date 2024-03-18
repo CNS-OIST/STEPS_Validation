@@ -5,11 +5,17 @@ from steps.model import *
 from steps.rng import *
 from steps.saving import *
 from steps.sim import *
+import steps.simcheck
 
+import matplotlib
 from matplotlib import pyplot as plt
 import mpi4py.MPI
 import numpy as np
 import time
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
+
 
 # Number of iterations; plotting dt; sim endtime:
 NITER = 10000
@@ -74,7 +80,7 @@ for vol_frac in [0.0, 0.2, 0.4, 0.6]:
     ########################################################################
 
     rng = RNG('r123', 1024, int(time.time() % 4294967295))
-    sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+    sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
 
     rs = ResultSelector(sim)
 
@@ -88,6 +94,7 @@ for vol_frac in [0.0, 0.2, 0.4, 0.6]:
             sim.newRun()
 
             sim.setVesicleDT(DT / 10.0)
+            
             v = sim.cyto.addVesicle(Ves1)
             v.Pos = [0, 0, 0]
 

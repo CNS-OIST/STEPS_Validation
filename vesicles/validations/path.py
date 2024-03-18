@@ -12,8 +12,12 @@ from steps.rng import *
 from steps.sim import *
 from steps.saving import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 ########################################################################
 
@@ -60,7 +64,7 @@ with mesh:
 
 rng = RNG('mt19937', 512, 987)
 
-sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
 
 speed1 = 0.5e-6
 speed2 = 0.3e-6
@@ -176,12 +180,12 @@ if MPI.rank == 0:
                 if label2:
                     plt.plot(res[v][0],
                              np.array(res[v][1]) + zshift,
-                             'g--',
+                             'y--',
                              linewidth=lw)
                 else:
                     plt.plot(res[v][0],
                              np.array(res[v][1]) + zshift,
-                             'g--',
+                             'y--',
                              linewidth=lw,
                              label='vesicle on path1')
                     label2 = True

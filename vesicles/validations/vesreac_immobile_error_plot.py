@@ -1,12 +1,17 @@
 import steps.interface
 
 from steps.saving import HDF5Handler
+import matplotlib
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.stats import chi2
 import numpy as np
 import os
 import sys
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
+
 
 if __name__ == '__main__':
     hdfPrefix = 'data/vesreac_immobile_reactants'

@@ -1,6 +1,10 @@
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
 from math import *
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 
 root_mean_squared_disps=np.arange(0.02, 2.02, 0.02) #relative to diameter

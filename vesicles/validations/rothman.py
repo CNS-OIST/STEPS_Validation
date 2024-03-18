@@ -119,4 +119,3 @@ with HDF5Handler('data/rothman') as hdf:
             print(t, tpnts[-1], time.time() - btime)
         sim.run(t)
 
-print("That took ", time.time() - btime, "seconds")

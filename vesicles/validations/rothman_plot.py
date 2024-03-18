@@ -1,5 +1,16 @@
+import steps.interface
+from steps.saving import *
+
+
 import pickle
-from pylab import *
+import matplotlib
+from matplotlib import pyplot as plt
+import numpy as np
+
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
+
 
 with HDF5Handler('data/rothman') as hdf:
     group = hdf['rothman']
@@ -30,12 +41,11 @@ with HDF5Handler('data/rothman') as hdf:
     # ves_mean = pickle.load(ifile)
     # tpnts = tpnts_6 / 6.0
 
-    plot(tpnts, ves_mean[1:] / (tpnts * 6), linewidth=3)
-    xlabel('Time (s)')
-    ylabel('D ($\mu$$m^2$/s)')
-
-    ylim(0, 0.06)
-    fig = gcf()
+    plt.plot(tpnts, ves_mean[1:] / (tpnts * 6), linewidth=3)
+    plt.xlabel('Time (s)')
+    plt.ylabel('D ($\mu$$m^2$/s)')
+    plt.ylim(0, 0.06)
+    fig = plt.gcf()
     fig.set_size_inches(3.4, 3.4)
     fig.savefig("plots/rothman.pdf", dpi=300, bbox_inches='tight')
-    close()
+    plt.close()

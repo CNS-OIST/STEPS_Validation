@@ -6,10 +6,13 @@ from steps.rng import *
 from steps.saving import *
 from steps.sim import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.integrate import quad
 
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 #unormalised for now
 def Qnew(beta, sigma):
