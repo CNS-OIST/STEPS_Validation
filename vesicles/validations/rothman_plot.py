@@ -1,8 +1,6 @@
 import steps.interface
 from steps.saving import *
 
-
-import pickle
 import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
