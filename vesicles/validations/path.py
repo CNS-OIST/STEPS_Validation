@@ -167,26 +167,26 @@ if MPI.rank == 0:
                 if label1:
                     plt.plot(res[v][0],
                              np.array(res[v][1]) + zshift,
-                             'r--',
-                             linewidth=lw)
+                             '--',
+                             linewidth=lw, color='deepskyblue')
                 else:
                     plt.plot(res[v][0],
                              np.array(res[v][1]) + zshift,
-                             'r--',
-                             linewidth=lw,
+                             '--',
+                             linewidth=lw, color='deepskyblue',
                              label='vesicle on path2')
                     label1 = True
             else:
                 if label2:
                     plt.plot(res[v][0],
                              np.array(res[v][1]) + zshift,
-                             'y--',
-                             linewidth=lw)
+                             '--',
+                             linewidth=lw, color='orange')
                 else:
                     plt.plot(res[v][0],
                              np.array(res[v][1]) + zshift,
-                             'y--',
-                             linewidth=lw,
+                             '--',
+                             linewidth=lw, color='orange',
                              label='vesicle on path1')
                     label2 = True
 
