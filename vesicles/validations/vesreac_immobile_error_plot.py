@@ -14,7 +14,7 @@ matplotlib.rcParams['font.family'] = "sans-serif"
 
 
 if __name__ == '__main__':
-    hdfPrefix = 'data/vesreac_immobile_reactants'
+    hdfPrefix = 'data/vesreac_immobile_reactants/vesreac_immobile_reactants'
     if len(sys.argv) > 1:
         hdfPrefix = sys.argv[1]
 

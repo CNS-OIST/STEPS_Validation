@@ -82,7 +82,7 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'runGrid':
         import shlex, subprocess
 
-        hdfPrefix = 'data/vesreac_immobile_reactants'
+        hdfPrefix = 'data/vesreac_immobile_reactants/vesreac_immobile_reactants'
         specDcst = 0
         nmpi, totproc = map(int, sys.argv[2:4])
         if len(sys.argv) > 4:
