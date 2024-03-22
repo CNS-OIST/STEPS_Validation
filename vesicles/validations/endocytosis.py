@@ -99,8 +99,6 @@ if MPI.rank == 0:
     with HDF5Handler('data/endocytosis') as hdf:
         ves_count, spec_count = hdf['endocytosis'].results
 
-        #plt.figure(1)
-
         tpnts = spec_count.time[0]
         mean_res = np.mean(spec_count.data, axis=0).flatten()
         std_res = np.std(spec_count.data, axis=0).flatten()
