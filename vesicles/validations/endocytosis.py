@@ -99,7 +99,7 @@ if MPI.rank == 0:
     with HDF5Handler('data/endocytosis') as hdf:
         ves_count, spec_count = hdf['endocytosis'].results
 
-        plt.subplot(121)
+        #plt.figure(1)
 
         tpnts = spec_count.time[0]
         mean_res = np.mean(spec_count.data, axis=0).flatten()
@@ -128,8 +128,11 @@ if MPI.rank == 0:
         plt.legend()
         plt.xlabel('Time (s)')
         plt.ylabel('Dep. species number')
+        fig = plt.gcf()
+        fig.set_size_inches(3.4, 3.4)
+        fig.savefig('plots/endocytosis_spec.pdf', dpi=300, bbox_inches='tight')
+        plt.close()
 
-        plt.subplot(122)
 
         tpnts = ves_count.time[0]
         mean_res_v = np.mean(ves_count.data, axis=0).flatten()
@@ -153,6 +156,6 @@ if MPI.rank == 0:
         plt.xlabel('Time (s)')
         plt.ylabel('Vesicle number')
         fig = plt.gcf()
-        fig.set_size_inches(7, 3.5)
-        fig.savefig('plots/endocytosis.pdf', dpi=300, bbox_inches='tight')
+        fig.set_size_inches(3.4, 3.4)
+        fig.savefig('plots/endocytosis_ves.pdf', dpi=300, bbox_inches='tight')
         plt.close()

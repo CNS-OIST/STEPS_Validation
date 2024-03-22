@@ -5,7 +5,6 @@ from steps.model import *
 from steps.rng import *
 from steps.saving import *
 from steps.sim import *
-import steps.simcheck
 
 import matplotlib
 from matplotlib import pyplot as plt
