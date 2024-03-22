@@ -230,7 +230,7 @@ def init_sim(model, mesh, seed, param):
     # Set initial conditions
     sim.reset()
 
-    for t in memb.tris: sim.setTriCount(t, 'Leak', 1)
+    for t in memb.tris: sim.setTriSpecCount(t, 'Leak', 1)
 
     sim.setEfieldDT(param['EF_dt'])
     sim.setMembPotential('membrane', param['E_M'])

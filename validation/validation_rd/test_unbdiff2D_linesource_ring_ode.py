@@ -137,11 +137,11 @@ class TestUnbDiff2DLineSourceRingODE(unittest.TestCase):
         res_count = np.zeros((ntpnts, patch_tris_n))
 
         for t in inject_tris:
-            sim.setTriCount(t, 'X', float(NINJECT)/len(inject_tris))
+            sim.setTriSpecCount(t, 'X', float(NINJECT)/len(inject_tris))
         for i in range(ntpnts):
             sim.run(tpnts[i])
             for k in range(patch_tris_n):
-                res_count[i, k] = sim.getTriCount(patch_tris[k], 'X')
+                res_count[i, k] = sim.getTriSpecCount(patch_tris[k], 'X')
 
 
         tpnt_compare = [75, 100, 150]

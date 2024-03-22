@@ -132,11 +132,11 @@ class TestUnbDiff(unittest.TestCase):
 
         for j in range(NITER):
             sim.reset()
-            sim.setTetCount(ctetidx, 'X', NINJECT)
+            sim.setTetSpecCount(ctetidx, 'X', NINJECT)
             for i in range(ntpnts):
                 sim.run(tpnts[i])
                 for k in range(SAMPLE):
-                    res[j, i, k] = sim.getTetCount(int(tetidxs[k]), 'X')
+                    res[j, i, k] = sim.getTetSpecCount(int(tetidxs[k]), 'X')
 
         itermeans = np.mean(res, axis = 0)
 
