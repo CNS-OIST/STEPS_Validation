@@ -195,7 +195,7 @@ class TestUnbDiff2DLineSourceRing(unittest.TestCase):
 
 def suite():
     all_tests = []
-    all_tests.append(unittest.makeSuite(TestUnbDiff2DLineSourceRing, "test"))
+    all_tests.append(unittest.TestLoader().loadTestsFromTestCase(TestUnbDiff2DLineSourceRing))
     return unittest.TestSuite(all_tests)
 
 if __name__ == "__main__":

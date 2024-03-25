@@ -146,7 +146,7 @@ class TestBoundDiff(unittest.TestCase):
 
 def suite():
     all_tests = []
-    all_tests.append(unittest.makeSuite(TestBoundDiff, "test"))
+    all_tests.append(unittest.TestLoader().loadTestsFromTestCase(TestBoundDiff))
     return unittest.TestSuite(all_tests)
 
 if __name__ == "__main__":
