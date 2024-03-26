@@ -9,13 +9,18 @@ from steps.geom import *
 from steps.rng import *
 from steps.sim import *
 from steps.saving import *
+import steps.simcheck
 
+import matplotlib
 from matplotlib import pyplot as plt
 import time
 import os
 import numpy as np
 from scipy.stats import binom
 from scipy.optimize import curve_fit
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 ########################################################################
 
@@ -66,7 +71,7 @@ def runtest():
 
     rng = RNG('mt19937', 512, int(time.time() % 4294967295))
 
-    sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+    sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
 
     rs = ResultSelector(sim)
     spec_count = rs.TETS().spec1.Count
@@ -78,7 +83,10 @@ def runtest():
         sim.newRun()
 
         tetvolinit = sim.TETS().Vol
-
+        
+        sim.setVesicleDT(5e-4)
+        steps.simcheck.Check(sim, True)
+        
         sim.comp1.spec1.Count = NMOLCS
 
         vesicle_vol_total = mesh_vol * vesicle_vol_frac
