@@ -1,11 +1,15 @@
 # MPI performance of a realistic synaptic vesicle cycle model in STEPS 5.0
 
+import matplotlib
 from matplotlib import pyplot as plt
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 cores=[2,4,8,16,32,64,128,256,384,512]
 rt_2000 = [385.680873, 108.572092, 53.558429, 31.449047, 24.655371, 15.559180, 14.856715, 9.431283, 9.244792, 7.279367]
 
-plt.plot(cores, rt_2000, linewidth=5)
+plt.plot(cores, rt_2000, linewidth=5, marker='o', markersize=10)
 
 ax0=plt.gca()
 ax0.set_xscale('log')

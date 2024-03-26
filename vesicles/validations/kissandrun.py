@@ -12,8 +12,12 @@ from steps.rng import *
 from steps.sim import *
 from steps.saving import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 ########################################################################
 
@@ -65,7 +69,7 @@ for pr in [0.1, 0.4, 0.7, 1.0]:
 
     rng = RNG('mt19937', 512, int(pr*100))
 
-    sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+    sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
 
     rs = ResultSelector(sim)
 

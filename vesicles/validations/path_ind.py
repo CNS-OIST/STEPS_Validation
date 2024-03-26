@@ -6,8 +6,13 @@ from steps.rng import *
 from steps.saving import *
 from steps.sim import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
+
 
 scale = 1e-6
 ENDT = 5

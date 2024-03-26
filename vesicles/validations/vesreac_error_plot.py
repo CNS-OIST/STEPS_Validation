@@ -1,10 +1,15 @@
 import steps.interface
 
 from steps.saving import HDF5Handler
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
 import os
 from scipy.optimize import curve_fit
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
+
 
 mesh_ntets = [291, 577, 991, 2088, 3414, 11773, 41643, 265307]
 mesh_sizetets = [119.77, 96.58, 81.19, 63.76, 54.21, 36.03, 23.68, 12.79]
@@ -12,7 +17,7 @@ ntets2sizetets = {ntet: sztet for ntet,
                   sztet in zip(mesh_ntets, mesh_sizetets)}
 
 if __name__ == '__main__':
-    hdfPrefix = 'data/vesreac_error'
+    hdfPrefix = 'data/vesreac_error/vesreac_error'
 
     allValues = {}
     i = 0

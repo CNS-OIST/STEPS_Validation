@@ -12,8 +12,12 @@ from steps.rng import *
 from steps.sim import *
 from steps.saving import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 ########################################################################
 
@@ -60,7 +64,7 @@ with mesh:
 
 rng = RNG('mt19937', 512, 987)
 
-sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
 
 speed1 = 0.5e-6
 speed2 = 0.3e-6
@@ -163,26 +167,26 @@ if MPI.rank == 0:
                 if label1:
                     plt.plot(res[v][0],
                              np.array(res[v][1]) + zshift,
-                             'r--',
-                             linewidth=lw)
+                             '--',
+                             linewidth=lw, color='deepskyblue')
                 else:
                     plt.plot(res[v][0],
                              np.array(res[v][1]) + zshift,
-                             'r--',
-                             linewidth=lw,
+                             '--',
+                             linewidth=lw, color='deepskyblue',
                              label='vesicle on path2')
                     label1 = True
             else:
                 if label2:
                     plt.plot(res[v][0],
                              np.array(res[v][1]) + zshift,
-                             'g--',
-                             linewidth=lw)
+                             '--',
+                             linewidth=lw, color='orange')
                 else:
                     plt.plot(res[v][0],
                              np.array(res[v][1]) + zshift,
-                             'g--',
-                             linewidth=lw,
+                             '--',
+                             linewidth=lw, color='orange',
                              label='vesicle on path1')
                     label2 = True
 

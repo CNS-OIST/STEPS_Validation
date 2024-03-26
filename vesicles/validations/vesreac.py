@@ -13,9 +13,13 @@ from steps.rng import *
 from steps.saving import *
 from steps.sim import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
 import time
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 ########################################################################
 
@@ -110,7 +114,7 @@ with mesh:
 ########################################################################
 
 rng = RNG('mt19937', 512, 100)
-sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
 
 CONCA_soAA = (ves_N * spec_A_soAA_number_perves) / (AVOGADRO * comp.Vol * 1e3)
 CONCB_soAA = spec_B_soAA_number_incomp / (AVOGADRO * comp.Vol * 1e3)
