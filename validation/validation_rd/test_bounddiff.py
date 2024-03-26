@@ -267,7 +267,7 @@ class TestBoundedDiffusion(unittest.TestCase):
 
 def suite():
     all_tests = []
-    all_tests.append(unittest.makeSuite(TestBoundedDiffusion, "test"))
+    all_tests.append(unittest.TestLoader().loadTestsFromTestCase(TestBoundedDiffusion))
     return unittest.TestSuite(all_tests)
 
 if __name__ == "__main__":
