@@ -12,8 +12,12 @@ from steps.rng import *
 from steps.sim import *
 from steps.saving import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 ########################################################################
 
@@ -65,7 +69,7 @@ with mesh:
 
 rng = RNG('mt19937', 512, 100)
 
-sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
 
 rs = ResultSelector(sim)
 
@@ -73,43 +77,49 @@ raft1_count = rs.memb.raft1.Count
 
 sim.toSave(raft1_count, dt=DT)
 
-for i in range(0, NITER):
-    if MPI.rank == 0:
-        print(i + 1, 'of', NITER)
+with HDF5Handler('data/raftendocytosis') as hdf:
+    sim.toDB(hdf, f'raftendocytosis')
 
-    sim.newRun()
-    sim.memb.raft1.Count = raft_N
+    for i in range(0, NITER):
+        if MPI.rank == 0:
+            print(i + 1, 'of', NITER)
 
-    sim.run(INT)
+        sim.newRun()
+        sim.memb.raft1.Count = raft_N
+
+        sim.run(INT)
 
 if MPI.rank == 0:
-    tpnts = raft1_count.time[0]
-    mean_res = np.mean(raft1_count.data, axis=0).flatten()
-    std_res = np.std(raft1_count.data, axis=0).flatten()
+    with HDF5Handler('data/raftendocytosis') as hdf:
+        raft1_count, = hdf['raftendocytosis'].results
+        tpnts = raft1_count.time[0]
+        mean_res = np.mean(raft1_count.data, axis=0).flatten()
+        std_res = np.std(raft1_count.data, axis=0).flatten()
 
-    analy = raft_N * np.exp(-KCST * tpnts)
-    std = np.sqrt(raft_N * np.exp(-KCST * tpnts) * (1 - np.exp(-KCST * tpnts)))
+        analy = raft_N * np.exp(-KCST * tpnts)
+        std = np.sqrt(raft_N * np.exp(-KCST * tpnts)
+                      * (1 - np.exp(-KCST * tpnts)))
 
-    plt.errorbar(
-        tpnts,
-        analy,
-        std,
-        color='black',
-        label='analytical',
-        linewidth=LINEWIDTH,
-    )
-    plt.errorbar(
-        tpnts + DT / 3.0,
-        mean_res,
-        std_res,
-        ls='--',
-        label='STEPS',
-        linewidth=LINEWIDTH,
-    )
-    plt.legend()
-    plt.xlabel('Time (s)')
-    plt.ylabel('Raft number')
-    fig = plt.gcf()
-    fig.set_size_inches(3.4, 3.4)
-    fig.savefig('plots/raftendocytosis.pdf', dpi=300, bbox_inches='tight')
-    plt.close()
+        plt.errorbar(
+            tpnts,
+            analy,
+            std,
+            color='black',
+            label='analytical',
+            linewidth=LINEWIDTH,
+        )
+        plt.errorbar(
+            tpnts + DT / 3.0,
+            mean_res,
+            std_res,
+            ls='--',
+            label='STEPS',
+            linewidth=LINEWIDTH,
+        )
+        plt.legend()
+        plt.xlabel('Time (s)')
+        plt.ylabel('Raft number')
+        fig = plt.gcf()
+        fig.set_size_inches(3.4, 3.4)
+        fig.savefig('plots/raftendocytosis.pdf', dpi=300, bbox_inches='tight')
+        plt.close()

@@ -12,8 +12,12 @@ from steps.rng import *
 from steps.sim import *
 from steps.saving import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 ########################################################################
 
@@ -60,7 +64,7 @@ with mesh:
 
 rng = RNG('mt19937', 512, 987)
 
-sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
 
 speed1 = 0.5e-6
 speed2 = 0.3e-6
@@ -93,99 +97,104 @@ vesPos = rs.VESICLES(sim.comp1.ves1).Pos
 
 sim.toSave(vesPos, dt=DT)
 
-sim.newRun()
+with HDF5Handler('data/path') as hdf:
+    sim.toDB(hdf, f'path')
 
-sim.patch1.raft1.Count = 2
+    sim.newRun()
 
-path1_inj = range(0, 10000, 2000)
-path2_inj = range(800, 10000, 2000)
+    sim.patch1.raft1.Count = 2
 
-tpnts = np.linspace(0, NTPNTS * DT, NTPNTS + 1)
-# DT is one millisecond, at 1 um/s a vesicle is expected to travel the 0.5um distance in 500ms.
-# So let's inject on every 100ms, alternating between path 1 and path 2 (by controlling the surface species)
+    path1_inj = range(0, 10000, 2000)
+    path2_inj = range(800, 10000, 2000)
 
-for i, t in enumerate(tpnts):
-    if i in path1_inj:
-        v = sim.comp1.addVesicle(ves1)
-        v('surf').spec1.Count = 2
-        v.Pos = (0, 0, -2.2e-7)
-    elif i in path2_inj:
-        v = sim.comp1.addVesicle(ves1)
-        v('surf').spec2.Count = 2
-        v.Pos = (0, 0, -2.2e-7)
+    tpnts = np.linspace(0, NTPNTS * DT, NTPNTS + 1)
+    # DT is one millisecond, at 1 um/s a vesicle is expected to travel the 0.5um distance in 500ms.
+    # So let's inject on every 100ms, alternating between path 1 and path 2 (by controlling the surface species)
 
-    sim.run(t)
+    for i, t in enumerate(tpnts):
+        if i in path1_inj:
+            v = sim.comp1.addVesicle(ves1)
+            v('surf').spec1.Count = 2
+            v.Pos = (0, 0, -2.2e-7)
+        elif i in path2_inj:
+            v = sim.comp1.addVesicle(ves1)
+            v('surf').spec2.Count = 2
+            v.Pos = (0, 0, -2.2e-7)
+
+        sim.run(t)
 
 if MPI.rank == 0:
-    res = {}
-    for t, posDct in zip(vesPos.time[0], vesPos.data[0, :, 0]):
-        for idx, pos in posDct.items():
-            times, posz = res.setdefault(idx, ([], []))
-            times.append(t)
-            posz.append(pos[2] / scale)
+    with HDF5Handler('data/path') as hdf:
+        vesPos, = hdf['path'].results
+        res = {}
+        for t, posDct in zip(vesPos.time[0], vesPos.data[0, :, 0]):
+            for idx, pos in posDct.items():
+                times, posz = res.setdefault(idx, ([], []))
+                times.append(t)
+                posz.append(pos[2] / scale)
 
-    analytical1 = np.arange(
-        -2.2e-7, 1.84e-7, speed1 * 1e-3) / scale  # distances travelled in 1ms
-    analytical2 = np.arange(
-        -2.2e-7, 1.84e-7, speed2 * 1e-3) / scale  # distances travelled in 1ms
+        analytical1 = np.arange(
+            -2.2e-7, 1.84e-7, speed1 * 1e-3) / scale  # distances travelled in 1ms
+        analytical2 = np.arange(
+            -2.2e-7, 1.84e-7, speed2 * 1e-3) / scale  # distances travelled in 1ms
 
-    lw = 3
-    zshift = 0.25  # To start at zero
-    labelled = False
-    for ts in path1_inj:
-        if labelled:
-            plt.plot(tpnts[ts:ts + len(analytical1)],
-                     analytical1 + zshift,
+        lw = 3
+        zshift = 0.25  # To start at zero
+        labelled = False
+        for ts in path1_inj:
+            if labelled:
+                plt.plot(tpnts[ts:ts + len(analytical1)],
+                         analytical1 + zshift,
+                         'k-',
+                         linewidth=lw)
+            else:
+                plt.plot(tpnts[ts:ts + len(analytical1)],
+                         analytical1 + zshift,
+                         'k-',
+                         linewidth=lw,
+                         label='expected')
+                labelled = True
+        for ts in path2_inj:
+            plt.plot(tpnts[ts:ts + len(analytical2)],
+                     analytical2 + zshift,
                      'k-',
                      linewidth=lw)
-        else:
-            plt.plot(tpnts[ts:ts + len(analytical1)],
-                     analytical1 + zshift,
-                     'k-',
-                     linewidth=lw,
-                     label='expected')
-            labelled = True
-    for ts in path2_inj:
-        plt.plot(tpnts[ts:ts + len(analytical2)],
-                 analytical2 + zshift,
-                 'k-',
-                 linewidth=lw)
 
-    label2 = False
-    label1 = False
-    for v in res.keys():
-        if v % 2:
-            if label1:
-                plt.plot(res[v][0],
-                         np.array(res[v][1]) + zshift,
-                         'r--',
-                         linewidth=lw)
+        label2 = False
+        label1 = False
+        for v in res.keys():
+            if v % 2:
+                if label1:
+                    plt.plot(res[v][0],
+                             np.array(res[v][1]) + zshift,
+                             '--',
+                             linewidth=lw, color='deepskyblue')
+                else:
+                    plt.plot(res[v][0],
+                             np.array(res[v][1]) + zshift,
+                             '--',
+                             linewidth=lw, color='deepskyblue',
+                             label='vesicle on path2')
+                    label1 = True
             else:
-                plt.plot(res[v][0],
-                         np.array(res[v][1]) + zshift,
-                         'r--',
-                         linewidth=lw,
-                         label='vesicle on path2')
-                label1 = True
-        else:
-            if label2:
-                plt.plot(res[v][0],
-                         np.array(res[v][1]) + zshift,
-                         'g--',
-                         linewidth=lw)
-            else:
-                plt.plot(res[v][0],
-                         np.array(res[v][1]) + zshift,
-                         'g--',
-                         linewidth=lw,
-                         label='vesicle on path1')
-                label2 = True
+                if label2:
+                    plt.plot(res[v][0],
+                             np.array(res[v][1]) + zshift,
+                             '--',
+                             linewidth=lw, color='orange')
+                else:
+                    plt.plot(res[v][0],
+                             np.array(res[v][1]) + zshift,
+                             '--',
+                             linewidth=lw, color='orange',
+                             label='vesicle on path1')
+                    label2 = True
 
-    plt.xlabel('Time (s)')
-    plt.ylabel('z position ($\mu$m)')
-    plt.legend()
-    plt.ylim(0, 0.65)
-    fig = plt.gcf()
-    fig.set_size_inches(3.4, 3.4)
-    fig.savefig("plots/path.pdf", dpi=300, bbox_inches='tight')
-    plt.close()
+        plt.xlabel('Time (s)')
+        plt.ylabel('z position ($\mu$m)')
+        plt.legend()
+        plt.ylim(0, 0.65)
+        fig = plt.gcf()
+        fig.set_size_inches(3.4, 3.4)
+        fig.savefig("plots/path.pdf", dpi=300, bbox_inches='tight')
+        plt.close()

@@ -6,10 +6,15 @@ from steps.rng import *
 from steps.saving import *
 from steps.sim import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import mpi4py.MPI
 import numpy as np
 import time
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
+
 
 # Number of iterations; plotting dt; sim endtime:
 NITER = 10000
@@ -74,7 +79,7 @@ for vol_frac in [0.0, 0.2, 0.4, 0.6]:
     ########################################################################
 
     rng = RNG('r123', 1024, int(time.time() % 4294967295))
-    sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+    sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
 
     rs = ResultSelector(sim)
 
@@ -82,34 +87,40 @@ for vol_frac in [0.0, 0.2, 0.4, 0.6]:
 
     sim.toSave(vesPos, dt=DT)
 
-    for i in range(NITER):
-        sim.newRun()
+    with HDF5Handler('data/vesicle_diff') as hdf:
+        sim.toDB(hdf, f'vesicle_diff_volfrac{vol_frac}', vol_frac=vol_frac)
+        for i in range(NITER):
+            sim.newRun()
 
-        sim.setVesicleDT(DT / 10.0)
-        v = sim.cyto.addVesicle(Ves1)
-        v.Pos = [0, 0, 0]
+            sim.setVesicleDT(DT / 10.0)
+            
+            v = sim.cyto.addVesicle(Ves1)
+            v.Pos = [0, 0, 0]
 
-        if MPI.rank == 0:
-            print(i + 1, 'of', NITER)
+            if MPI.rank == 0:
+                print(i + 1, 'of', NITER)
 
-        sim.run(T_END)
-
-    if MPI.rank == 0:
-        data = np.array([[list(cols[0].values()) for cols in row]
-                         for row in vesPos.data])
-        res = np.mean(np.sum(data**2, axis=3) * 1e12, axis=0)
-        plt.plot(vesPos.time[0],
-                 res,
-                 label=str(vol_frac),
-                 color=v_color[vol_frac],
-                 linewidth=3)
-        plt.plot(vesPos.time[0],
-                 vesPos.time[0] * 6 * DCST * 1e12,
-                 'k--',
-                 linewidth=3)
-        adjuster += DT / 10.0
+            sim.run(T_END)
 
 if MPI.rank == 0:
+    with HDF5Handler('data/vesicle_diff') as hdf:
+        for vol_frac in sorted(hdf.parameters['vol_frac']):
+            vesPos, = hdf.get(vol_frac=vol_frac).results
+
+            data = np.array([[list(cols[0].values()) for cols in row]
+                            for row in vesPos.data])
+            res = np.mean(np.sum(data**2, axis=3) * 1e12, axis=0)
+            plt.plot(vesPos.time[0],
+                     res,
+                     label=str(vol_frac),
+                     color=v_color[vol_frac],
+                     linewidth=3)
+            plt.plot(vesPos.time[0],
+                     vesPos.time[0] * 6 * DCST * 1e12,
+                     'k--',
+                     linewidth=3)
+            adjuster += DT / 10.0
+
     plt.xlabel('Time (s)')
     plt.ylabel('<r$^2$> ($\mu$$m^2$)')
     plt.legend()

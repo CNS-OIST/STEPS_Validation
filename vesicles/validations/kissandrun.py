@@ -12,8 +12,12 @@ from steps.rng import *
 from steps.sim import *
 from steps.saving import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 ########################################################################
 
@@ -42,7 +46,6 @@ LINEWIDTH = 2
 
 ########################################################################
 
-sp_counter = 1
 for pr in [0.1, 0.4, 0.7, 1.0]:
     model = Model()
 
@@ -52,8 +55,7 @@ for pr in [0.1, 0.4, 0.7, 1.0]:
         vssys = VesicleSurfaceSystem.Create()
 
         with vssys:
-            exo = Exocytosis.Create(KCST, deps=Spec1.v, kissAndRun=True, knrSpecChanges = [(Spec1, Spec2)], knrPartialRelease = pr) #
-            #vdiff = Diffusion.Create(Spec1, 0.1e-12)
+            exo = Exocytosis.Create(KCST, deps=Spec1.v, kissAndRun=True, knrSpecChanges=[(Spec1, Spec2)], knrPartialRelease=pr)
 
     ########################################################################
 
@@ -67,7 +69,7 @@ for pr in [0.1, 0.4, 0.7, 1.0]:
 
     rng = RNG('mt19937', 512, int(pr*100))
 
-    sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+    sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
 
     rs = ResultSelector(sim)
 
@@ -76,47 +78,56 @@ for pr in [0.1, 0.4, 0.7, 1.0]:
 
     sim.toSave(ves_count, glu_count, dt=DT)
 
-    for i in range(NITER):
-        if MPI.rank == 0:
-            print(i + 1, 'of', NITER)
+    with HDF5Handler('data/kissandrun') as hdf:
+        sim.toDB(hdf, f'kissandrun_pr{pr}', pr=pr)
+        for i in range(NITER):
+            if MPI.rank == 0:
+                print(i + 1, 'of', NITER)
 
-        sim.newRun()
+            sim.newRun()
 
-        sim.cyto.vesicle.Count = ves_N
-        sim.cyto.VESICLES()('in').glu.Count = glu_N
-        sim.cyto.VESICLES()('surf').Spec1.Count = 100
+            sim.cyto.vesicle.Count = ves_N
+            sim.cyto.VESICLES()('in').glu.Count = glu_N
+            sim.cyto.VESICLES()('surf').Spec1.Count = 100
 
-        sim.run(INT)
+            sim.run(INT)
 
-    if MPI.rank == 0:
-        tpnts = ves_count.time[0]
-        mean_res = np.mean(glu_count.data[:NITER, ...], axis=0).flatten()
-        std_res = np.std(glu_count.data[:NITER, ...], axis=0).flatten()
 
-        analy = pr * glu_N * ves_N * np.exp(-KCST * tpnts) + ((1-pr) * glu_N * ves_N)
-        
-        plt.subplot(2,2,sp_counter)
+if MPI.rank == 0:
+    sp_counter = 1
+    with HDF5Handler('data/kissandrun') as hdf:
+        for pr in sorted(hdf.parameters['pr']):
+            ves_count, glu_count = hdf.get(pr=pr).results
 
-        plt.plot(tpnts,
+            tpnts = ves_count.time[0]
+            mean_res = np.mean(glu_count.data[:NITER, ...], axis=0).flatten()
+            std_res = np.std(glu_count.data[:NITER, ...], axis=0).flatten()
+
+            analy = pr * glu_N * ves_N * np.exp(-KCST * tpnts) + ((1-pr) * glu_N * ves_N)
+            
+            plt.subplot(2,2,sp_counter)
+
+            plt.plot(tpnts,
                      mean_res,
                      color='red',
                      ls='-',
                      label='STEPS, pr: '+str(pr),
                      linewidth=LINEWIDTH)
-                     
-        plt.plot(tpnts,
+                        
+            plt.plot(tpnts,
                      analy,
                      color='black',
                      ls='--',
                      label='analytical',
                      linewidth=LINEWIDTH)
 
-        plt.legend()
-        if sp_counter in (3,4): plt.xlabel('Time (s)')
-        if sp_counter in (1,3):plt.ylabel('Intraluminal species')
-        sp_counter+=1
+            plt.legend()
+            if sp_counter in (3,4):
+                plt.xlabel('Time (s)')
+            if sp_counter in (1,3):
+                plt.ylabel('Intraluminal species')
+            sp_counter+=1
 
-if MPI.rank == 0:
     fig = plt.gcf()
     fig.set_size_inches(6.8, 6.8)
     fig.savefig('plots/kissandrun.pdf', dpi=300, bbox_inches='tight')

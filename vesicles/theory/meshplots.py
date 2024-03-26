@@ -1,6 +1,10 @@
 import steps.utilities.meshio as smeshio
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 
 def dist(p1, p2):

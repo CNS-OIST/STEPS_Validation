@@ -6,10 +6,13 @@ from steps.rng import *
 from steps.saving import *
 from steps.sim import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.integrate import quad
 
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 #unormalised for now
 def Qnew(beta, sigma):
@@ -60,7 +63,6 @@ sim = Simulation('Tetexact', model, mesh, rng, MPI.EF_NONE)
 NITER = 100000
 
 tpnts = np.arange(0, 0.0032, 0.0001)
-res = np.zeros((NITER, len(tpnts)))
 
 resQ_mean = np.zeros(len(tpnts))
 resQ_std = np.zeros(len(tpnts))
@@ -71,119 +73,130 @@ rs = ResultSelector(sim)
 
 counts = rs.TRIS(mesh.surface).SA.Count
 
-sim.toSave(counts)
+arc_values = CustomResults(sim, [float])
 
-for n in range(NITER):
-    if MPI.rank == 0 and not n % 1000:
-        print(n, 'of', NITER)
+sim.toSave(arc_values)
 
-    sim.newRun()
-    sim.TRI(mesh.surface[0]).SA.Count = 1
+with HDF5Handler('data/ghosh') as hdf:
+    sim.toDB(hdf, 'ghosh')
 
-    for tidx in range(len(tpnts)):
-        t = tpnts[tidx]
-        sim.run(t)
-        counts.save()
-        res[n][tidx] = surf_tri_arc[counts.data[-1, -1, :] == 1][0]
+    # Not saved to file
+    sim.toSave(counts)
 
-    counts.clear()
-    counts._dataHandler.saveData = []
-    counts._dataHandler.saveTime = []
+    for n in range(NITER):
+        if MPI.rank == 0 and not n % 1000:
+            print(n, 'of', NITER)
 
-Qns = [1] + [0] * (len(beta) - 1)
-resQ.append(Qns)
-for tidx in range(1, len(tpnts)):
-    t = tpnts[tidx]
+        sim.newRun()
+        sim.TRI(mesh.surface[0]).SA.Count = 1
 
-    tau = (2 * 1e-12 * t) / 50e-9**2
-    Qtau = lambda theta: Q(tau, theta)
-    invN, err = quad(Qtau, 0, np.pi)
+        for t in tpnts:
+            sim.run(t)
+            counts.save()
+            arc_values.save([surf_tri_arc[counts.data[-1, -1, :] == 1][0]])
 
-    Qns = []
-    sigma = sig(tau)
-    for b in beta:
-        Qns.append(Qnew(b, sigma) / invN)
+        counts.clear()
 
+with HDF5Handler('data/ghosh') as hdf:
+    arc_values, = hdf['ghosh'].results
+
+    res = arc_values.data[:,:,0]
+    print(res.shape)
+
+    Qns = [1] + [0] * (len(beta) - 1)
     resQ.append(Qns)
+    for tidx in range(1, len(tpnts)):
+        t = tpnts[tidx]
 
-    resQ_mean[tidx] = sum(Qns * beta) / sum(Qns)
+        tau = (2 * 1e-12 * t) / 50e-9**2
+        Qtau = lambda theta: Q(tau, theta)
+        invN, err = quad(Qtau, 0, np.pi)
 
-    #calculating the std is a bit trickier
-    beta_shift = beta - resQ_mean[tidx]
+        Qns = []
+        sigma = sig(tau)
+        for b in beta:
+            Qns.append(Qnew(b, sigma) / invN)
 
-    devs2 = beta_shift * beta_shift
-    sumdevs2 = sum(np.array(Qns) * devs2)
-    normsumdevs2 = sumdevs2 / sum(Qns)
-    sqsumdevs2 = np.sqrt(normsumdevs2)
-    resQ_std[tidx] = sqsumdevs2
+        resQ.append(Qns)
 
-lw = 3
+        resQ_mean[tidx] = sum(Qns * beta) / sum(Qns)
 
-tidx = 10
-plt.hist(res[:, tidx], label='STEPS model', density=True, bins=20)
-plt.plot(beta, resQ[tidx], label='Ghosh', linewidth=lw)
-plt.title("Time: " + str(1e3 * tpnts[tidx]) + 'ms')
-plt.ylabel('Q')
-plt.xlabel('Angular displacement (rad)')
-plt.legend()
-fig = plt.gcf()
-fig.set_size_inches(3.4, 3.4)
-fig.savefig("plots/ghosh_t1.pdf", dpi=300, bbox_inches='tight')
-plt.close()
+        #calculating the std is a bit trickier
+        beta_shift = beta - resQ_mean[tidx]
 
-tidx = 20
-plt.hist(res[:, tidx], label='STEPS model', density=True, bins=20)
-plt.plot(beta, resQ[tidx], label='Ghosh', linewidth=lw)
-plt.title("Time: " + str(1e3 * tpnts[tidx]) + 'ms')
-plt.ylabel('Q')
-plt.xlabel('Angular displacement (rad)')
-plt.legend(loc='best')
-fig = plt.gcf()
-fig.set_size_inches(3.4, 3.4)
-fig.savefig("plots/ghosh_t2.pdf", dpi=300, bbox_inches='tight')
-plt.close()
+        devs2 = beta_shift * beta_shift
+        sumdevs2 = sum(np.array(Qns) * devs2)
+        normsumdevs2 = sumdevs2 / sum(Qns)
+        sqsumdevs2 = np.sqrt(normsumdevs2)
+        resQ_std[tidx] = sqsumdevs2
 
-tidx = 30
-plt.hist(res[:, tidx], label='STEPS model', density=True, bins=20)
-plt.plot(beta, resQ[tidx], label='Ghosh', linewidth=lw)
-plt.title("Time: " + str(1e3 * tpnts[tidx]) + 'ms')
-plt.ylabel('Q')
-plt.xlabel('Angular displacement (rad)')
-plt.legend(loc='best')
-fig = plt.gcf()
-fig.set_size_inches(3.4, 3.4)
-fig.savefig("plots/ghosh_t3.pdf", dpi=300, bbox_inches='tight')
-plt.close()
+    lw = 3
 
-res_mean = np.mean(res, axis=0)
-res_std = np.std(res, axis=0)
+    tidx = 10
+    plt.hist(res[:, tidx], label='STEPS model', density=True, bins=20)
+    plt.plot(beta, resQ[tidx], label='Ghosh', linewidth=lw)
+    plt.title("Time: " + str(1e3 * tpnts[tidx]) + 'ms')
+    plt.ylabel('Q')
+    plt.xlabel('Angular displacement (rad)')
+    plt.legend()
+    fig = plt.gcf()
+    fig.set_size_inches(3.4, 3.4)
+    fig.savefig("plots/ghosh_t1.pdf", dpi=300, bbox_inches='tight')
+    plt.close()
 
-plt.errorbar(tpnts * 1e3, res_mean, res_std, label='STEPS model', linewidth=2)
-plt.errorbar((0.00004 + tpnts) * 1e3,
-             resQ_mean,
-             resQ_std,
-             label='Ghosh',
-             linewidth=2)
-plt.xlabel('Time(ms)')
-plt.ylabel('Angular displacement (rad)')
-plt.ylim(0, 2.5)
-plt.legend(loc=2)
-fig = plt.gcf()
-fig.set_size_inches(3.4, 3.4)
-fig.savefig("plots/ghosh_AD1.pdf", dpi=300, bbox_inches='tight')
-plt.close()
+    tidx = 20
+    plt.hist(res[:, tidx], label='STEPS model', density=True, bins=20)
+    plt.plot(beta, resQ[tidx], label='Ghosh', linewidth=lw)
+    plt.title("Time: " + str(1e3 * tpnts[tidx]) + 'ms')
+    plt.ylabel('Q')
+    plt.xlabel('Angular displacement (rad)')
+    plt.legend(loc='best')
+    fig = plt.gcf()
+    fig.set_size_inches(3.4, 3.4)
+    fig.savefig("plots/ghosh_t2.pdf", dpi=300, bbox_inches='tight')
+    plt.close()
 
-plt.plot(tpnts * 1e3, res_mean**2, label='STEPS model', linewidth=lw)
-plt.plot(tpnts * 1e3,
-         resQ_mean**2,
-         linestyle='--',
-         label='Ghosh',
-         linewidth=lw)
-plt.xlabel('Time(ms)')
-plt.ylabel('Angular displacement$^2$ (rad$^2$)')
-plt.ylim(0, 3)
-plt.legend(loc='best')
-fig = plt.gcf()
-fig.set_size_inches(3.4, 3.4)
-fig.savefig("plots/ghosh_AD2.pdf", dpi=300, bbox_inches='tight')
-plt.close()
+    tidx = 30
+    plt.hist(res[:, tidx], label='STEPS model', density=True, bins=20)
+    plt.plot(beta, resQ[tidx], label='Ghosh', linewidth=lw)
+    plt.title("Time: " + str(1e3 * tpnts[tidx]) + 'ms')
+    plt.ylabel('Q')
+    plt.xlabel('Angular displacement (rad)')
+    plt.legend(loc='best')
+    fig = plt.gcf()
+    fig.set_size_inches(3.4, 3.4)
+    fig.savefig("plots/ghosh_t3.pdf", dpi=300, bbox_inches='tight')
+    plt.close()
+
+    res_mean = np.mean(res, axis=0)
+    res_std = np.std(res, axis=0)
+
+    plt.errorbar(tpnts * 1e3, res_mean, res_std, label='STEPS model', linewidth=2)
+    plt.errorbar((0.00004 + tpnts) * 1e3,
+                resQ_mean,
+                resQ_std,
+                label='Ghosh',
+                linewidth=2)
+    plt.xlabel('Time(ms)')
+    plt.ylabel('Angular displacement (rad)')
+    plt.ylim(0, 2.5)
+    plt.legend(loc=2)
+    fig = plt.gcf()
+    fig.set_size_inches(3.4, 3.4)
+    fig.savefig("plots/ghosh_AD1.pdf", dpi=300, bbox_inches='tight')
+    plt.close()
+
+    plt.plot(tpnts * 1e3, res_mean**2, label='STEPS model', linewidth=lw)
+    plt.plot(tpnts * 1e3,
+            resQ_mean**2,
+            linestyle='--',
+            label='Ghosh',
+            linewidth=lw)
+    plt.xlabel('Time(ms)')
+    plt.ylabel('Angular displacement$^2$ (rad$^2$)')
+    plt.ylim(0, 3)
+    plt.legend(loc='best')
+    fig = plt.gcf()
+    fig.set_size_inches(3.4, 3.4)
+    fig.savefig("plots/ghosh_AD2.pdf", dpi=300, bbox_inches='tight')
+    plt.close()

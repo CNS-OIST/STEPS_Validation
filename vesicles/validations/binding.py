@@ -12,8 +12,12 @@ from steps.rng import *
 from steps.sim import *
 from steps.saving import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 ########################################################################
 
@@ -68,7 +72,7 @@ CONCA_soA2 = (ves_number * spec1_number_perves) / (AVOGADRO * cyto.Vol * 1e3)
 
 rng = RNG('mt19937', 512, 100)
 
-sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
 
 rs = ResultSelector(sim)
 
@@ -77,34 +81,40 @@ link1_count = rs.cyto.Ves1('surf').Linkspec1.Count
 
 sim.toSave(spec1_count, link1_count, dt=DT)
 
-for i in range(0, NITER_soA2):
-    sim.newRun()
+with HDF5Handler('data/binding') as hdf:
+    sim.toDB(hdf, 'binding')
 
-    if MPI.rank == 0:
-        print(i + 1, 'of', NITER_soA2)
+    for i in range(0, NITER_soA2):
+        sim.newRun()
 
-    sim.cyto.Ves1.Count = ves_number
+        if MPI.rank == 0:
+            print(i + 1, 'of', NITER_soA2)
 
-    sim.cyto.VESICLES(Ves1)('surf').Spec1.Count = spec1_number_perves
+        sim.cyto.Ves1.Count = ves_number
 
-    sim.run(ENDT)
+        sim.cyto.VESICLES(Ves1)('surf').Spec1.Count = spec1_number_perves
 
-mean_res_soA2_spec1 = np.mean(spec1_count.data,
-                              axis=0) / (AVOGADRO * cyto.Vol * 1e3)
-mean_res_soA2_link = np.mean(link1_count.data,
-                             axis=0) / (AVOGADRO * cyto.Vol * 1e3)
+        sim.run(ENDT)
 
 if MPI.rank == 0:
-    tpnts = spec1_count.time[0]
-    invA = 1.0 / mean_res_soA2_spec1
-    lineA = 1.0 / CONCA_soA2 + tpnts * 2 * KCST_soA2
+    with HDF5Handler('data/binding') as hdf:
+        spec1_count, link1_count = hdf['binding'].results
 
-    plt.plot(tpnts, lineA * 1e-6, 'k-', label='analytical', linewidth=3)
-    plt.plot(tpnts, invA * 1e-6, 'c--', label='STEPS', linewidth=3)
-    plt.xlabel('Time (s)')
-    plt.ylabel('Inverse concentration (1/$\mu$M)')
-    plt.legend()
-    fig = plt.gcf()
-    fig.set_size_inches(3.4, 3.4)
-    fig.savefig('plots/binding.pdf', dpi=300, bbox_inches='tight')
-    plt.close()
+        mean_res_soA2_spec1 = np.mean(spec1_count.data,
+                                    axis=0) / (AVOGADRO * cyto.Vol * 1e3)
+        mean_res_soA2_link = np.mean(link1_count.data,
+                                    axis=0) / (AVOGADRO * cyto.Vol * 1e3)
+
+        tpnts = spec1_count.time[0]
+        invA = 1.0 / mean_res_soA2_spec1
+        lineA = 1.0 / CONCA_soA2 + tpnts * 2 * KCST_soA2
+
+        plt.plot(tpnts, lineA * 1e-6, 'k-', label='analytical', linewidth=3)
+        plt.plot(tpnts, invA * 1e-6, 'c--', label='STEPS', linewidth=3)
+        plt.xlabel('Time (s)')
+        plt.ylabel('Inverse concentration (1/$\mu$M)')
+        plt.legend()
+        fig = plt.gcf()
+        fig.set_size_inches(3.4, 3.4)
+        fig.savefig('plots/binding.pdf', dpi=300, bbox_inches='tight')
+        plt.close()

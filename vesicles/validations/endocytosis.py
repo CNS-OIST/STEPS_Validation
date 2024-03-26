@@ -12,8 +12,12 @@ from steps.rng import *
 from steps.sim import *
 from steps.saving import *
 
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
+
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
 
 ########################################################################
 
@@ -69,7 +73,7 @@ with mesh:
 
 rng = RNG('mt19937', 512, 100)
 
-sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE)
+sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
 
 rs = ResultSelector(sim)
 
@@ -78,71 +82,78 @@ spec_count = rs.memb.spec.Count
 
 sim.toSave(ves_count, spec_count, dt=DT)
 
-for i in range(NITER):
-    if MPI.rank == 0:
-        print(i + 1, 'of', NITER)
+with HDF5Handler('data/endocytosis') as hdf:
+    sim.toDB(hdf, 'endocytosis')
 
-    sim.newRun()
+    for i in range(NITER):
+        if MPI.rank == 0:
+            print(i + 1, 'of', NITER)
 
-    sim.memb.spec.Count = spec_N
+        sim.newRun()
 
-    sim.run(INT)
+        sim.memb.spec.Count = spec_N
+
+        sim.run(INT)
 
 if MPI.rank == 0:
-    plt.subplot(121)
+    with HDF5Handler('data/endocytosis') as hdf:
+        ves_count, spec_count = hdf['endocytosis'].results
 
-    tpnts = spec_count.time[0]
-    mean_res = np.mean(spec_count.data, axis=0).flatten()
-    std_res = np.std(spec_count.data, axis=0).flatten()
+        tpnts = spec_count.time[0]
+        mean_res = np.mean(spec_count.data, axis=0).flatten()
+        std_res = np.std(spec_count.data, axis=0).flatten()
 
-    analy = spec_N * np.exp(-KCST * tpnts)
-    std = np.sqrt(spec_N * np.exp(-KCST * tpnts) * (1 - np.exp(-KCST * tpnts)))
+        analy = spec_N * np.exp(-KCST * tpnts)
+        std = np.sqrt(spec_N * np.exp(-KCST * tpnts) * (1 - np.exp(-KCST * tpnts)))
 
-    plt.errorbar(
-        tpnts,
-        analy,
-        std,
-        color='black',
-        label='analytical',
-        linewidth=LINEWIDTH,
-    )
-    p = plt.errorbar(
-        tpnts + DT / 3,
-        mean_res,
-        std_res,
-        color='cyan',
-        ls='--',
-        label='STEPS',
-        linewidth=LINEWIDTH,
-    )
-    plt.legend()
-    plt.xlabel('Time (s)')
-    plt.ylabel('Dep. species number')
+        plt.errorbar(
+            tpnts,
+            analy,
+            std,
+            color='black',
+            label='analytical',
+            linewidth=LINEWIDTH,
+        )
+        p = plt.errorbar(
+            tpnts + DT / 3,
+            mean_res,
+            std_res,
+            color='cyan',
+            ls='--',
+            label='STEPS',
+            linewidth=LINEWIDTH,
+        )
+        plt.legend()
+        plt.xlabel('Time (s)')
+        plt.ylabel('Dep. species number')
+        fig = plt.gcf()
+        fig.set_size_inches(3.4, 3.4)
+        fig.savefig('plots/endocytosis_spec.pdf', dpi=300, bbox_inches='tight')
+        plt.close()
 
-    plt.subplot(122)
 
-    tpnts = ves_count.time[0]
-    mean_res_v = np.mean(ves_count.data, axis=0).flatten()
-    analy = spec_N * (1 - np.exp(-KCST * tpnts))
+        tpnts = ves_count.time[0]
+        mean_res_v = np.mean(ves_count.data, axis=0).flatten()
+        analy = spec_N * (1 - np.exp(-KCST * tpnts))
 
-    plt.plot(
-        tpnts,
-        analy,
-        color='black',
-        label='analytical',
-        linewidth=LINEWIDTH,
-    )
-    plt.plot(
-        tpnts,
-        mean_res_v,
-        'c--',
-        label='STEPS',
-        linewidth=LINEWIDTH,
-    )
-    plt.legend()
-    plt.xlabel('Time (s)')
-    plt.ylabel('Vesicle number')
-    fig = plt.gcf()
-    fig.set_size_inches(7, 3.5)
-    fig.savefig('plots/endocytosis.pdf', dpi=300, bbox_inches='tight')
-    plt.close()
+        plt.plot(
+            tpnts,
+            analy,
+            color='black',
+            label='analytical',
+            linewidth=LINEWIDTH,
+        )
+        plt.plot(
+            tpnts,
+            mean_res_v,
+            'c--',
+            label='STEPS',
+            linewidth=LINEWIDTH,
+        )
+        plt.legend()
+        plt.xlabel('Time (s)')
+        plt.ylabel('Vesicle number')
+        fig = plt.gcf()
+        fig.set_size_inches(3.4, 3.4)
+        fig.savefig('plots/endocytosis_ves.pdf', dpi=300, bbox_inches='tight')
+        plt.close()

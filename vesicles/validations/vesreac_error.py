@@ -126,7 +126,7 @@ if __name__ == '__main__':
         import subprocess
 
         nmpi, totproc, nrunsPerProc, baseseed = map(int, sys.argv[2:])
-        hdfPrefix = 'data/vesreac_error'
+        hdfPrefix = 'data/vesreac_error/vesreac_error'
         mesh_ntets = [291, 577, 991, 2088, 3414, 11773, 41643, 265307]
         DVals = [0, 0.1]
         Ntotal_runs = 1000
