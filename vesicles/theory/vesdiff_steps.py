@@ -8,7 +8,7 @@ dts = [1e-4, 1e-3]
 # the number of samples of the random steps
 n = 5000000
 
-with open('data/steps_'+str(n)+'.npy', 'wb') as f:
+with open(f'data/steps_{n}.npy', 'wb') as f:
     np.save(f, dts)
 
     for dt in dts:

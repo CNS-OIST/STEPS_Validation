@@ -21,7 +21,7 @@ for rmsd in root_mean_squared_disps:
     
     proportion.append(total_above_2diam/n)
 
-with open('data/rmsd_'+str(n)+'.npy', 'wb') as f:
+with open(f'data/rmsd_{n}.npy', 'wb') as f:
     np.save(f, root_mean_squared_disps)
     np.save(f, proportion)
 
