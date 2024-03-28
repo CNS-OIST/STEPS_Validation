@@ -7,7 +7,7 @@ from steps.sim import *
 from steps.saving import *
 
 import numpy as np
-import pickle
+import json
 import os
 
 os.makedirs("data", exist_ok=True)
@@ -87,5 +87,6 @@ if MPI.rank == 0:
     with HDF5Handler('data/path') as hdf:
         group = hdf['path']
         vesPos, = group.results
-        with open('data/path.pkl', 'wb') as f:
-            pickle.dump(vesPos.data[0,:,0], f)
+        with open('data/path.json', 'w') as f:
+            data = [{int(i): list(pos) for i, pos in vesDct.items()} for vesDct in vesPos.data[0,:,0]]
+            json.dump(data, f)

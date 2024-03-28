@@ -1,5 +1,5 @@
 #!python
-import pickle
+import json
 
 cubit.cmd('color Volume 1 white')
 ves_colour1 = 'yellow'
@@ -8,8 +8,8 @@ volindex = 2
 ves_radius = '25e-3'
 scale = 1e-6
 
-with open('data/path.pkl', 'rb') as f:
-    for t, vesDct in enumerate(pickle.load(f)):
+with open('data/path.json', 'r') as f:
+    for t, vesDct in enumerate(json.load(f)):
         print(t)
         startvolindex = volindex
         for vidx, vpos in vesDct.items():
