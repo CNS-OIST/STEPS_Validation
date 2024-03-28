@@ -8,7 +8,7 @@ matplotlib.rcParams['font.family'] = "sans-serif"
 # the number of samples of the random steps
 n = 5000000
 
-with open('data/steps_'+str(n)+'.npy', 'rb') as f:
+with open(f'data/steps_{n}.npy', 'rb') as f:
     dts = np.load(f)
 
     for dt in dts:

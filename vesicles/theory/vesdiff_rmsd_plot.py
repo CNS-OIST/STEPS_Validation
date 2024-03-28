@@ -8,7 +8,7 @@ matplotlib.rcParams['font.family'] = "sans-serif"
 # the number of samples of the random steps
 n = 1000000
 
-with open('data/rmsd_'+str(n)+'.npy', 'rb') as f:
+with open(f'data/rmsd_{n}.npy', 'rb') as f:
     root_mean_squared_disps = np.load(f)
     proportion = np.load(f)
 

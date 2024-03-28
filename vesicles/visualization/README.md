@@ -10,7 +10,7 @@ bioRxiv 2023.05.08.539782; doi: https://doi.org/10.1101/2023.05.08.539782
 
 This simple model demonstrates stochastic walks on 'Paths', representing motor protein transport on actin filaments or microtubules. 
 
-The Python script activetransport/path.py runs the model and writes the data to activetransport/data/path_ves.txt. This model should be run in the usual way (from the activetransport directory):
+The Python script activetransport/path.py runs the model and writes the data to activetransport/data/path.json. This model should be run in the usual way (from the activetransport directory):
  ```
  mpirun -n 2 python3 path.py
  ```
