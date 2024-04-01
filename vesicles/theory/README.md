@@ -11,7 +11,7 @@ The output of these models is directly used in the figures, as indicated in the 
 
 These models do not directly run the STEPS simulator, they are theoretical or complementary models to the work, and so do not need to be run in parallel. They can be run in serial in python by commands e.g.:
  ```
- python3 vesreac.py
+ python3 vesdiff_rmsd.py
  ```
 
 NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly different from the published figure. 
