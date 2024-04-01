@@ -1,9 +1,7 @@
 #Visualizations of vesicle models in STEPS with three examples.  
 
-These models are shown in Supplementary Videos 1,2,3 of: Hybrid vesicle and reaction-diffusion modeling with STEPS
-Iain Hepburn, Jules Lallouette, Weiliang Chen, Andrew R. Gallimore, Sarah Y. Nagasawa, Erik De Schutter
-bioRxiv 2023.05.08.539782; doi: https://doi.org/10.1101/2023.05.08.539782
-
+These models are shown in Supplementary Movies 1,2,3 of: 
+Iain Hepburn, Jules Lallouette, Weiliang Chen, Andrew R. Gallimore, Sarah Y. Nagasawa, Erik De Schutter: Vesicle and reaction-diffusion hybrid modeling with STEPS. Communications Biology (in press)
 
 
 1. Active transport on virtual cytoskeleton 'Paths'
