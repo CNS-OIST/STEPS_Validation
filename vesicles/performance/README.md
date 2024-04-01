@@ -1,4 +1,4 @@
-#MPI performance of a realistic vesicle model in STEPS.  
+# MPI performance of a realistic vesicle model in STEPS.  
 
 As described in:
 Iain Hepburn, Jules Lallouette, Weiliang Chen, Andrew R. Gallimore, Sarah Y. Nagasawa, Erik De Schutter: Vesicle and reaction-diffusion hybrid modeling with STEPS. Communications Biology (in press)
