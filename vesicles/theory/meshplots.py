@@ -10,11 +10,11 @@ matplotlib.rcParams['font.family'] = "sans-serif"
 def dist(p1, p2):
     return np.sqrt( pow(p1[0]-p2[0], 2) + pow(p1[1]-p2[1], 2) + pow(p1[2]-p2[2], 2))
 
-for (meshfile, scale, xmin, xmax, dx) in [('pyr_axon_2021_cyt.inp',1e-6, 0, 100, 1),
-                                          ('sphere_2D_291tets.inp',0.25e-6, 80, 180, 2),
-                                          ('sphere_2D_265307tets.inp', 0.25e-6, 5, 25, 0.2)]:
+for (meshfile, scale, xmin, xmax, dx) in [('pyr_axon_2021_cyt',1e-6, 0, 100, 1),
+                                          ('sphere_2D_291tets',0.25e-6, 80, 180, 2),
+                                          ('sphere_2D_265307tets', 0.25e-6, 5, 25, 0.2)]:
 
-    mesh = smeshio.importAbaqus('../validations/meshes/' + meshfile, scale)[0]
+    mesh = smeshio.importAbaqus('../validations/meshes/' + meshfile + '.inp', scale)[0]
 
     average_edge = []
 
