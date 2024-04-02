@@ -9,7 +9,6 @@
 !**base_pics**
 **.DS_Store
 /vesicles/visualization/activetransport/images/**
-vesicles/performance/performance.pdf
 vesicles/validations/data/reducedvol.h5
 
 stepsblender/data**

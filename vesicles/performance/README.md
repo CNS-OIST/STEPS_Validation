@@ -1,7 +1,7 @@
 # MPI performance of a realistic vesicle model in STEPS.  
 
 As described in:
-Iain Hepburn, Jules Lallouette, Weiliang Chen, Andrew R. Gallimore, Sarah Y. Nagasawa, Erik De Schutter: Vesicle and reaction-diffusion hybrid modeling with STEPS. Communications Biology (in press)
+Iain Hepburn, Jules Lallouette, Weiliang Chen, Andrew R. Gallimore, Sarah Y. Nagasawa-Soeda, Erik De Schutter: Vesicle and reaction-diffusion hybrid modeling with STEPS. Communications Biology (in press)
 
 This data was collected by running the model of Gallimore et al (https://doi.org/10.1101/2023.08.03.551909) on the 'Deigo' cluster at the Okinawa Institute of Science and Technology, Okinawa, Japan. 
 
