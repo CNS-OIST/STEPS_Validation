@@ -307,7 +307,7 @@ class TestCSDClamp(unittest.TestCase):
 
 def suite():
     all_tests = []
-    all_tests.append(unittest.makeSuite(TestCSDClamp, "test"))
+    all_tests.append(unittest.TestLoader().loadTestsFromTestCase(TestCSDClamp))
     return unittest.TestSuite(all_tests)
 
 if __name__ == "__main__":

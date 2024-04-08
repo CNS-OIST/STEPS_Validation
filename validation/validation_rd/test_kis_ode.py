@@ -267,7 +267,7 @@ class TestKISODE(unittest.TestCase):
 
 def suite():
     all_tests = []
-    all_tests.append(unittest.makeSuite(TestKISODE, "test"))
+    all_tests.append(unittest.TestLoader().loadTestsFromTestCase(TestKISODE))
     return unittest.TestSuite(all_tests)
 
 if __name__ == "__main__":
