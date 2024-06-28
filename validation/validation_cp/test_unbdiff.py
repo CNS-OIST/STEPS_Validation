@@ -184,6 +184,7 @@ class TestUnboundedDiffusion(unittest.TestCase):
 
         for j in range(NITER):
             sim.restore(configuration.checkpoint('unbdiff'))
+            rng.initialize(int(time.time()%4294967295))
             for i in range(ntpnts):
                 sim.run(tpnts[i])
                 for k in range(SAMPLE):
