@@ -250,7 +250,7 @@ class TestUnbDiffODE(unittest.TestCase):
 
 def suite():
     all_tests = []
-    all_tests.append(unittest.makeSuite(TestUnbDiffODE, "test"))
+    all_tests.append(unittest.TestLoader().loadTestsFromTestCase(TestUnbDiffODE))
     return unittest.TestSuite(all_tests)
 
 if __name__ == "__main__":

@@ -408,7 +408,7 @@ class TestRallpack3(unittest.TestCase):
 
 def suite():
     all_tests = []
-    all_tests.append(unittest.makeSuite(TestRallpack3, "test"))
+    all_tests.append(unittest.TestLoader().loadTestsFromTestCase(TestRallpack3))
     return unittest.TestSuite(all_tests)
 
 if __name__ == "__main__":
