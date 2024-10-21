@@ -1,5 +1,3 @@
-###___license_placeholder___###
-
 import contextlib
 import importlib.abc
 import importlib.machinery
