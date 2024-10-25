@@ -38,7 +38,7 @@ class VesicleExocytosis(unittest.TestCase):
         ves_N = 10
 
         # Raft and vesicle-related parameters
-        vesicle_diam = 40e-9
+        vesicle_diam = 38e-9
         DCST = 1e-12
 
         ########################################################################
@@ -126,7 +126,7 @@ class VesicleExocytosis(unittest.TestCase):
                 fig.savefig(os.path.join(FILEDIR, 'plots/exocytosis.pdf'), dpi=300, bbox_inches='tight')
                 plt.close()
 
-                self.assertTrue(np.allclose(analy.flatten(), mean_res.flatten(), rtol=0.15, atol=0.05))
+                self.assertTrue(np.allclose(analy.flatten(), mean_res.flatten(), rtol=0.05, atol=0.05))
                 self.assertTrue(np.allclose(std.flatten(), std_res.flatten(), rtol=0.10))
 
 ########################################################################
