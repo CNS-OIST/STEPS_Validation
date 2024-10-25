@@ -23,7 +23,7 @@ FILEDIR = os.path.dirname(os.path.abspath(__file__))
 matplotlib.rcParams['font.sans-serif'] = "Arial"
 matplotlib.rcParams['font.family'] = "sans-serif"
 
-class TestBinding(unittest.TestCase):
+class VesicleBinding(unittest.TestCase):
     def test_binding(self):
         ########################################################################
 
@@ -131,7 +131,7 @@ class TestBinding(unittest.TestCase):
 
 def suite():
     all_tests = []
-    all_tests.append(unittest.TestLoader().loadTestsFromTestCase(TestBinding))
+    all_tests.append(unittest.TestLoader().loadTestsFromTestCase(VesicleBinding))
     return unittest.TestSuite(all_tests)
 
 if __name__ == "__main__":
