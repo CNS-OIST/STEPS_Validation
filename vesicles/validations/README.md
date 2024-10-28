@@ -16,6 +16,8 @@ All models, unless stated, must be run on a minimum of two cores on a STEPS vers
  mpirun -n 4 python3 vesreac.py
  ```
 
+Models whose script name starts with `parallel_` are part of the automatically discovered validation tests for the whole repository (see `README.md` at the root of the repository) but can also be run manually.
+
 NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly different from the published figure. 
 
 ---------------------------------------------------------------------
