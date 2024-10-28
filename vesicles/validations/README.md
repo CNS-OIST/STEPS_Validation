@@ -55,7 +55,7 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
  - produces plot plots/exocytosis.pdf, shown in Fig. 4a
  - data is recorded to data/exocytosis.h5
 
-**raftendocytosis.py**
+**parallel_raftendocytosis.py**
  - runtime ~2 minutes on 2 cores 
  - produces plot plots/raftendocytosis.pdf, shown in Fig. 4b
  - data is recorded to data/raftendocytosis.h5

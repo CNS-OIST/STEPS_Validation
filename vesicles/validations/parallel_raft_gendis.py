@@ -93,10 +93,10 @@ class VesicleRaftGenDis(unittest.TestCase):
         with HDF5Handler(os.path.join(FILEDIR, 'data/raft_gendis_test')) as hdf:
             sim.toDB(hdf, f'raft_gendis')
             sim.newRun()
-        
+
             sim.memb.spec.Count = 1
             sim.memb.spec.Clamped = True
-        
+
             sim.run(INT)
 
         if MPI.rank == 0:
