@@ -40,7 +40,7 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
  - produces plot plots/path\_ind.pdf
  - data is recorded to data/path_ind.h5
 
-**path.py**
+**parallel_path.py**
  - runtime ~5 seconds on 2 cores 
  - produces plot plots/path.pdf, shown in Fig. 3d
  - data is recorded to data/path.h5
@@ -50,7 +50,7 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
  - produces plots shown in Fig. 3e,f and Supplementary Fig. 2
  - data is recorded to data/ghosh.h5
 
-**exocytosis.py**
+**parallel_exocytosis.py**
  - runtime ~1 minute on 2 cores 
  - produces plot plots/exocytosis.pdf, shown in Fig. 4a
  - data is recorded to data/exocytosis.h5
@@ -60,7 +60,7 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
  - produces plot plots/raftendocytosis.pdf, shown in Fig. 4b
  - data is recorded to data/raftendocytosis.h5
 
-**endocytosis.py**
+**parallel_endocytosis.py**
  - runtime ~1 minute on 2 cores 
  - produces plot plots/endocytosis.pdf, shown in Fig. 4c,d
  - data is recorded to data/endocytosis.h5
@@ -80,7 +80,7 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
  - produces plot plots/vesreac_error_size.pdf, shown in Fig. 8b
  - produces plot plots/vesreac_error_size_foi.pdf, used as Supplementary Fig. 3
  
-**binding.py**
+**parallel_binding.py**
  - runtime ~1 minute on 2 cores
  - produces plot plots/binding.pdf, shown in Fig. 5e
  - data is recorded to data/binding.h5
