@@ -65,7 +65,7 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
  - produces plot plots/endocytosis.pdf, shown in Fig. 4c,d
  - data is recorded to data/endocytosis.h5
 
-**vesreac.py**
+**parallel_vesreac.py**
  - runtime ~10 minutes on 4 cores
  - produces plot plots/vesreac.pdf, shown in Fig. 5a,b,c,d
  - data is recorded to data/vesreac.h5
