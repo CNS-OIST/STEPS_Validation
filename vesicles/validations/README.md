@@ -95,7 +95,7 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
  - produces plot plots/raftsreac.pdf, shown in Fig. 6b,c,e,f
  - data is recorded to data/raftsreac.h5
 
-**raft_gendis.py**
+**parallel_raft_gendis.py**
  - runtime ~1 hour on 2 cores
  - produces plot plots/raft\_gendis.pdf, shown in Fig. 6d
  - data is recorded to data/raft_gendis.h5
