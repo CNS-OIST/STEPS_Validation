@@ -104,7 +104,11 @@ class VesiclePath(unittest.TestCase):
 
         sim.toSave(vesPos, dt=DT)
 
-        with HDF5Handler(os.path.join(FILEDIR, 'data/path_test')) as hdf:
+        filePrefix = os.path.join(FILEDIR, 'data/path_test')
+        if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
+            os.remove(f'{filePrefix}.h5')
+
+        with HDF5Handler(filePrefix) as hdf:
             sim.toDB(hdf, f'path')
 
             sim.newRun()
@@ -131,7 +135,7 @@ class VesiclePath(unittest.TestCase):
                 sim.run(t)
 
         if MPI.rank == 0:
-            with HDF5Handler(os.path.join(FILEDIR, 'data/path_test')) as hdf:
+            with HDF5Handler(filePrefix) as hdf:
                 vesPos, = hdf['path'].results
                 res = {}
                 for t, posDct in zip(vesPos.time[0], vesPos.data[0, :, 0]):

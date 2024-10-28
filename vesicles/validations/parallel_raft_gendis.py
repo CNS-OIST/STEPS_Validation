@@ -90,7 +90,11 @@ class VesicleRaftGenDis(unittest.TestCase):
 
         sim.toSave(raft_count, dt=DT)
 
-        with HDF5Handler(os.path.join(FILEDIR, 'data/raft_gendis_test')) as hdf:
+        filePrefix = os.path.join(FILEDIR, 'data/raft_gendis_test')
+        if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
+            os.remove(f'{filePrefix}.h5')
+
+        with HDF5Handler(filePrefix) as hdf:
             sim.toDB(hdf, f'raft_gendis')
             sim.newRun()
 
@@ -100,7 +104,7 @@ class VesicleRaftGenDis(unittest.TestCase):
             sim.run(INT)
 
         if MPI.rank == 0:
-            with HDF5Handler(os.path.join(FILEDIR, 'data/raft_gendis_test')) as hdf:
+            with HDF5Handler(filePrefix) as hdf:
                 raft_count, = hdf['raft_gendis'].results
 
                 def fact(x):

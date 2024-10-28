@@ -81,7 +81,11 @@ class VesicleExocytosis(unittest.TestCase):
 
         sim.toSave(ves_count, dt=DT)
 
-        with HDF5Handler(os.path.join(FILEDIR, 'data/exocytosis_test')) as hdf:
+        filePrefix = os.path.join(FILEDIR, 'data/exocytosis_test')
+        if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
+            os.remove(f'{filePrefix}.h5')
+
+        with HDF5Handler(filePrefix) as hdf:
             sim.toDB(hdf, 'exocytosis')
 
             for i in range(NITER):
@@ -95,7 +99,7 @@ class VesicleExocytosis(unittest.TestCase):
                 sim.run(INT)
 
         if MPI.rank == 0:
-            with HDF5Handler(os.path.join(FILEDIR, 'data/exocytosis_test')) as hdf:
+            with HDF5Handler(filePrefix) as hdf:
                 ves_count, = hdf['exocytosis'].results
 
                 tpnts = ves_count.time[0]

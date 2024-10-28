@@ -83,7 +83,11 @@ class VesicleRaftEndocytosis(unittest.TestCase):
 
         sim.toSave(raft1_count, dt=DT)
 
-        with HDF5Handler(os.path.join(FILEDIR, 'data/raftendocytosis_test')) as hdf:
+        filePrefix = os.path.join(FILEDIR, 'data/raftendocytosis_test')
+        if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
+            os.remove(f'{filePrefix}.h5')
+
+        with HDF5Handler(filePrefix) as hdf:
             sim.toDB(hdf, f'raftendocytosis')
 
             for i in range(0, NITER):
@@ -96,7 +100,7 @@ class VesicleRaftEndocytosis(unittest.TestCase):
                 sim.run(INT)
 
         if MPI.rank == 0:
-            with HDF5Handler(os.path.join(FILEDIR, 'data/raftendocytosis_test')) as hdf:
+            with HDF5Handler(filePrefix) as hdf:
                 raft1_count, = hdf['raftendocytosis'].results
                 tpnts = raft1_count.time[0]
                 mean_res = np.mean(raft1_count.data, axis=0).flatten()

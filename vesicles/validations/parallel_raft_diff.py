@@ -81,7 +81,11 @@ class VesicleRaftDiff(unittest.TestCase):
 
         sim.toSave(rafts, dt=DT)
 
-        with HDF5Handler(os.path.join(FILEDIR, 'data/raft_diff_test')) as hdf:
+        filePrefix = os.path.join(FILEDIR, 'data/raft_diff_test')
+        if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
+            os.remove(f'{filePrefix}.h5')
+
+        with HDF5Handler(filePrefix) as hdf:
             sim.toDB(hdf, f'raft_diff')
             for j in range(NITER):
                 if MPI.rank == 0:
@@ -94,7 +98,7 @@ class VesicleRaftDiff(unittest.TestCase):
         if MPI.rank == 0:
             tpnt_compare = range(3, 13, 2)
 
-            with HDF5Handler(os.path.join(FILEDIR, 'data/raft_diff_test')) as hdf:
+            with HDF5Handler(filePrefix) as hdf:
                 rafts, = hdf['raft_diff'].results
                 first = True
                 concs = []

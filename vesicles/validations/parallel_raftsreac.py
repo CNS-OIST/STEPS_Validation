@@ -142,7 +142,11 @@ class VesicleRaftSReac(unittest.TestCase):
 
         sim.toSave(rs_foi, rs_for, rs_soAA, rs_soAB, dt=DT)
 
-        with HDF5Handler(os.path.join(FILEDIR, 'data/raftsreac_test')) as hdf:
+        filePrefix = os.path.join(FILEDIR, 'data/raftsreac_test')
+        if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
+            os.remove(f'{filePrefix}.h5')
+
+        with HDF5Handler(filePrefix) as hdf:
             sim.toDB(hdf, f'raftsreac')
             for i in range(NITER_max):
                 if MPI.rank == 0:
@@ -167,7 +171,7 @@ class VesicleRaftSReac(unittest.TestCase):
                 sim.run(INT)
 
         if MPI.rank == 0:
-            with HDF5Handler(os.path.join(FILEDIR, 'data/raftsreac_test')) as hdf:
+            with HDF5Handler(filePrefix) as hdf:
                 rs_foi, rs_for, rs_soAA, rs_soAB = hdf['raftsreac'].results
                 tpnts = rs_for.time[0]
 

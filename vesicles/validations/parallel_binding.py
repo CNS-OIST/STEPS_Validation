@@ -87,7 +87,11 @@ class VesicleBinding(unittest.TestCase):
 
         sim.toSave(spec1_count, link1_count, dt=DT)
 
-        with HDF5Handler(os.path.join(FILEDIR, 'data/binding_test')) as hdf:
+        filePrefix = os.path.join(FILEDIR, 'data/binding_test')
+        if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
+            os.remove(f'{filePrefix}.h5')
+
+        with HDF5Handler(filePrefix) as hdf:
             sim.toDB(hdf, 'binding')
 
             for i in range(0, NITER_soA2):
@@ -103,7 +107,7 @@ class VesicleBinding(unittest.TestCase):
                 sim.run(ENDT)
 
         if MPI.rank == 0:
-            with HDF5Handler(os.path.join(FILEDIR, 'data/binding_test')) as hdf:
+            with HDF5Handler(filePrefix) as hdf:
                 spec1_count, link1_count = hdf['binding'].results
 
                 mean_res_soA2_spec1 = np.mean(spec1_count.data,
