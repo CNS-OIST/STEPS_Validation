@@ -85,7 +85,7 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
  - produces plot plots/binding.pdf, shown in Fig. 5e
  - data is recorded to data/binding.h5
 
-**raft_diff.py**
+**parallel_raft_diff.py**
  - runtime ~3 minutes on 2 cores
  - produces plot plots/raft\_diff.pdf, shown in Fig. 6a
  - data is recorded to data/raft_diff.h5
