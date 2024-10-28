@@ -90,7 +90,7 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
  - produces plot plots/raft\_diff.pdf, shown in Fig. 6a
  - data is recorded to data/raft_diff.h5
 
-**raftsreac.py**
+**parallel_raftsreac.py**
  - runtime ~10 minutes on 8 cores
  - produces plot plots/raftsreac.pdf, shown in Fig. 6b,c,e,f
  - data is recorded to data/raftsreac.h5
