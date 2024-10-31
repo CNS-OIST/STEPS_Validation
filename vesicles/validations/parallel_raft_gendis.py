@@ -136,7 +136,7 @@ class VesicleRaftGenDis(unittest.TestCase):
                 fig.savefig(os.path.join(FILEDIR, 'plots/raft_gendis.pdf'), dpi=300, bbox_inches='tight')
                 plt.close()
 
-                self.assertTrue(np.allclose(analy, steps_n_res, rtol=0.15, atol=0.005))
+                self.assertTrue(np.allclose(analy, steps_n_res, rtol=0.1, atol=0.002))
 
 ########################################################################
 
