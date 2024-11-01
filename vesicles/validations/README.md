@@ -13,7 +13,7 @@ We also give an indication of runtime because this varies considerably- some mod
 
 All models, unless stated, must be run on a minimum of two cores on a STEPS version 5.0 or above. For example, to run the 'vesreac' model on 4 cores:
  ```
- mpirun -n 4 python3 vesreac.py
+ mpirun -n 4 python3 parallel_vesreac.py
  ```
 
 Models whose script name starts with `parallel_` are part of the automatically discovered validation tests for the whole repository (see `README.md` at the root of the repository) but can also be run manually.
@@ -48,14 +48,26 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
  - data is recorded to data/path_test.h5
 
 **ghosh.py**
+ - This model compares the Ghosh algorithm to surface diffusion on a tetrahedral mesh
  - runtime ~10 minutes on 1 core (serial solver)
  - produces plots shown in Fig. 3e,f and Supplementary Fig. 2
  - data is recorded to data/ghosh.h5
+
+**ghosh_vessurf.py**
+ - This model validates the implementation of the Ghosh algorithm for surface diffusion on a vesicle
+ - runtime ~20 minutes on 2 cores
+ - produces in plots/ ghosh_vessurf_AD1.pdf, ghosh_vessurf_AD2.pdf, ghosh_vessurf_t1.pdf, ghosh_vessurf_t2.pdf, ghosh_vessurf_t3.pdf
+ - data is recorded to data/ghosh_vessurf.h5
 
 **parallel_exocytosis.py**
  - runtime ~1 minute on 2 cores 
  - produces plot plots/exocytosis.pdf, shown in Fig. 4a
  - data is recorded to data/exocytosis_test.h5
+
+**parallel_kissandrun.py**
+ - runtime ~4 minutes on 2 cores
+ - produces plot plots/kissandrun.pdf
+ - data is recorded to data/kissandrun_test.h5
 
 **parallel_raftendocytosis.py**
  - runtime ~2 minutes on 2 cores 

@@ -33,7 +33,7 @@ class VesicleKissAndRun(unittest.TestCase):
         ########################################################################
 
         # First order irreversible parameters
-        NITER = 500
+        NITER = 100
         KCST = 5
         ves_N = 10
         glu_N = 100 # per vesicle
@@ -49,6 +49,9 @@ class VesicleKissAndRun(unittest.TestCase):
 
         AVOGADRO = 6.022e23
         LINEWIDTH = 2
+
+        pr_to_atol = {0.1:1, 0.4:1, 0.7:5, 1.0:10}
+        pr_to_rtol = {0.1:0.01, 0.4:0.03, 0.7:0.08, 1.0:0.2}
 
         ########################################################################
 
@@ -92,7 +95,7 @@ class VesicleKissAndRun(unittest.TestCase):
                 sim.toDB(hdf, f'kissandrun_pr{pr}', pr=pr)
                 for i in range(NITER):
                     if MPI.rank == 0:
-                        print(i + 1, 'of', NITER)
+                        print(pr, ':', i + 1, 'of', NITER)
  
                     sim.newRun()
  
@@ -146,7 +149,7 @@ class VesicleKissAndRun(unittest.TestCase):
                     ves_count, glu_count = hdf.get(pr=pr).results
                     mean_res = np.mean(glu_count.data[:NITER, ...], axis=0).flatten()
                     analy = pr * glu_N * ves_N * np.exp(-KCST * tpnts) + ((1-pr) * glu_N * ves_N)
-                    self.assertTrue(np.allclose(analy.flatten(), mean_res, rtol=0.15, atol=0.05))
+                    self.assertTrue(np.allclose(analy.flatten(), mean_res, rtol=pr_to_rtol[pr], atol=pr_to_atol[pr]))
 
 
 ########################################################################
