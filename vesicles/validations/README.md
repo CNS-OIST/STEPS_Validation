@@ -13,8 +13,10 @@ We also give an indication of runtime because this varies considerably- some mod
 
 All models, unless stated, must be run on a minimum of two cores on a STEPS version 5.0 or above. For example, to run the 'vesreac' model on 4 cores:
  ```
- mpirun -n 4 python3 vesreac.py
+ mpirun -n 4 python3 parallel_vesreac.py
  ```
+
+Models whose script name starts with `parallel_` are part of the automatically discovered validation tests for the whole repository (see `README.md` at the root of the repository) but can also be run manually.
 
 NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly different from the published figure. 
 
@@ -40,35 +42,47 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
  - produces plot plots/path\_ind.pdf
  - data is recorded to data/path_ind.h5
 
-**path.py**
+**parallel_path.py**
  - runtime ~5 seconds on 2 cores 
  - produces plot plots/path.pdf, shown in Fig. 3d
- - data is recorded to data/path.h5
+ - data is recorded to data/path_test.h5
 
 **ghosh.py**
+ - This model compares the Ghosh algorithm to surface diffusion on a tetrahedral mesh
  - runtime ~10 minutes on 1 core (serial solver)
  - produces plots shown in Fig. 3e,f and Supplementary Fig. 2
  - data is recorded to data/ghosh.h5
 
-**exocytosis.py**
+**ghosh_vessurf.py**
+ - This model validates the implementation of the Ghosh algorithm for surface diffusion on a vesicle
+ - runtime ~20 minutes on 2 cores
+ - produces in plots/ ghosh_vessurf_AD1.pdf, ghosh_vessurf_AD2.pdf, ghosh_vessurf_t1.pdf, ghosh_vessurf_t2.pdf, ghosh_vessurf_t3.pdf
+ - data is recorded to data/ghosh_vessurf.h5
+
+**parallel_exocytosis.py**
  - runtime ~1 minute on 2 cores 
  - produces plot plots/exocytosis.pdf, shown in Fig. 4a
- - data is recorded to data/exocytosis.h5
+ - data is recorded to data/exocytosis_test.h5
 
-**raftendocytosis.py**
+**parallel_kissandrun.py**
+ - runtime ~4 minutes on 2 cores
+ - produces plot plots/kissandrun.pdf
+ - data is recorded to data/kissandrun_test.h5
+
+**parallel_raftendocytosis.py**
  - runtime ~2 minutes on 2 cores 
  - produces plot plots/raftendocytosis.pdf, shown in Fig. 4b
- - data is recorded to data/raftendocytosis.h5
+ - data is recorded to data/raftendocytosis_test.h5
 
-**endocytosis.py**
+**parallel_endocytosis.py**
  - runtime ~1 minute on 2 cores 
  - produces plot plots/endocytosis.pdf, shown in Fig. 4c,d
- - data is recorded to data/endocytosis.h5
+ - data is recorded to data/endocytosis_test.h5
 
-**vesreac.py**
+**parallel_vesreac.py**
  - runtime ~10 minutes on 4 cores
  - produces plot plots/vesreac.pdf, shown in Fig. 5a,b,c,d
- - data is recorded to data/vesreac.h5
+ - data is recorded to data/vesreac_test.h5
 
 **vesreac_error.py**
  - should not be run with mpirun, this script will itself spawn mpirun commands so that several simulations are run in parallel
@@ -80,25 +94,25 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
  - produces plot plots/vesreac_error_size.pdf, shown in Fig. 8b
  - produces plot plots/vesreac_error_size_foi.pdf, used as Supplementary Fig. 3
  
-**binding.py**
+**parallel_binding.py**
  - runtime ~1 minute on 2 cores
  - produces plot plots/binding.pdf, shown in Fig. 5e
- - data is recorded to data/binding.h5
+ - data is recorded to data/binding_test.h5
 
-**raft_diff.py**
+**parallel_raft_diff.py**
  - runtime ~3 minutes on 2 cores
  - produces plot plots/raft\_diff.pdf, shown in Fig. 6a
- - data is recorded to data/raft_diff.h5
+ - data is recorded to data/raft_diff_test.h5
 
-**raftsreac.py**
+**parallel_raftsreac.py**
  - runtime ~10 minutes on 8 cores
  - produces plot plots/raftsreac.pdf, shown in Fig. 6b,c,e,f
- - data is recorded to data/raftsreac.h5
+ - data is recorded to data/raftsreac_test.h5
 
-**raft_gendis.py**
+**parallel_raft_gendis.py**
  - runtime ~1 hour on 2 cores
  - produces plot plots/raft\_gendis.pdf, shown in Fig. 6d
- - data is recorded to data/raft_gendis.h5
+ - data is recorded to data/raft_gendis_test.h5
 
 **reducedvol.py**
  - runtime ~8 hours on 2 cores
