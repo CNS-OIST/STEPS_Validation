@@ -63,7 +63,7 @@ if __name__ == '__main__':
                         help='Timesteps at which rendering should end',
                         default=DEFAULT_TEND)
 
-    args = parser.parse_args()
+    args, unknown_args = parser.parse_known_args()
 
     if args.command in ['clean', 'all']:
         printStage('Clean all data')
@@ -87,6 +87,7 @@ if __name__ == '__main__':
         commonParams = [
             args.python, '-m', 'stepsblender.load', dataPath, '--blenderPath', args.blenderPath, '--render'
         ]
+        commonParams += unknown_args
 
         # Default render
         printStage('Run default rendering')
