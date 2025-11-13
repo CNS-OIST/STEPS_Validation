@@ -5,7 +5,7 @@
 ---------------------------------------------------------------------
 
 We provide only a brief description of the models here, but a full description can be found in:
-Iain Hepburn, Jules Lallouette, Weiliang Chen, Andrew R. Gallimore, Sarah Y. Nagasawa-Soeda, Erik De Schutter: Vesicle and reaction-diffusion hybrid modeling with STEPS. Communications Biology (in press)
+Iain Hepburn, Jules Lallouette, Weiliang Chen, Andrew R. Gallimore, Sarah Y. Nagasawa-Soeda, Erik De Schutter: Vesicle and reaction-diffusion hybrid modeling with STEPS. Communications Biology 7, 573 (2024). https://doi.org/10.1038/s42003-024-06276-5
 
 The output of these models is directly used in the figures, as indicated in the notes below. 
 
