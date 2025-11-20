@@ -24,8 +24,8 @@ FILEDIR = os.path.dirname(os.path.abspath(__file__))
 
 matplotlib.rcParams['font.sans-serif'] = "Arial"
 matplotlib.rcParams['font.family'] = "sans-serif"
+os.makedirs(os.path.join(FILEDIR, 'weights'), exist_ok=True)
 
-        
 class VesicleVesReacComp2(unittest.TestCase):
     def test_vesreac_comp2_n8(self):
         ########################################################################
