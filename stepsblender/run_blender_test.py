@@ -85,7 +85,8 @@ if __name__ == '__main__':
     if args.command in ['render', 'all']:
         dataPath = os.path.join(DATA_DIR, args.model)
         commonParams = [
-            args.python, '-m', 'stepsblender.load', dataPath, '--blenderPath', args.blenderPath, '--render'
+            args.python, '-m', 'stepsblender.load', dataPath, '--blenderPath', args.blenderPath,
+            '--render', '--ignore_version'
         ]
         commonParams += unknown_args
 
