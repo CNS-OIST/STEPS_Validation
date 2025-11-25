@@ -136,9 +136,9 @@ class VesicleVesReacWeight(unittest.TestCase):
         sim.comp.VESICLES()('surf').A_soAB.Count = spec_A_soAB_number_perves
         sim.run(INT)
 
-        partition = TetWeightPartition(mesh, prefix="weights/vsr", n_hosts=4, start_host=1)
+        partition = TetWeightPartition(mesh, prefix="weights/vsr", n_hosts=4, start_host=1, method='extents')
         if MPI.rank ==0: partition.printStats()
-        sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, tet_hosts=partition._tet_hosts, tri_hosts=partition._tri_hosts,)
+        sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, tet_hosts=partition._tet_hosts, tri_hosts=partition._tri_hosts)
 
 
         CONCA_soAA = (ves_N * spec_A_soAA_number_perves) / (AVOGADRO * comp.Vol * 1e3)
@@ -159,12 +159,12 @@ class VesicleVesReacWeight(unittest.TestCase):
 
         sim.toSave(rs_foi, rs_for, rs_soAA, rs_soAB, dt=DT)
 
-        filePrefix = os.path.join(FILEDIR, 'data/vesreac_test')
+        filePrefix = os.path.join(FILEDIR, 'data/vesreac_weight')
         if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
             os.remove(f'{filePrefix}.h5')
 
         with HDF5Handler(filePrefix) as hdf:
-            sim.toDB(hdf, f'vesreac')
+            sim.toDB(hdf, f'vesreac_weight')
             for i in range(NITER_max):
                 if MPI.rank == 0:
                     print(i, 'of', NITER_max)
@@ -189,7 +189,7 @@ class VesicleVesReacWeight(unittest.TestCase):
 
         if MPI.rank == 0:
             with HDF5Handler(filePrefix) as hdf:
-                rs_foi, rs_for, rs_soAA, rs_soAB = hdf['vesreac'].results
+                rs_foi, rs_for, rs_soAA, rs_soAB = hdf['vesreac_weight'].results
                 tpnts = rs_for.time[0]
 
                 plt.subplot(221)

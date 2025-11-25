@@ -55,7 +55,7 @@ class VesicleKissAndRun(unittest.TestCase):
 
         ########################################################################
 
-        filePrefix = os.path.join(FILEDIR, 'data/kissandrun_test')
+        filePrefix = os.path.join(FILEDIR, 'data/kissandrun')
         if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
             os.remove(f'{filePrefix}.h5')
 

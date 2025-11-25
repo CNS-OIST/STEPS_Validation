@@ -83,7 +83,7 @@ class VesicleRaftEndocytosis(unittest.TestCase):
 
         sim.toSave(raft1_count, dt=DT)
 
-        filePrefix = os.path.join(FILEDIR, 'data/raftendocytosis_test')
+        filePrefix = os.path.join(FILEDIR, 'data/raftendocytosis')
         if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
             os.remove(f'{filePrefix}.h5')
 

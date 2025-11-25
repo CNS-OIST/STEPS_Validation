@@ -17,6 +17,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import os
 import unittest
+from math import pi
 
 FILEDIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -87,7 +88,7 @@ class VesicleBinding(unittest.TestCase):
 
         sim.toSave(spec1_count, link1_count, dt=DT)
 
-        filePrefix = os.path.join(FILEDIR, 'data/binding_test')
+        filePrefix = os.path.join(FILEDIR, 'data/binding')
         if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
             os.remove(f'{filePrefix}.h5')
 

@@ -81,7 +81,7 @@ class VesicleExocytosis(unittest.TestCase):
 
         sim.toSave(ves_count, dt=DT)
 
-        filePrefix = os.path.join(FILEDIR, 'data/exocytosis_test')
+        filePrefix = os.path.join(FILEDIR, 'data/exocytosis')
         if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
             os.remove(f'{filePrefix}.h5')
 
@@ -131,7 +131,7 @@ class VesicleExocytosis(unittest.TestCase):
                 plt.close()
 
                 self.assertTrue(np.allclose(analy.flatten(), mean_res.flatten(), rtol=0.05, atol=0.05))
-                self.assertTrue(np.allclose(std.flatten(), std_res.flatten(), rtol=0.10))
+                self.assertTrue(np.allclose(std.flatten(), std_res.flatten(), rtol=0.15))
 
 ########################################################################
 

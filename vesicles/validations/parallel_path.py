@@ -104,7 +104,7 @@ class VesiclePath(unittest.TestCase):
 
         sim.toSave(vesPos, dt=DT)
 
-        filePrefix = os.path.join(FILEDIR, 'data/path_test')
+        filePrefix = os.path.join(FILEDIR, 'data/path')
         if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
             os.remove(f'{filePrefix}.h5')
 
