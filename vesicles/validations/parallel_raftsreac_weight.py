@@ -123,26 +123,27 @@ class VesicleRaftSReacWeight(unittest.TestCase):
 
         rng = RNG('mt19937', 512, 100)
         
-        sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
-        sim.autoWeightLog(period=0.1, prefix="weights/rsr", method='extents')
+        simt = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
+        simt.autoWeightLog(period=0.1, prefix="weights/rsr", method='extents')
         
-        sim.newRun()
+        simt.newRun()
 
-        sim.memb.raft.Count = raft_N
-        sim.memb.RAFTS().A_foi.Count = spec_A_foi_number_perraft
-        sim.memb.RAFTS().A_for.Count = spec_A_for_number_perraft
-        sim.memb.RAFTS().B_for.Count = 0
-        sim.comp.B_soAA.Count = spec_B_soAA_number_incomp
-        sim.memb.RAFTS().A_soAA.Count = spec_A_soAA_number_perraft
-        sim.comp.B_soAB.Count = spec_B_soAB_number_incomp
-        sim.memb.RAFTS().A_soAB.Count = spec_A_soAB_number_perraft
+        simt.memb.raft.Count = raft_N
+        simt.memb.RAFTS().A_foi.Count = spec_A_foi_number_perraft
+        simt.memb.RAFTS().A_for.Count = spec_A_for_number_perraft
+        simt.memb.RAFTS().B_for.Count = 0
+        simt.comp.B_soAA.Count = spec_B_soAA_number_incomp
+        simt.memb.RAFTS().A_soAA.Count = spec_A_soAA_number_perraft
+        simt.comp.B_soAB.Count = spec_B_soAB_number_incomp
+        simt.memb.RAFTS().A_soAB.Count = spec_A_soAB_number_perraft
 
-        sim.run(INT)
+        simt.run(INT)
         
         partition = TetWeightPartition(mesh, prefix="weights/rsr", n_hosts=8, start_host=1, method='extents')
         if MPI.rank ==0: partition.printStats()
         
         sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, tet_hosts=partition._tet_hosts, tri_hosts=partition._tri_hosts)
+
 
         CONCA_soAA = (raft_N * spec_A_soAA_number_perraft) / (AVOGADRO * comp.Vol *
                                                               1e3)

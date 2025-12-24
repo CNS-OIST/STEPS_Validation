@@ -112,7 +112,7 @@ class VesicleRaftSReac(unittest.TestCase):
 
         ########################################################################
 
-        mesh = TetMesh.LoadAbaqus(os.path.join(FILEDIR, 'meshes/sphere_0.5D_577tets.inp'), scale)
+        mesh = TetMesh.LoadAbaqus(os.path.join(FILEDIR, 'meshes/sphere_0.5D_2088tets.inp'), scale)
 
         with mesh:
             comp = Compartment.Create(mesh.tets, vsys)

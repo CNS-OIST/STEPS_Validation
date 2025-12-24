@@ -95,8 +95,11 @@ for vol_frac in [0.0, 0.2, 0.4, 0.6]:
             sim.setVesicleDT(DT / 10.0)
             
             v = sim.cyto.addVesicle(Ves1)
-            v.Pos = [0, 0, 0]
-
+            
+            dock_pos = np.array([0,0,0])
+            v.Pos = dock_pos
+            new_pos = v.Pos
+            print (np.linalg.norm(new_pos - dock_pos))
             if MPI.rank == 0:
                 print(i + 1, 'of', NITER)
 
