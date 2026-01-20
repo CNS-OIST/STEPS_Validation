@@ -86,9 +86,16 @@ if __name__ == '__main__':
         dataPath = os.path.join(DATA_DIR, args.model)
         commonParams = [
             args.python, '-m', 'stepsblender.load', dataPath, '--blenderPath', args.blenderPath,
-            '--render', '--ignore_version'
+            '--ignore_version'
         ]
         commonParams += unknown_args
+
+        # No rendering, just data loading
+        printStage('Run data loading only')
+        ret = subprocess.run(commonParams + ['--blenderArgs', '-b --background'])
+        ret.check_returncode()
+
+        commonParams += ['--render']
 
         # Default render
         printStage('Run default rendering')
