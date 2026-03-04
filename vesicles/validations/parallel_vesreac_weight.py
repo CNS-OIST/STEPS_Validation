@@ -19,6 +19,7 @@ import numpy as np
 import time
 import os
 import unittest
+import mpi4py
 
 FILEDIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -123,7 +124,6 @@ class VesicleVesReacWeight(unittest.TestCase):
         rng = RNG('mt19937', 512, 100)
         
         sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
-        sim.autoWeightLog(period=0.1, prefix="weights/vsr", method='extents')
         
         sim.newRun()
         sim.comp.ves.Count = ves_N
@@ -136,9 +136,12 @@ class VesicleVesReacWeight(unittest.TestCase):
         sim.comp.VESICLES()('surf').A_soAB.Count = spec_A_soAB_number_perves
         sim.run(INT)
 
-        partition = TetWeightPartition(mesh, prefix="weights/vsr", n_hosts=4, start_host=1, method='extents')
+        sim.saveTetWeights(prefix='weights/vsr')
+        mpi4py.MPI.COMM_WORLD.Barrier()  # Ensure file is written before proceeding
+
+        partition = TetWeightPartition(mesh, prefix='weights/vsr', solver='TetVesicle')
         if MPI.rank ==0: partition.printStats()
-        sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, tet_hosts=partition._tet_hosts, tri_hosts=partition._tri_hosts)
+        sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, partition)
 
 
         CONCA_soAA = (ves_N * spec_A_soAA_number_perves) / (AVOGADRO * comp.Vol * 1e3)

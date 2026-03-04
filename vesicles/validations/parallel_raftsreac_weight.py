@@ -19,6 +19,7 @@ import numpy as np
 import time
 import os
 import unittest
+import mpi4py
 
 FILEDIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -124,7 +125,6 @@ class VesicleRaftSReacWeight(unittest.TestCase):
         rng = RNG('mt19937', 512, 100)
         
         simt = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, check=False)
-        simt.autoWeightLog(period=0.1, prefix="weights/rsr", method='extents')
         
         simt.newRun()
 
@@ -138,11 +138,14 @@ class VesicleRaftSReacWeight(unittest.TestCase):
         simt.memb.RAFTS().A_soAB.Count = spec_A_soAB_number_perraft
 
         simt.run(INT)
-        
-        partition = TetWeightPartition(mesh, prefix="weights/rsr", n_hosts=8, start_host=1, method='extents')
+
+        simt.saveTetWeights(prefix='weights/rsr')
+        mpi4py.MPI.COMM_WORLD.Barrier()  # Ensure file is written before proceeding
+
+        partition = TetWeightPartition(mesh, prefix='weights/rsr', solver='TetVesicle')
         if MPI.rank ==0: partition.printStats()
         
-        sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, tet_hosts=partition._tet_hosts, tri_hosts=partition._tri_hosts)
+        sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, partition)
 
 
         CONCA_soAA = (raft_N * spec_A_soAA_number_perraft) / (AVOGADRO * comp.Vol *
