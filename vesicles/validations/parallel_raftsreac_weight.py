@@ -139,10 +139,10 @@ class VesicleRaftSReacWeight(unittest.TestCase):
 
         simt.run(INT)
 
-        simt.saveTetWeights(prefix='weights/rsr')
+        simt.saveTetWeights(prefix=os.path.join(FILEDIR, 'weights/rsr'))
         mpi4py.MPI.COMM_WORLD.Barrier()  # Ensure file is written before proceeding
 
-        partition = TetWeightPartition(mesh, prefix='weights/rsr', solver='TetVesicle')
+        partition = TetWeightPartition(mesh, prefix=os.path.join(FILEDIR, 'weights/rsr'), solver='TetVesicle')
         if MPI.rank ==0: partition.printStats()
         
         sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, partition)

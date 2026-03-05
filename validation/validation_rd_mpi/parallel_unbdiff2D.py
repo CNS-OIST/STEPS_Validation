@@ -42,11 +42,9 @@ import datetime
 import os
 import mpi4py.MPI
 
-import tol_funcs
+from . import tol_funcs
 
 FILEDIR = os.path.dirname(os.path.abspath(__file__))
-
-time_report = True
 
 ########################################################################
 
@@ -118,7 +116,7 @@ class TestRDMPIUnbdiff2D(unittest.TestCase):
         res_count = rs.TRIS(patch_tris).X.Count
         res_conc = 1e-12 * rs.TRIS(patch_tris).X.Count / rs.TRIS(patch_tris).Area
 
-        if not time_report: sim.toSave(res_count, res_conc, dt=DT)
+        sim.toSave(res_count, res_conc, dt=DT)
 
         btime=time.time()
         for j in range(NITER):
@@ -128,11 +126,6 @@ class TestRDMPIUnbdiff2D(unittest.TestCase):
             sim.patch.X.Clamped = True
 
             sim.run(INT)
-
-        if time_report:
-            if MPI.rank == 0:
-                print ('Sim.run took', time.time()-btime)
-            exit()
             
         itermeans_count = numpy.mean(res_count.data, axis = 0)
         itermeans_conc = numpy.mean(res_conc.data, axis = 0)

@@ -153,10 +153,10 @@ class VesicleVesReacComp2(unittest.TestCase):
             
         sim.run(INT)
 
-        sim.saveTetWeights(prefix='weights/vsr_comp2')
+        sim.saveTetWeights(prefix=os.path.join(FILEDIR, 'weights/vsr_comp2'))
         mpi4py.MPI.COMM_WORLD.Barrier()  # Ensure file is written before proceeding
         
-        partition = TetWeightPartition(mesh, prefix='weights/vsr_comp2', solver='TetVesicle')
+        partition = TetWeightPartition(mesh, prefix=os.path.join(FILEDIR, 'weights/vsr_comp2'), solver='TetVesicle')
         if MPI.rank ==0: partition.printStats()
         sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, partition)
 

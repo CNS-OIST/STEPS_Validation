@@ -136,10 +136,10 @@ class VesicleVesReacWeight(unittest.TestCase):
         sim.comp.VESICLES()('surf').A_soAB.Count = spec_A_soAB_number_perves
         sim.run(INT)
 
-        sim.saveTetWeights(prefix='weights/vsr')
+        sim.saveTetWeights(prefix=os.path.join(FILEDIR, 'weights/vsr'))
         mpi4py.MPI.COMM_WORLD.Barrier()  # Ensure file is written before proceeding
 
-        partition = TetWeightPartition(mesh, prefix='weights/vsr', solver='TetVesicle')
+        partition = TetWeightPartition(mesh, prefix=os.path.join(FILEDIR, 'weights/vsr'), solver='TetVesicle')
         if MPI.rank ==0: partition.printStats()
         
         sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, partition)

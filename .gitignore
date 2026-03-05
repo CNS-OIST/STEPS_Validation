@@ -21,3 +21,9 @@ vesicles/validations/data/*
 
 stepsblender/data**
 
+CMakeFiles/
+CTestTestfile.cmake
+DartConfiguration.tcl
+Makefile
+Testing/
+cmake_install.cmake

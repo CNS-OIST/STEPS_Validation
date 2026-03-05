@@ -43,7 +43,7 @@ import os
 import mpi4py.MPI
 import sys
 
-import tol_funcs
+from . import tol_funcs
 
 FILEDIR = os.path.dirname(os.path.abspath(__file__))
 os.makedirs(os.path.join(FILEDIR, 'weights'), exist_ok=True)
@@ -76,7 +76,7 @@ class TestRDMPIUnbdiff2D(unittest.TestCase):
 
     ########################################################################
 
-    def test_unbdiff2D(self):
+    def test_unbdiff2D_weight(self):
         "Surface Diffusion - Unbounded, point source (Tetopsplit)"
         
         mdl = Model()
@@ -120,10 +120,10 @@ class TestRDMPIUnbdiff2D(unittest.TestCase):
 
         sim.run(INT)
 
-        sim.saveTetWeights(prefix='weights/unb2d')
+        sim.saveTetWeights(prefix=os.path.join(FILEDIR, 'weights/unb2d'))
         mpi4py.MPI.COMM_WORLD.Barrier()  # Ensure file is written before proceeding
 
-        partition = TetWeightPartition(mesh, prefix='weights/unb2d', solver = 'TetOpSplit')
+        partition = TetWeightPartition(mesh, prefix=os.path.join(FILEDIR, 'weights/unb2d'), solver = 'TetOpSplit')
         if MPI.rank ==0: partition.printStats()
         
         sim = Simulation('TetOpSplit', mdl, mesh, rng, MPI.EF_NONE, partition)
