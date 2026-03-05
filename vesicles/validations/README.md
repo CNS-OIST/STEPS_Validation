@@ -92,7 +92,7 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
 **parallel_vesreac_weight.py**
  - extends the vesreac test with weighted partitioning
  - runtime ~10 minutes on 4 cores
- - produces plot plots/vesreac_weight.pdf, shown in Fig. 5a,b,c,d
+ - produces plot plots/vesreac_weight.pdf
  - data is recorded to data/vesreac_weight.h5
  
 **vesreac_error.py**
