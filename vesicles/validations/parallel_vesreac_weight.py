@@ -141,8 +141,8 @@ class VesicleVesReacWeight(unittest.TestCase):
 
         partition = TetWeightPartition(mesh, prefix='weights/vsr', solver='TetVesicle')
         if MPI.rank ==0: partition.printStats()
+        
         sim = Simulation('TetVesicle', model, mesh, rng, MPI.EF_NONE, partition)
-
 
         CONCA_soAA = (ves_N * spec_A_soAA_number_perves) / (AVOGADRO * comp.Vol * 1e3)
         CONCB_soAA = spec_B_soAA_number_incomp / (AVOGADRO * comp.Vol * 1e3)

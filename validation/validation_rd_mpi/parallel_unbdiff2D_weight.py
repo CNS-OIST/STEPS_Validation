@@ -48,8 +48,6 @@ import tol_funcs
 FILEDIR = os.path.dirname(os.path.abspath(__file__))
 os.makedirs(os.path.join(FILEDIR, 'weights'), exist_ok=True)
 
-time_report = True
-
 ########################################################################
 
 class TestRDMPIUnbdiff2D(unittest.TestCase):
@@ -114,7 +112,6 @@ class TestRDMPIUnbdiff2D(unittest.TestCase):
         part = LinearMeshPartition(mesh, MPI.nhosts, 1, 1)
 
         sim = Simulation('TetOpSplit', mdl, mesh, rng, MPI.EF_NONE, part)
-        sim.autoWeightLog(period=0.1, prefix="weights/unb2d", method='extents')
 
         sim.newRun()
 
@@ -122,19 +119,21 @@ class TestRDMPIUnbdiff2D(unittest.TestCase):
         sim.patch.X.Clamped = True
 
         sim.run(INT)
-            
 
-        partition = TetWeightPartition(mesh, prefix="weights/unb2d", n_hosts=8, start_host=0, method='extents')
+        sim.saveTetWeights(prefix='weights/unb2d')
+        mpi4py.MPI.COMM_WORLD.Barrier()  # Ensure file is written before proceeding
+
+        partition = TetWeightPartition(mesh, prefix='weights/unb2d', solver = 'TetOpSplit')
         if MPI.rank ==0: partition.printStats()
         
-        sim = Simulation('TetOpSplit', mdl, mesh, rng, MPI.EF_NONE, tet_hosts=partition._tet_hosts, tri_hosts=partition._tri_hosts)
+        sim = Simulation('TetOpSplit', mdl, mesh, rng, MPI.EF_NONE, partition)
 
         rs = ResultSelector(sim)
 
         res_count = rs.TRIS(patch_tris).X.Count
         res_conc = 1e-12 * rs.TRIS(patch_tris).X.Count / rs.TRIS(patch_tris).Area
 
-        if not time_report: sim.toSave(res_count, res_conc, dt=DT)
+        sim.toSave(res_count, res_conc, dt=DT)
     
         btime=time.time()
         for j in range(NITER):
@@ -144,11 +143,6 @@ class TestRDMPIUnbdiff2D(unittest.TestCase):
             sim.patch.X.Clamped = True
 
             sim.run(INT)
-        
-        if time_report:
-            if MPI.rank == 0:
-                print ('Sim.run took', time.time()-btime)
-            sys.exit()
         
         itermeans_count = numpy.mean(res_count.data, axis = 0)
         itermeans_conc = numpy.mean(res_conc.data, axis = 0)
