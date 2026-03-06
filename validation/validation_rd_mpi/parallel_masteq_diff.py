@@ -10,6 +10,9 @@ import numpy
 import time 
 import unittest
 
+import steps
+steps.setAPI('API_1')
+
 import steps.model as smod
 import steps.geom as sgeom
 import steps.rng as srng

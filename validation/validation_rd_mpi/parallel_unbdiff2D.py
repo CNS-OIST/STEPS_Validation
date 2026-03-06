@@ -27,7 +27,8 @@
 
 import unittest
 
-import steps.interface
+import steps
+steps.setAPI('API_2')
 
 from steps.model import *
 from steps.sim import *
@@ -43,8 +44,9 @@ import os
 import mpi4py.MPI
 
 from . import tol_funcs
+from ..config import Configuration
 
-FILEDIR = os.path.dirname(os.path.abspath(__file__))
+configuration = Configuration(__file__)
 
 ########################################################################
 
@@ -86,7 +88,7 @@ class TestRDMPIUnbdiff2D(unittest.TestCase):
 
         ########################################################################
 
-        mesh = TetMesh.Load(FILEDIR+'/meshes/'+MESHFILE)
+        mesh = TetMesh.Load(configuration.mesh_path(MESHFILE))
 
         with mesh:
             comp = Compartment.Create(mesh.tets)

@@ -5,6 +5,9 @@
 
 ########################################################################
 
+import steps
+steps.setAPI('API_1')
+
 import steps.model as smod
 import steps.geom as sgeom
 import steps.rng as srng
@@ -38,8 +41,7 @@ class TestKisilevich(unittest.TestCase):
         DCSTB = DCSTA
         RCST = 100000.0e6
 
-        #NA0 = 100000    # 1000000            # Initial number of A molecules
-        NA0 = 1000
+        NA0 = 1000       # Initial number of A molecules
         NB0 = NA0        # Initial number of B molecules
 
         SAMPLE = 1686

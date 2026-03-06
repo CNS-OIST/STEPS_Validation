@@ -5,6 +5,9 @@
 
 ########################################################################
 
+import steps
+steps.setAPI('API_1')
+
 import steps.model as smodel
 import steps.mpi
 import steps.mpi.solver as solvmod

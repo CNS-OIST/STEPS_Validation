@@ -27,7 +27,8 @@
 
 import unittest
 
-import steps.interface
+import steps
+steps.setAPI('API_2')
 
 from steps.model import *
 from steps.sim import *
@@ -44,9 +45,11 @@ import mpi4py.MPI
 import sys
 
 from . import tol_funcs
+from ..config import Configuration
 
-FILEDIR = os.path.dirname(os.path.abspath(__file__))
-os.makedirs(os.path.join(FILEDIR, 'weights'), exist_ok=True)
+configuration = Configuration(__file__)
+
+os.makedirs(configuration.weights_dir, exist_ok=True)
 
 ########################################################################
 
@@ -88,7 +91,7 @@ class TestRDMPIUnbdiff2D(unittest.TestCase):
 
         ########################################################################
 
-        mesh = TetMesh.Load(FILEDIR+'/meshes/'+MESHFILE)
+        mesh = TetMesh.Load(configuration.mesh_path(MESHFILE))
 
         with mesh:
             comp = Compartment.Create(mesh.tets)
@@ -120,10 +123,10 @@ class TestRDMPIUnbdiff2D(unittest.TestCase):
 
         sim.run(INT)
 
-        sim.saveTetWeights(prefix=os.path.join(FILEDIR, 'weights/unb2d'))
+        sim.saveTetWeights(prefix=configuration.weights_path('unb2d'))
         mpi4py.MPI.COMM_WORLD.Barrier()  # Ensure file is written before proceeding
 
-        partition = TetWeightPartition(mesh, prefix=os.path.join(FILEDIR, 'weights/unb2d'), solver = 'TetOpSplit')
+        partition = TetWeightPartition(mesh, prefix=configuration.weights_path('unb2d'), solver = 'TetOpSplit')
         if MPI.rank ==0: partition.printStats()
         
         sim = Simulation('TetOpSplit', mdl, mesh, rng, MPI.EF_NONE, partition)
