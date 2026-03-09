@@ -140,7 +140,7 @@ class VesicleVesReac(unittest.TestCase):
 
         sim.toSave(rs_foi, rs_for, rs_soAA, rs_soAB, dt=DT)
 
-        filePrefix = os.path.join(FILEDIR, 'data/vesreac_test')
+        filePrefix = os.path.join(FILEDIR, 'data/vesreac')
         if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
             os.remove(f'{filePrefix}.h5')
 

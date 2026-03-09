@@ -11,6 +11,9 @@ import numpy
 import time
 import unittest
 
+import steps
+steps.setAPI('API_1')
+
 try:
     from steps.geom import UNKNOWN_TET
 except ImportError:

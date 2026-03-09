@@ -81,7 +81,7 @@ class VesicleRaftDiff(unittest.TestCase):
 
         sim.toSave(rafts, dt=DT)
 
-        filePrefix = os.path.join(FILEDIR, 'data/raft_diff_test')
+        filePrefix = os.path.join(FILEDIR, 'data/raft_diff')
         if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
             os.remove(f'{filePrefix}.h5')
 

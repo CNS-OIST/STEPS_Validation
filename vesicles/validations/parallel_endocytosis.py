@@ -88,7 +88,7 @@ class VesicleEndocytosis(unittest.TestCase):
 
         sim.toSave(ves_count, spec_count, dt=DT)
 
-        filePrefix = os.path.join(FILEDIR, 'data/endocytosis_test')
+        filePrefix = os.path.join(FILEDIR, 'data/endocytosis')
         if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
             os.remove(f'{filePrefix}.h5')
 

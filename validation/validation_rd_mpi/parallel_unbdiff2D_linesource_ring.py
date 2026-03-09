@@ -4,6 +4,8 @@
 # Use for parallel TetOpSplit validation.
 
 ########################################################################
+import steps
+steps.setAPI('API_1')
 
 import steps.model as smodel
 import steps.mpi

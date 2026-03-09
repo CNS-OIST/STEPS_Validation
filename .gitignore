@@ -9,8 +9,21 @@
 !**base_pics**
 **.DS_Store
 /vesicles/visualization/activetransport/images/**
-vesicles/validations/data/reducedvol.h5
-vesicles/validations/data/*_test.h5
+
+validation/validation_rd_mpi/weights/
+vesicles/validations/weights/
+
+vesicles/validations/data/*
+!vesicles/validations/data/rothman.h5
+!vesicles/validations/data/vesreac_error.zip
+!vesicles/validations/data/vesreac_immobile_reactants.zip
+!vesicles/validations/data/vesreac_slow_diff_spec.zip
 
 stepsblender/data**
 
+CMakeFiles/
+CTestTestfile.cmake
+DartConfiguration.tcl
+Makefile
+Testing/
+cmake_install.cmake

@@ -112,7 +112,7 @@ class VesicleRaftSReac(unittest.TestCase):
 
         ########################################################################
 
-        mesh = TetMesh.LoadAbaqus(os.path.join(FILEDIR, 'meshes/sphere_0.5D_577tets.inp'), scale)
+        mesh = TetMesh.LoadAbaqus(os.path.join(FILEDIR, 'meshes/sphere_0.5D_2088tets.inp'), scale)
 
         with mesh:
             comp = Compartment.Create(mesh.tets, vsys)
@@ -142,7 +142,7 @@ class VesicleRaftSReac(unittest.TestCase):
 
         sim.toSave(rs_foi, rs_for, rs_soAA, rs_soAB, dt=DT)
 
-        filePrefix = os.path.join(FILEDIR, 'data/raftsreac_test')
+        filePrefix = os.path.join(FILEDIR, 'data/raftsreac')
         if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
             os.remove(f'{filePrefix}.h5')
 

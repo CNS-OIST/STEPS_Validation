@@ -20,11 +20,24 @@ class Configuration(object):
         validation_dir = 'validation_rd' + self.suffix
         return osp.join(this_dir, validation_dir, 'meshes')
 
+    @property
+    def weights_dir(self):
+        """Get absolute path to the `validation_rd/weights` directory
+        """
+        this_dir = osp.dirname(osp.abspath(__file__))
+        validation_dir = 'validation_rd' + self.suffix
+        return osp.join(this_dir, validation_dir, 'weights')
+        
     def mesh_path(self, file):
         """Get absolute path to the mesh file given in parameter
         """
         return osp.join(self.meshes_dir, file)
 
+    def weights_path(self, file):
+        """Get absolute path to the weights file given in parameter
+        """
+        return osp.join(self.weights_dir, file)
+        
     def path(self, file):
         """Get absolute path from a path relative to the `./validation` directory
         """
