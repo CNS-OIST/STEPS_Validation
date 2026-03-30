@@ -96,10 +96,11 @@ rng = RNG('mt19937', 512, 1234)
 sim = Simulation('TetVesicle', mdl, mesh, rng, False)
 
 path = sim.addVesiclePath('path1')
-points = [path.addPoint(tet.center) for tet in comp1.tets[0:40:10]]
-for i, orig in enumerate(points):
-    if i + 1 < len(points):
-        path.addBranch(orig, {points[i + 1]: 0.5})
+pts = [[mesh.bbox.min.x, 0, 0], [mesh.bbox.max.x, 0, 0]]
+points = [path.addPoint(p) for p in pts]
+for source, dest in zip(points, points[1:]):
+    path.addEdge(source, dest, allow_binding=True)
+path.addVesicle(V1, 1e-7, binding_rate=100)
 
 rs = ResultSelector(sim)
 
