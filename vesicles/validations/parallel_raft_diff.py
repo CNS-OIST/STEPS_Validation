@@ -82,10 +82,8 @@ class VesicleRaftDiff(unittest.TestCase):
         sim.toSave(rafts, dt=DT)
 
         filePrefix = os.path.join(FILEDIR, 'data/raft_diff')
-        if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
-            os.remove(f'{filePrefix}.h5')
 
-        with HDF5Handler(filePrefix) as hdf:
+        with HDF5Handler(filePrefix, mode='w') as hdf:
             sim.toDB(hdf, f'raft_diff')
             for j in range(NITER):
                 if MPI.rank == 0:
@@ -140,8 +138,8 @@ class VesicleRaftDiff(unittest.TestCase):
                         plt.plot(bins_pos * 1e6, det_conc, 'k-', linewidth=3)
                         plt.plot(bins_pos * 1e6, bin_concs, 'r--', linewidth=3)
 
-                plt.xlabel('Distance from origin ($\mu$m)')
-                plt.ylabel('Raft density ($\mu$m$^{-2}$)')
+                plt.xlabel(r'Distance from origin ($\mu$m)')
+                plt.ylabel(r'Raft density ($\mu$m$^{-2}$)')
                 plt.legend()
                 plt.xlim(0, 5)
                 fig = plt.gcf()

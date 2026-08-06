@@ -77,7 +77,7 @@ arc_values = CustomResults(sim, [float])
 
 sim.toSave(arc_values)
 
-with HDF5Handler('data/ghosh') as hdf:
+with HDF5Handler('data/ghosh', mode='w') as hdf:
     sim.toDB(hdf, 'ghosh')
 
     # Not saved to file

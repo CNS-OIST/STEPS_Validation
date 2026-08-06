@@ -105,10 +105,8 @@ class VesiclePath(unittest.TestCase):
         sim.toSave(vesPos, dt=DT)
 
         filePrefix = os.path.join(FILEDIR, 'data/path')
-        if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
-            os.remove(f'{filePrefix}.h5')
 
-        with HDF5Handler(filePrefix) as hdf:
+        with HDF5Handler(filePrefix, mode='w') as hdf:
             sim.toDB(hdf, f'path')
 
             sim.newRun()
@@ -202,7 +200,7 @@ class VesiclePath(unittest.TestCase):
                             label2 = True
 
                 plt.xlabel('Time (s)')
-                plt.ylabel('z position ($\mu$m)')
+                plt.ylabel(r'z position ($\mu$m)')
                 plt.legend()
                 plt.ylim(0, 0.65)
                 fig = plt.gcf()

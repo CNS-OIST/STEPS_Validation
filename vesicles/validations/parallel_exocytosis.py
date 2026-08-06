@@ -82,10 +82,8 @@ class VesicleExocytosis(unittest.TestCase):
         sim.toSave(ves_count, dt=DT)
 
         filePrefix = os.path.join(FILEDIR, 'data/exocytosis')
-        if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
-            os.remove(f'{filePrefix}.h5')
 
-        with HDF5Handler(filePrefix) as hdf:
+        with HDF5Handler(filePrefix, mode='w') as hdf:
             sim.toDB(hdf, 'exocytosis')
 
             for i in range(NITER):

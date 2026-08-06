@@ -105,7 +105,7 @@ positions = rs.VESICLES(recordVes).Pos
 
 sim.toSave(positions, dt=DT)
 
-with HDF5Handler('data/rothman') as hdf:
+with HDF5Handler('data/rothman', mode='w') as hdf:
     group = sim.toDB(hdf, f'rothman', starting_pos=starting_pos,
                      mito_vol_frac=mito_vol_frac)
     if MPI.rank == 0:

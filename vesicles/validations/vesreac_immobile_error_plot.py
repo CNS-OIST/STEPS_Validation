@@ -60,7 +60,7 @@ if __name__ == '__main__':
         plt.plot(allVesDt, threshold, 'r', linewidth=2)
         plt.xscale('log')
         plt.ylabel('Tetrahedron radius $r_{tet}$ [nm]')
-        plt.xlabel('Vesicle $\Delta t$ [s]')
+        plt.xlabel(r'Vesicle $\Delta t$ [s]')
         plt.ylim([min(tetsizes*1e9), max(tetsizes*1e9)])
         plt.colorbar(c, label='Error on estimated rate [%]', extend='max')
         fig.set_size_inches(3.7, 3.4)

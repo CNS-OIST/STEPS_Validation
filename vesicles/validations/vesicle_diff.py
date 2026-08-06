@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 import mpi4py.MPI
 import numpy as np
 import time
+import os
 
 matplotlib.rcParams['font.sans-serif'] = "Arial"
 matplotlib.rcParams['font.family'] = "sans-serif"
@@ -24,6 +25,11 @@ ves_diam = 50e-9
 v_color = {0.0: 'yellow', 0.2: 'red', 0.4: 'blue', 0.6: 'green'}
 
 adjuster = 0
+
+
+filePrefix = 'data/vesicle_diff'
+if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
+    os.remove(f'{filePrefix}.h5')
 
 # These are the excluded volumes
 for vol_frac in [0.0, 0.2, 0.4, 0.6]:
@@ -87,7 +93,7 @@ for vol_frac in [0.0, 0.2, 0.4, 0.6]:
 
     sim.toSave(vesPos, dt=DT)
 
-    with HDF5Handler('data/vesicle_diff') as hdf:
+    with HDF5Handler(filePrefix) as hdf:
         sim.toDB(hdf, f'vesicle_diff_volfrac{vol_frac}', vol_frac=vol_frac)
         for i in range(NITER):
             sim.newRun()
@@ -100,13 +106,14 @@ for vol_frac in [0.0, 0.2, 0.4, 0.6]:
             v.Pos = dock_pos
             new_pos = v.Pos
             print (np.linalg.norm(new_pos - dock_pos))
+            
             if MPI.rank == 0:
                 print(i + 1, 'of', NITER)
 
             sim.run(T_END)
 
 if MPI.rank == 0:
-    with HDF5Handler('data/vesicle_diff') as hdf:
+    with HDF5Handler(filePrefix) as hdf:
         for vol_frac in sorted(hdf.parameters['vol_frac']):
             vesPos, = hdf.get(vol_frac=vol_frac).results
 
@@ -125,7 +132,7 @@ if MPI.rank == 0:
             adjuster += DT / 10.0
 
     plt.xlabel('Time (s)')
-    plt.ylabel('<r$^2$> ($\mu$$m^2$)')
+    plt.ylabel(r'<r$^2$> ($\mu$$m^2$)')
     plt.legend()
     fig = plt.gcf()
     fig.set_size_inches(3.4, 3.4)

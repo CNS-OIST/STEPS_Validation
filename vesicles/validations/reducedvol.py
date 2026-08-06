@@ -78,7 +78,7 @@ def runtest():
     tet_volred = rs.TETS().ReducedVol
     sim.toSave(spec_count, tet_volred, dt=DT)
 
-    with HDF5Handler('data/reducedvol') as hdf:
+    with HDF5Handler('data/reducedvol', mode='w') as hdf:
         sim.toDB(hdf, f'reducedvol')
         sim.newRun()
 

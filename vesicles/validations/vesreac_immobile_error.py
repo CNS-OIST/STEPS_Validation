@@ -60,8 +60,8 @@ def run_sim(hdfPath, meshPath, DCST, specDcst, vesDt, nr):
 
     sim.toSave(concs, dt=DT)
 
-    with HDF5Handler(hdfPath) as hdf:
-        sim.toDB(hdf, f'sim_{vesDt}_{DCST}_{len(mesh.tets)}', 
+    with HDF5Handler(hdfPath, mode='w') as hdf:
+        sim.toDB(hdf, f'sim_{vesDt}_{DCST}_{len(mesh.tets)}',
             vesDt=vesDt, volfact=volfact, voltet=voltet, ntets=len(mesh.tets), DCST=DCST, **params
         )
         sim.newRun()

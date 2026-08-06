@@ -95,7 +95,7 @@ def run_sim(hdfPath, ntets, D, NITER, use_foi, use_soAA, seed):
 
     sim.toSave(rs_foi, rs_soAA, dt=DT)
 
-    with HDF5Handler(hdfPath) as hdf:
+    with HDF5Handler(hdfPath, mode='w') as hdf:
         sim.toDB(hdf, f'sim_{ntets}_{D}',
                  ntets=ntets, D=D, spec_A_foi_N=spec_A_foi_N, CONCA_soAA=CONCA_soAA, KCST_foi=KCST_foi,
                  KCST_soAA=KCST_soAA, use_foi=use_foi, use_soAA=use_soAA

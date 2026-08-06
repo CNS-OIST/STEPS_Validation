@@ -69,9 +69,9 @@ if __name__ == '__main__':
     so_error_D0 = [allErrors[(ntet, 0, 'soAA')] for ntet in allNtets]
     so_error_D0_1 = [allErrors[(ntet, 0.1, 'soAA')] for ntet in allNtets]
     plt.plot(sizetets, so_error_D0,
-             label='D=0$\mu m^2s^{-1}$', linewidth=lw, marker='o')
+             label=r'D=0$\mu m^2s^{-1}$', linewidth=lw, marker='o')
     plt.plot(sizetets, so_error_D0_1,
-             label='D=0.1$\mu m^2s^{-1}$', linewidth=lw, marker='o')
+             label=r'D=0.1$\mu m^2s^{-1}$', linewidth=lw, marker='o')
     plt.legend()
     plt.xlim(0, 130)
     plt.gca().invert_xaxis()

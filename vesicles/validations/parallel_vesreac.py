@@ -141,10 +141,8 @@ class VesicleVesReac(unittest.TestCase):
         sim.toSave(rs_foi, rs_for, rs_soAA, rs_soAB, dt=DT)
 
         filePrefix = os.path.join(FILEDIR, 'data/vesreac')
-        if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
-            os.remove(f'{filePrefix}.h5')
 
-        with HDF5Handler(filePrefix) as hdf:
+        with HDF5Handler(filePrefix, mode='w') as hdf:
             sim.toDB(hdf, f'vesreac')
             for i in range(NITER_max):
                 if MPI.rank == 0:
@@ -224,7 +222,7 @@ class VesicleVesReac(unittest.TestCase):
                          label='STEPS B',
                          linewidth=LINEWIDTH)
                 plt.legend()
-                plt.ylabel('Concentration ($\mu$M)')
+                plt.ylabel(r'Concentration ($\mu$M)')
                 plt.xlabel('Time (s)')
 
                 plt.subplot(223)
@@ -249,7 +247,7 @@ class VesicleVesReac(unittest.TestCase):
                          label='STEPS, cytosolic species')
                 plt.legend()
                 plt.xlabel('Time (s)')
-                plt.ylabel('Inverse concentration (1/$\mu$M)')
+                plt.ylabel(r'Inverse concentration (1/$\mu$M)')
 
                 plt.subplot(224)
                 mean_res_soAB = np.mean(rs_soAB.data[:NITER_soAB, ...], axis=0)

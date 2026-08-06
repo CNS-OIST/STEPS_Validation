@@ -22,7 +22,7 @@ with HDF5Handler('data/rothman') as hdf:
 
     plt.plot(tpnts, ves_mean[1:] / (tpnts * 6), linewidth=3)
     plt.xlabel('Time (s)')
-    plt.ylabel('D ($\mu$$m^2$/s)')
+    plt.ylabel(r'D ($\mu$$m^2$/s)')
     plt.ylim(0, 0.06)
     fig = plt.gcf()
     fig.set_size_inches(3.4, 3.4)

@@ -89,10 +89,8 @@ class VesicleBinding(unittest.TestCase):
         sim.toSave(spec1_count, link1_count, dt=DT)
 
         filePrefix = os.path.join(FILEDIR, 'data/binding')
-        if MPI.rank == 0 and os.path.isfile(f'{filePrefix}.h5'):
-            os.remove(f'{filePrefix}.h5')
 
-        with HDF5Handler(filePrefix) as hdf:
+        with HDF5Handler(filePrefix, mode='w') as hdf:
             sim.toDB(hdf, 'binding')
 
             for i in range(0, NITER_soA2):
@@ -123,7 +121,7 @@ class VesicleBinding(unittest.TestCase):
                 plt.plot(tpnts, lineA * 1e-6, 'k-', label='analytical', linewidth=3)
                 plt.plot(tpnts, invA * 1e-6, 'c--', label='STEPS', linewidth=3)
                 plt.xlabel('Time (s)')
-                plt.ylabel('Inverse concentration (1/$\mu$M)')
+                plt.ylabel(r'Inverse concentration (1/$\mu$M)')
                 plt.legend()
                 fig = plt.gcf()
                 fig.set_size_inches(3.4, 3.4)
