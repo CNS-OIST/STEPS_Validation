@@ -81,6 +81,7 @@ NOTE: sometimes due to stochastic effects, a reproduced figure may look slightly
 **parallel_vesreac.py**
  - runtime ~10 minutes on 4 cores
  - produces plot plots/vesreac.pdf, shown in Fig. 5a,b,c,d
+ - produces plot plots/vesreac_fill.pdf, validating production of a vesicle inner species by a pseudo first order vesicle surface reaction.
  - data is recorded to data/vesreac.h5
 
 **parallel_vesreac_comp2.py**
