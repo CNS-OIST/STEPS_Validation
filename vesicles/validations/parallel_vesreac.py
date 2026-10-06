@@ -66,9 +66,15 @@ class VesicleVesReac(unittest.TestCase):
         spec_A_soAB_number_perves = 50
         spec_B_soAB_number_incomp = ves_N * spec_A_soAB_number_perves / n_soAB
 
+        # Vesicle filling parameters: a surface 'pump' that produces an inner
+        # species at a pseudo-first order rate (pump is unchanged)
+        NITER_fill = 1000
+        KCST_fill = 100.0
+        spec_pump_fill_number_perves = 5
+
         ########################################################################
 
-        NITER_max = max([NITER_foi, NITER_for, NITER_soAA, NITER_soAB])
+        NITER_max = max([NITER_foi, NITER_for, NITER_soAA, NITER_soAB, NITER_fill])
         INT = 0.21
         DT = 0.01
 
@@ -87,6 +93,7 @@ class VesicleVesReac(unittest.TestCase):
             ves = Vesicle.Create(ves_diam, 1e-12, vssys)
             A_foi, A_for, B_for, A_soAA, B_soAA, C_soAA, A_soAB, B_soAB, C_soAB = Species.Create(
             )
+            pump, glu = Species.Create()
 
             with vssys:
                 # First order irreversible
@@ -104,6 +111,10 @@ class VesicleVesReac(unittest.TestCase):
                 # Second order irreversible AB
                 B_soAB.o + A_soAB.v > r[1] > C_soAB.v
                 r[1].K = KCST_soAB
+
+                # Vesicle filling
+                pump.v > r[1] > pump.v + glu.i
+                r[1].K = KCST_fill
 
             with vsys:
                 Diffusion(B_soAA, 10e-12)
@@ -137,8 +148,9 @@ class VesicleVesReac(unittest.TestCase):
             'surf').A_soAA.Count / volfact << rs.comp.B_soAA.Conc << rs.comp.ves(
                 'surf').C_soAA.Count / volfact
         rs_soAB = rs.comp.ves('surf').A_soAB.Count / volfact << rs.comp.B_soAB.Conc
+        rs_fill = rs.comp.ves('in').glu.Count << rs.comp.ves('surf').pump.Count
 
-        sim.toSave(rs_foi, rs_for, rs_soAA, rs_soAB, dt=DT)
+        sim.toSave(rs_foi, rs_for, rs_soAA, rs_soAB, rs_fill, dt=DT)
 
         filePrefix = os.path.join(FILEDIR, 'data/vesreac')
 
@@ -163,12 +175,15 @@ class VesicleVesReac(unittest.TestCase):
                 if i < NITER_soAB:
                     sim.comp.B_soAB.Count = spec_B_soAB_number_incomp
                     sim.comp.VESICLES()('surf').A_soAB.Count = spec_A_soAB_number_perves
+                if i < NITER_fill:
+                    sim.comp.VESICLES()('surf').pump.Count = spec_pump_fill_number_perves
+                    sim.comp.VESICLES()('in').glu.Count = 0
 
                 sim.run(INT)
 
         if MPI.rank == 0:
             with HDF5Handler(filePrefix) as hdf:
-                rs_foi, rs_for, rs_soAA, rs_soAB = hdf['vesreac'].results
+                rs_foi, rs_for, rs_soAA, rs_soAB, rs_fill = hdf['vesreac'].results
                 tpnts = rs_for.time[0]
 
                 plt.subplot(221)
@@ -270,6 +285,38 @@ class VesicleVesReac(unittest.TestCase):
                 fig.savefig(os.path.join(FILEDIR, "plots/vesreac.pdf"), dpi=300, bbox_inches='tight')
                 plt.close()
 
+                # Vesicle filling: inner species produced at a constant total rate
+                # ves_N * pump * K, so counts are Poisson with mean = variance.
+                mean_res_fill = np.mean(rs_fill.data[:NITER_fill, ...], axis=0)
+                std_res_fill = np.std(rs_fill.data[:NITER_fill, :, 0], axis=0)
+
+                pump_N = ves_N * spec_pump_fill_number_perves
+                analy_fill = pump_N * KCST_fill * tpnts
+                std_fill = np.sqrt(analy_fill)
+
+                plt.errorbar(tpnts,
+                             analy_fill,
+                             std_fill,
+                             color='black',
+                             label='analytical',
+                             linewidth=LINEWIDTH)
+                plt.errorbar(tpnts + DT / 5.0,
+                             mean_res_fill[:, 0],
+                             std_res_fill,
+                             color='cyan',
+                             ls='--',
+                             label='STEPS',
+                             linewidth=LINEWIDTH)
+                plt.legend()
+                plt.ylabel('Inner vesicle molecule count')
+                plt.xlabel('Time (s)')
+                fig = plt.gcf()
+                fig.set_size_inches(3.5, 3.5)
+                fig.savefig(os.path.join(FILEDIR, "plots/vesreac_fill.pdf"),
+                            dpi=300,
+                            bbox_inches='tight')
+                plt.close()
+
                 self.assertTrue(np.allclose(analy, mean_res_foi, rtol=0.05, atol=0.1))
                 self.assertTrue(np.allclose(std, std_res_foi, rtol=0.05, atol=0.1))
 
@@ -280,6 +327,10 @@ class VesicleVesReac(unittest.TestCase):
                 self.assertTrue(np.allclose(lineA, invB, rtol=0.05, atol=0.01))
 
                 self.assertTrue(np.allclose(lineAB_soAB, lnBA_soAB, rtol=0.05, atol=0.01))
+
+                self.assertTrue(np.allclose(analy_fill, mean_res_fill[:, 0], rtol=0.05, atol=0.1))
+                self.assertTrue(np.allclose(std_fill, std_res_fill, rtol=0.05, atol=0.1))
+                self.assertTrue(np.all(rs_fill.data[:NITER_fill, :, 1] == pump_N))
 
 ########################################################################
 
