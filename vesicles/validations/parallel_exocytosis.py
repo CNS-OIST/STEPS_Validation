@@ -55,8 +55,8 @@ class VesicleExocytosis(unittest.TestCase):
 
         with model:
             spec = Species.Create()
-            vesicle = Vesicle.Create(vesicle_diam, DCST)
             vssys = VesicleSurfaceSystem.Create()
+            vesicle = Vesicle.Create(vesicle_diam, DCST, vssys)
 
             with vssys:
                 exo = Exocytosis.Create(KCST)
